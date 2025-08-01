@@ -1,0 +1,17 @@
+{
+  "node": {
+    "40005c34b31524315249ee3d44ecfed49966a8e96d": {
+      "workers": {
+        "app/page": {
+          "moduleId": "[project]/.next-internal/server/app/page/actions.js { ACTIONS_MODULE0 => \"[project]/src/ai/flows/log-analyzer-flow.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false
+        }
+      },
+      "layer": {
+        "app/page": "action-browser"
+      }
+    }
+  },
+  "edge": {},
+  "encryptionKey": "WM8WfjjsSMLOP4c3TI0lni73/nTr+EmZod6GWvLD7HM="
+}

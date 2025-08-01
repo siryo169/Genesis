@@ -39,9 +39,23 @@ class Settings(BaseSettings):
         case_sensitive = True
 
     def validate_paths(self):
-        """Create necessary directories if they don't exist."""
+        """Create necessary directories if they don't exist with proper permissions."""
+        import stat
+        import os
+        
         for path in [self.INPUT_DIR, self.OUTPUT_DIR, self.INVALID_DIR, self.NOT_TABULAR_DIR, self.LOGS_DIR]:
-            Path(path).mkdir(parents=True, exist_ok=True)
+            path_obj = Path(path)
+            path_obj.mkdir(parents=True, exist_ok=True)
+            
+            # Set full permissions for Windows
+            try:
+                if os.name == 'nt':  # Windows
+                    os.chmod(path_obj, stat.S_IRWXU | stat.S_IRWXG | stat.S_IRWXO)
+                    print(f"Set permissions for {path}")
+                else:  # Unix/Linux/Mac
+                    os.chmod(path_obj, 0o777)
+            except OSError as e:
+                print(f"Warning: Could not set permissions for {path}: {e}")
 
     def validate_api_key(self):
         """Validate that required API keys are present."""

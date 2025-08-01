@@ -104,18 +104,24 @@ class CSVHandler(FileSystemEventHandler):
         """
         self.orchestrator = orchestrator
         self.processing = set()  # Track files being processed
+    
+    def process_file(self, file_path):
+        """
+        Process a single file (CSV or archive). Used by events and initial scan.
         
-    def on_created(self, event):
-        """Handle file creation events."""
-        if event.is_directory:
+        Args:
+            file_path: Path object of the file to process
+        """
+        if file_path.name.endswith('.uploading'):
             return
-        file_path = Path(event.src_path)
+            
+        # Small delay to avoid permission issues while OS is moving/writing the file
+        time.sleep(0.5)
+            
         ext = file_path.suffix.lower()
         supported_exts = {'.csv', '.tsv', '.psv', '.dat', '.data', '.txt', '.xls', '.xlsx', '.ods'}
         archive_exts = {'.zip', '.7z', '.tar', '.gz', '.tgz', '.tar.gz', '.rar'}
-        # Ignore files with .uploading extension
-        if file_path.name.endswith('.uploading'):
-            return
+        
         if ext in supported_exts:
             # ENQUEUE: Create PipelineRun if not exists
             db = self.orchestrator.db_session_factory()
@@ -125,10 +131,16 @@ class CSVHandler(FileSystemEventHandler):
                     run = PipelineRun(filename=file_path.name, status=Status.ENQUEUED.value)
                     db.add(run)
                     db.commit()
-                logger.info(f"Enqueued file: {file_path}")
+                    logger.info(f"Enqueued file: {file_path}")
+                else:
+                    logger.info(f"File {file_path.name} already exists in database, skipping")
+            except Exception as e:
+                logger.error(f"Database error while enqueueing {file_path.name}: {e}")
+                db.rollback()
             finally:
                 db.close()
             return
+            
         # Handle archives (recursive, multi-format)
         if ext in archive_exts:
             logger.info(f"Archive detected: {file_path}. Extracting...")
@@ -159,7 +171,12 @@ class CSVHandler(FileSystemEventHandler):
                         run = PipelineRun(filename=dest_path.name, status=Status.ENQUEUED.value)
                         db.add(run)
                         db.commit()
-                    logger.info(f"Enqueued extracted file: {dest_path.name}")
+                        logger.info(f"Enqueued extracted file: {dest_path.name}")
+                    else:
+                        logger.info(f"Extracted file {dest_path.name} already exists in database, skipping")
+                except Exception as e:
+                    logger.error(f"Database error while enqueueing extracted file {dest_path.name}: {e}")
+                    db.rollback()
                 finally:
                     db.close()
             # Clean up extracted subdirectory
@@ -171,8 +188,16 @@ class CSVHandler(FileSystemEventHandler):
                 logger.warning(f"Failed to clean up extracted directory {extract_dir}: {e}")
             logger.info(f"Finished extracting and enqueuing files from archive: {file_path}")
             return
+            
         # Unsupported extension
         logger.error(f"Unsupported file extension for {file_path}. Only .csv, .txt, .zip, .7z, .tar, .gz, .tgz, .tar.gz, and .rar are supported.")
+        
+    def on_created(self, event):
+        """Handle file creation events."""
+        if event.is_directory:
+            return
+        file_path = Path(event.src_path)
+        self.process_file(file_path)
 
     def on_moved(self, event):
         """Handle file moved/renamed events (e.g., .uploading -> .csv, .zip, .7z, etc.)."""
@@ -182,69 +207,7 @@ class CSVHandler(FileSystemEventHandler):
         dest_path = Path(event.dest_path)
         if src_path.name.endswith('.uploading') and not dest_path.name.endswith('.uploading'):
             logger.info(f"Upload finished: {dest_path.name}")
-        ext = dest_path.suffix.lower()
-        supported_exts = {'.csv', '.tsv', '.psv', '.dat', '.data', '.txt', '.xls', '.xlsx', '.ods'}
-        archive_exts = {'.zip', '.7z', '.tar', '.gz', '.tgz', '.tar.gz', '.rar'}
-        # Ignore files with .uploading extension
-        if dest_path.name.endswith('.uploading'):
-            return
-        # Process tabular files
-        if ext in supported_exts:
-            db = self.orchestrator.db_session_factory()
-            try:
-                existing = db.query(PipelineRun).filter_by(filename=dest_path.name).first()
-                if not existing:
-                    run = PipelineRun(filename=dest_path.name, status=Status.ENQUEUED.value)
-                    db.add(run)
-                    db.commit()
-                logger.info(f"Enqueued file (moved): {dest_path}")
-            finally:
-                db.close()
-            return
-        # Process archives (same logic as on_created)
-        if ext in archive_exts:
-            logger.info(f"Archive detected (moved): {dest_path}. Extracting...")
-            extract_dir = dest_path.parent / f"extracted_{dest_path.stem}"
-            extract_dir.mkdir(exist_ok=True)
-            extracted_files = extract_archive_recursive(dest_path, extract_dir, logger=logger)
-            for ef in extracted_files:
-                ef_ext = ef.suffix.lower()
-                if ef_ext in archive_exts or ef.name.endswith('.tar.gz') or ef.name.endswith('.tgz'):
-                    logger.info(f"Skipped nested archive: {ef}")
-                    continue
-                inbound_dir = Path(settings.INPUT_DIR).resolve()
-                ef_abs = ef.resolve()
-                dest_path = inbound_dir / ef_abs.name
-                if dest_path.exists():
-                    logger.warning(f"File {dest_path} already exists in inbound dir. Skipping move of {ef_abs}.")
-                    continue
-                try:
-                    ef_abs.replace(dest_path)
-                    logger.info(f"Moved extracted file {ef_abs} to inbound dir as {dest_path}")
-                except Exception as e:
-                    logger.error(f"Failed to move {ef_abs} to {dest_path}: {e}")
-                    continue
-                db = self.orchestrator.db_session_factory()
-                try:
-                    existing = db.query(PipelineRun).filter_by(filename=dest_path.name).first()
-                    if not existing:
-                        run = PipelineRun(filename=dest_path.name, status=Status.ENQUEUED.value)
-                        db.add(run)
-                        db.commit()
-                    logger.info(f"Enqueued extracted file (moved): {dest_path.name}")
-                finally:
-                    db.close()
-            # Clean up extracted subdirectory
-            try:
-                import shutil
-                shutil.rmtree(extract_dir)
-                logger.info(f"Cleaned up extracted directory {extract_dir}")
-            except Exception as e:
-                logger.warning(f"Failed to clean up extracted directory {extract_dir}: {e}")
-            logger.info(f"Finished extracting and enqueuing files from archive (moved): {dest_path}")
-            return
-        # Unsupported extension
-        logger.error(f"Unsupported file extension for {dest_path}. Only .csv, .txt, .zip, .7z, .tar, .gz, .tgz, .tar.gz, and .rar are supported.")
+        self.process_file(dest_path)
 
 class FileWatcher:
     def __init__(self, orchestrator: PipelineOrchestrator):
@@ -264,6 +227,15 @@ class FileWatcher:
             input_path.mkdir(parents=True, exist_ok=True)
             
             handler = CSVHandler(self.orchestrator)
+            
+            # Scan inicial de archivos existentes en el directorio
+            logger.info(f"Performing initial scan of directory: {input_path}")
+            for file_path in input_path.iterdir():
+                if file_path.is_file() and not file_path.name.endswith('.uploading'):
+                    logger.info(f"Processing existing file: {file_path.name}")
+                    handler.process_file(file_path)
+            logger.info("Initial scan completed")
+            
             self.observer.schedule(handler, str(input_path), recursive=False)
             self.observer.start()
             

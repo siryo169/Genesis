@@ -120,7 +120,12 @@ def init_db(db_url='sqlite:///pipeline.db'):
     """Initialize the database and create tables."""
     engine = create_engine(
         db_url,
-        connect_args={"check_same_thread": False} # Required for SQLite
+        connect_args={"check_same_thread": False}, # Required for SQLite
+        pool_size=20,  # Increase pool size
+        max_overflow=30,  # Increase max overflow
+        pool_timeout=60,  # Increase timeout
+        pool_recycle=3600,  # Recycle connections every hour
+        pool_pre_ping=True  # Validate connections before use
     )
     Base.metadata.create_all(engine)
     SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)

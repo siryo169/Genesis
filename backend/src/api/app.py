@@ -72,6 +72,7 @@ watcher = FileWatcher(orchestrator)
 clients = set()
 
 def queue_processor(orchestrator):
+    """Process files from the queue with improved error handling and connection management."""
     while True:
         db_session = SessionLocal()
         try:
@@ -79,15 +80,24 @@ def queue_processor(orchestrator):
             run = db_session.query(PipelineRun).filter_by(status='enqueued').order_by(PipelineRun.insertion_date.asc()).first()
             if run:
                 try:
+                    logger.info(f"Processing file from queue: {run.filename}")
                     orchestrator.process_file(Path(settings.INPUT_DIR) / run.filename, db_session)
                 except Exception as e:
-                    logger.error(f"Error processing file {run.filename} from queue: {e}")
-            time.sleep(1)  # Poll interval
+                    logger.error(f"Error processing file {run.filename} from queue: {e}", exc_info=True)
+            else:
+                # No files to process, sleep longer to reduce DB queries
+                time.sleep(5)
+                continue
+            
+            time.sleep(1)  # Brief pause between files
         except Exception as e:
-            logger.error(f"Queue processor error: {e}")
-            time.sleep(5)
+            logger.error(f"Queue processor error: {e}", exc_info=True)
+            time.sleep(10)  # Longer sleep on errors
         finally:
-            db_session.close()
+            try:
+                db_session.close()
+            except Exception as close_error:
+                logger.error(f"Error closing DB session in queue processor: {close_error}")
 
 @app.on_event("startup")
 async def startup_event():
@@ -433,6 +443,8 @@ def map_backend_status_to_frontend(backend_status: str) -> str:
 async def pipeline_ws(websocket: WebSocket):
     await websocket.accept()
     clients.add(websocket)
+    logger.info(f"WebSocket client connected. Total clients: {len(clients)}")
+    
     try:
         while True:
             # Create a fresh database session for each query to ensure latest data
@@ -449,19 +461,22 @@ async def pipeline_ws(websocket: WebSocket):
                 # Sanitize data before sending
                 sanitized_data = sanitize_for_json(data)
                 await websocket.send_json(sanitized_data)
+            except Exception as db_error:
+                logger.error(f"Database error in WebSocket: {db_error}")
+                # Don't break the loop for DB errors, just wait and retry
             finally:
                 # Always close the session after each query
                 db_session.close()
             
-            await asyncio.sleep(2)  # Adjust frequency as needed
+            await asyncio.sleep(5)  # Reduced frequency to 5 seconds to reduce DB load
     except WebSocketDisconnect:
-        clients.remove(websocket)
+        logger.info("WebSocket client disconnected normally")
     except Exception as e:
         logger.error(f"WebSocket error: {e}", exc_info=True)
-        clients.remove(websocket)
     finally:
-        # Ensure websocket is removed from clients if not already done
+        # Ensure websocket is removed from clients
         clients.discard(websocket)
+        logger.info(f"WebSocket client removed. Total clients: {len(clients)}")
 
 @app.post("/api/upload")
 async def upload_file(file: UploadFile = File(...)):

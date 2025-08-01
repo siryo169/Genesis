@@ -1,7 +1,9 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
+# Environment files
+/venv_3.11.13
 # dependencies
-/node_modules
+/frontend/node_modules
 /.pnp
 .pnp.*
 .yarn/*

@@ -4,7 +4,7 @@ File Watcher module for monitoring the input directory for new CSV files.
 import time
 from pathlib import Path
 import logging
-from watchdog.observers import Observer
+from watchdog.observers.polling import PollingObserver as Observer
 from watchdog.events import FileSystemEventHandler
 from .orchestrator import PipelineOrchestrator
 from ..config.settings import settings
@@ -12,6 +12,7 @@ from ..models.pipeline_run import PipelineRun, init_db
 from .orchestrator import Status
 import tarfile
 import gzip
+
 try:
     import py7zr
 except ImportError:

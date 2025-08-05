@@ -8,9 +8,149 @@ from typing import Tuple, List, Any
 from collections import Counter
 import chardet
 import pandas as pd
+import json
 from . import tabular_utils
 
 logger = logging.getLogger(__name__)
+
+def load_known_headers() -> dict:
+    """Load known headers from JSON file."""
+    try:
+        known_headers_path = Path(__file__).parent / "known_headers.json"
+        with open(known_headers_path, 'r', encoding='utf-8') as f:
+            return json.load(f)
+    except Exception as e:
+        logger.error(f"Failed to load known headers: {e}")
+        return {}
+
+def extract_headers_from_first_line(first_line: str) -> List[str]:
+    """
+    Extract headers from the first line by trying different delimiters.
+    Returns the split that produces the most columns (minimum 2).
+    """
+    if not first_line.strip():
+        return []
+    
+    # Try different delimiters and pick the one that gives most columns
+    delimiters = [',', ';', '\t', '|', ':']
+    best_headers = []
+    max_columns = 1
+    
+    for delimiter in delimiters:
+        try:
+            headers = [h.strip().strip('"\'') for h in first_line.split(delimiter)]
+            # Only consider if we get at least 2 columns and more than current best
+            if len(headers) >= 2 and len(headers) > max_columns:
+                max_columns = len(headers)
+                best_headers = headers
+        except Exception:
+            continue
+    
+    return best_headers
+
+def detect_separators_from_headers(first_line: str) -> Tuple[List[str], str]:
+    """
+    Detect the separators used between columns in the first line.
+    Returns a tuple of (separators_list, best_delimiter).
+    
+    For example, if the line is "name,email,phone", it returns ([",", ","], ",")
+    """
+    if not first_line.strip():
+        return [], ""
+    
+    # Try different delimiters and pick the one that gives most columns
+    delimiters = [',', ';', '\t', '|', ':']
+    best_delimiter = ""
+    max_columns = 1
+    
+    for delimiter in delimiters:
+        try:
+            headers = [h.strip().strip('"\'') for h in first_line.split(delimiter)]
+            # Only consider if we get at least 2 columns and more than current best
+            if len(headers) >= 2 and len(headers) > max_columns:
+                max_columns = len(headers)
+                best_delimiter = delimiter
+        except Exception:
+            continue
+    
+    # Generate separators list: for N columns, there are N-1 separators
+    if best_delimiter and max_columns > 1:
+        separators_list = [best_delimiter] * (max_columns - 1)
+        return separators_list, best_delimiter
+    
+    return [], ""
+
+def calculate_known_headers_percentage(headers: List[str], known_headers: dict) -> Tuple[float, int, int, List[str], List[bool]]:
+    """
+    Calculate the percentage of headers that match known headers (non-conflictive).
+    Also returns the standardized headers list with known header keys replacing original headers,
+    and a list indicating which headers need normalization.
+    
+    Args:
+        headers: List of headers from the file
+        known_headers: Dictionary of known headers with variants
+    
+    Returns:
+        Tuple of (percentage, known_count, total_count, standardized_headers, normalize_flags)
+    """
+    if not headers:
+        return 0.0, 0, 0, [], []
+    
+    # Normalize input headers
+    normalized_headers = normalize_headers(headers)
+    
+    # Create lookup dictionaries for known headers and their normalize flags (non-conflictive only)
+    known_lookup = {}
+    normalize_lookup = {}
+    
+    for header_key, header_info in known_headers.items():
+        # Skip conflictive headers
+        if header_info.get('conflictive', False):
+            continue
+        
+        # Get normalize flag (default False)
+        should_normalize = header_info.get('normalize', False)
+        
+        # Add the main header (normalized from key)
+        main_header = normalize_headers([header_key])[0] if header_key else ""
+        if main_header:
+            known_lookup[main_header] = header_key
+            normalize_lookup[main_header] = should_normalize
+        
+        # Add all variants (normalized)
+        variants = header_info.get('variants', [])
+        for variant in variants:
+            normalized_variant = normalize_headers([variant])[0] if variant else ""
+            if normalized_variant:
+                known_lookup[normalized_variant] = header_key
+                normalize_lookup[normalized_variant] = should_normalize
+    
+    # Count matches and create standardized headers list with normalize flags
+    known_count = 0
+    matched_headers = []
+    standardized_headers = []
+    normalize_flags = []
+    
+    for i, header in enumerate(normalized_headers):
+        original_header = headers[i]  # Keep reference to original
+        if header in known_lookup:
+            known_count += 1
+            known_header_key = known_lookup[header]
+            should_normalize = normalize_lookup[header]
+            standardized_headers.append(known_header_key)  # Use known header key
+            normalize_flags.append(should_normalize)  # Add normalize flag
+            matched_headers.append(f"{original_header} -> {known_header_key} (normalize: {should_normalize})")
+        else:
+            standardized_headers.append(original_header)  # Keep original if not found
+            normalize_flags.append(False)  # Unknown headers always False
+    
+    total_count = len(normalized_headers)
+    percentage = (known_count / total_count) * 100 if total_count > 0 else 0.0
+    
+    if matched_headers:
+        logger.info(f"Matched headers: {', '.join(matched_headers)}")
+    
+    return percentage, known_count, total_count, standardized_headers, normalize_flags
 
 def has_content(df: pd.DataFrame) -> Tuple[bool, str]:
     """Check if a DataFrame has any content beyond empty strings or whitespace."""
@@ -118,7 +258,7 @@ def robust_read_lines(file_path: Path, logger) -> Tuple[List[str], Any, str, int
 
 def classify_file(file_path: str | Path) -> dict:
     """
-    Classifies the file: determines encoding, file size, row count, and tabular status.
+    Classifies the file: determines encoding, file size, row count, tabular status, and known headers percentage.
 
     Tabular detection logic (for text files):
     - For each sampled line, counts the occurrences of each of the common delimiters [',', ';', '|', '\\t', ':'].
@@ -126,10 +266,14 @@ def classify_file(file_path: str | Path) -> dict:
     - The file is considered tabular if at least 10% of lines have the exact same delimiter-count dictionary (i.e., the same delimiters with the same counts).
     - If this threshold is not met for any delimiter-count dictionary, the file is not considered tabular.
 
-    Returns a dict with keys: encoding, file_size, row_count, is_tabular, error_message, warnings
+    Returns a dict with keys: encoding, file_size, row_count, is_tabular, error_message, warnings, known_per,
+    standardized_headers, normalize_flags, known_columns_count, total_columns_count, separators_list
     """
     file_path = Path(file_path)
     warnings = []
+    
+    # Load known headers once
+    known_headers = load_known_headers()
     
     # Check for supported file types first
     supported_exts = {'.csv', '.tsv', '.psv', '.dat', '.data', '.txt', '.xls', '.xlsx', '.ods'}
@@ -141,7 +285,8 @@ def classify_file(file_path: str | Path) -> dict:
         return {
             'encoding': None, 'file_size': None, 'row_count': 0, 'is_tabular': False,
             'error_message': f'Unsupported file type: {file_path.suffix}',
-            'warnings': [f'Unsupported file type: {file_path.suffix}']
+            'warnings': [f'Unsupported file type: {file_path.suffix}'],
+            'known_per': 0, 'known_columns_count': 0, 'total_columns_count': 0, 'separators_list': []
         }
         
     # Check for empty file by size, which is a reliable first check.
@@ -151,15 +296,19 @@ def classify_file(file_path: str | Path) -> dict:
             return {
                 'encoding': None, 'file_size': 0, 'row_count': 0, 'is_tabular': False,
                 'error_message': 'File is empty',
-                'warnings': ['File is empty']
+                'warnings': ['File is empty'],
+                'known_per': 0, 'known_columns_count': 0, 'total_columns_count': 0, 'separators_list': []
             }
     except FileNotFoundError:
         return {
             'encoding': None, 'file_size': None, 'row_count': 0, 'is_tabular': False,
             'error_message': 'File not found',
-            'warnings': ['File not found']
+            'warnings': ['File not found'],
+            'known_per': 0, 'known_columns_count': 0, 'total_columns_count': 0, 'separators_list': []
         }
-
+    
+    known_per = 0
+    
     # Branch logic based on file type for more accurate content validation
     if file_ext in excel_exts:
         try:
@@ -169,8 +318,26 @@ def classify_file(file_path: str | Path) -> dict:
             if not has_data:
                 return {
                     'encoding': None, 'file_size': file_size, 'row_count': 0, 'is_tabular': False,
-                    'error_message': reason, 'warnings': [reason]
+                    'error_message': reason, 'warnings': [reason], 'known_per': 0
                 }
+
+            # Calculate known headers percentage for Excel files
+            standardized_headers = []
+            normalize_flags = []
+            known_columns_count = 0
+            total_columns_count = 0
+            separators_list = []
+            
+            if not df.empty and len(df.columns) > 0:
+                headers = [str(col) for col in df.columns]
+                known_per, known_columns_count, total_columns_count, standardized_headers, normalize_flags = calculate_known_headers_percentage(headers, known_headers)
+                logger.info(f"Excel file standardized headers: {standardized_headers}")
+                logger.info(f"Excel file normalize flags: {normalize_flags}")
+                
+                # For Excel files, separators are not applicable (columns are already separated)
+                # But we can represent it as empty separators between columns
+                if total_columns_count > 1:
+                    separators_list = [""] * (total_columns_count - 1)  # Empty separators for Excel
 
             # If it has data, it's considered tabular by definition.
             return {
@@ -179,7 +346,13 @@ def classify_file(file_path: str | Path) -> dict:
                 'row_count': len(df),
                 'is_tabular': True,
                 'error_message': None,
-                'warnings': warnings
+                'warnings': warnings,
+                'known_per': known_per,
+                'standardized_headers': standardized_headers,
+                'normalize_flags': normalize_flags,
+                'known_columns_count': known_columns_count,
+                'total_columns_count': total_columns_count,
+                'separators_list': separators_list
             }
         except Exception as e:
             error_msg = f"Failed to read and validate Excel file content: {e}"
@@ -187,7 +360,8 @@ def classify_file(file_path: str | Path) -> dict:
             warnings.append(error_msg)
             return {
                 'encoding': None, 'file_size': file_size, 'row_count': 0, 'is_tabular': False,
-                'error_message': error_msg, 'warnings': warnings
+                'error_message': error_msg, 'warnings': warnings, 'known_per': 0,
+                'known_columns_count': 0, 'total_columns_count': 0, 'separators_list': []
             }
 
     # For text files, use the existing line-based logic
@@ -201,7 +375,8 @@ def classify_file(file_path: str | Path) -> dict:
             'row_count': row_count,
             'is_tabular': False,
             'error_message': 'File is empty or only contains whitespace',
-            'warnings': warnings
+            'warnings': warnings,
+            'known_per': 0, 'known_columns_count': 0, 'total_columns_count': 0, 'separators_list': []
         }
 
     if error_message:
@@ -211,10 +386,37 @@ def classify_file(file_path: str | Path) -> dict:
             'row_count': row_count,
             'is_tabular': False,
             'error_message': error_message,
-            'warnings': warnings
+            'warnings': warnings,
+            'known_per': 0, 'known_columns_count': 0, 'total_columns_count': 0, 'separators_list': []
         }
     # Heuristic: is tabular?
     try:
+        # Initialize variables for column and separator information
+        standardized_headers = []
+        normalize_flags = []
+        known_columns_count = 0
+        total_columns_count = 0
+        separators_list = []
+        
+        # Extract headers for known headers calculation from first non-empty line
+        first_line = ""
+        for line in lines:
+            if line.strip():
+                first_line = line.strip()
+                break
+        
+        if first_line:
+            headers = extract_headers_from_first_line(first_line)
+            separators_list, best_delimiter = detect_separators_from_headers(first_line)
+            
+            if headers:
+                known_per, known_columns_count, total_columns_count, standardized_headers, normalize_flags = calculate_known_headers_percentage(headers, known_headers)
+                logger.info(f"Known headers: {known_columns_count}/{total_columns_count} ({known_per:.1f}%)")
+                logger.info(f"Standardized headers: {standardized_headers}")
+                logger.info(f"Normalize flags: {normalize_flags}")
+                logger.info(f"Detected {total_columns_count} columns with separator '{best_delimiter}'")
+                logger.info(f"Separators list: {separators_list}")
+            
         delimiters = [',', ';', '|', '\t', ':']
         min_percent = 0.10
         sample_lines = 10000
@@ -246,7 +448,11 @@ def classify_file(file_path: str | Path) -> dict:
                 'row_count': row_count,
                 'is_tabular': False,
                 'error_message': 'No non-empty lines found',
-                'warnings': warnings
+                'warnings': warnings,
+                'known_per': known_per,
+                'known_columns_count': known_columns_count,
+                'total_columns_count': total_columns_count,
+                'separators_list': separators_list
             }
 
         set_counter = Counter(delimiter_count_dicts)
@@ -293,7 +499,13 @@ def classify_file(file_path: str | Path) -> dict:
             'row_count': row_count,
             'is_tabular': is_tabular,
             'error_message': error_msg,
-            'warnings': warnings
+            'warnings': warnings,
+            'known_per': known_per,
+            'standardized_headers': standardized_headers if is_tabular else None,
+            'normalize_flags': normalize_flags if is_tabular else None,
+            'known_columns_count': known_columns_count,
+            'total_columns_count': total_columns_count,
+            'separators_list': separators_list if is_tabular else []
         }
     except Exception as e:
         warning_msg = f"Exception during classification: {str(e)}"
@@ -305,5 +517,15 @@ def classify_file(file_path: str | Path) -> dict:
             'row_count': row_count,
             'is_tabular': False,
             'error_message': str(e),
-            'warnings': warnings
+            'warnings': warnings,
+            'known_per': known_per,
+            'known_columns_count': 0,
+            'total_columns_count': 0,
+            'separators_list': []
         }
+
+def normalize_headers(headers: list[str]) -> list[str]:
+    """
+    Normalize headers by stripping whitespace, converting to lowercase and removing - or _ or whitespace.
+    """
+    return [header.strip().lower().replace('-', '').replace('_', '').replace(' ', '') for header in headers if header.strip()]

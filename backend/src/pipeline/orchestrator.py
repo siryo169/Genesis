@@ -27,6 +27,7 @@ class Status(Enum):
     RUNNING = 'running'
     OK = 'ok'
     ERROR = 'error'
+    SKIPPED = 'skipped'
 
 def ensure_aware(dt):
     if dt is None:
@@ -78,6 +79,7 @@ class PipelineOrchestrator:
             run.file_encoding = class_result['encoding'].lower() if class_result['encoding'] else None
             run.original_file_size = class_result['file_size']
             run.original_row_count = class_result['row_count']
+            automatic = class_result.get('known_per', 0) >= 90
             if not class_result['is_tabular']:
                 self._update_stage(
                     run, Stage.CLASSIFICATION, Status.ERROR,
@@ -91,37 +93,96 @@ class PipelineOrchestrator:
                 warning='; '.join(class_result.get('warnings', [])) if class_result.get('warnings') else None,
                 db_session=db_session
             )
+            if automatic:
+                logger.info(f"Automatic classification for {filename} with known percentage: {class_result['known_per']}%")
+                # Create JSON with header mapping and normalization info
+                json_data = {"header_mapping": {}, "normalization_map": {}}
+                standardized_headers = class_result.get('standardized_headers', [])
+                normalize_flags = class_result.get('normalize_flags', [])
+                known_columns_count = class_result.get('known_columns_count', 0)
+                total_columns_count = class_result.get('total_columns_count', 0)
+                separators_list = class_result.get('separators_list', [])
+                
+                # Load known headers to get descriptions
+                import json as json_lib
+                known_headers_path = Path(__file__).parent / "known_headers.json"
+                try:
+                    with open(known_headers_path, 'r', encoding='utf-8') as f:
+                        known_headers = json_lib.load(f)
+                except Exception as e:
+                    logger.warning(f"Could not load known_headers.json: {e}")
+                    known_headers = {}
+                
+                # Build the header mapping with normalization info and descriptions
+                json_data["header_metadata"] = {}
+                for i, header in enumerate(standardized_headers):
+                    should_normalize = normalize_flags[i] if i < len(normalize_flags) else False
+                    json_data["header_mapping"][f"{i}"] = header
+                    json_data["normalization_map"][header] = should_normalize
+                    
+                    # Add metadata for all headers (known and unknown)
+                    if header in known_headers:
+                        description = known_headers[header].get("description", "")
+                        json_data["header_metadata"][header] = {
+                            "is_known": True,
+                            "description": description
+                        }
+                    else:
+                        json_data["header_metadata"][header] = {
+                            "is_known": False,
+                            "description": ""
+                        }
+                
+                json_data["matched_columns_count"] = known_columns_count
+                json_data["input_has_header"] = True
+                json_data["total_columns"] = total_columns_count
+                json_data["column_separators"] = separators_list
 
-            self._update_stage(run, Stage.SAMPLING, Status.RUNNING, db_session=db_session)
-            sample_data, error_msg, sample_warnings = sampler.extract_sample(file_path, encoding=run.file_encoding)
-            if error_msg:
-                self._update_stage(run, Stage.SAMPLING, Status.ERROR, error_message=error_msg, warning='; '.join(sample_warnings) if sample_warnings else None, db_session=db_session)
-                raise ValueError(error_msg)
-            # Store the sampled rows for frontend access immediately after sampling
-            try:
-                run.gemini_sample_rows = json.dumps(sample_data)
-            except Exception as e:
-                error_msg = f"Failed to serialize gemini_sample_rows: {str(e)}"
-                self._update_stage(run, Stage.SAMPLING, Status.ERROR, error_message=error_msg, warning='; '.join(sample_warnings) if sample_warnings else None, db_session=db_session)
-                logger.error(error_msg)
-                raise ValueError(error_msg)
-            db_session.commit()
-            self._update_stage(run, Stage.SAMPLING, Status.OK, warning='; '.join(sample_warnings) if sample_warnings else None, db_session=db_session)
 
-            self._update_stage(run, Stage.GEMINI_QUERY, Status.RUNNING, db_session=db_session)
-            mapping, error_msg, gemini_warnings, input_tokens, output_tokens, total_tokens = gemini_query.run_gemini(sample_data)
-            if error_msg:
-                self._update_stage(run, Stage.GEMINI_QUERY, Status.ERROR, error_message=error_msg, warning='; '.join(gemini_warnings) if gemini_warnings else None, db_session=db_session)
-                raise ValueError(error_msg)
-            run.gemini_header_mapping = json.dumps(mapping)
-            run.gemini_input_tokens = input_tokens
-            run.gemini_output_tokens = output_tokens
-            run.gemini_total_tokens = total_tokens
-            run.estimated_cost = (
-                (run.gemini_input_tokens or 0) * 0.30 / 1_000_000 +
-                (run.gemini_output_tokens or 0) * 2.50 / 1_000_000
-            )
-            self._update_stage(run, Stage.GEMINI_QUERY, Status.OK, warning='; '.join(gemini_warnings) if gemini_warnings else None, db_session=db_session)
+                logger.info(f"Complete classification data for {filename}: {json.dumps(json_data, indent=2)}")
+                self._update_stage(run, Stage.SAMPLING, Status.SKIPPED, db_session=db_session)
+                self._update_stage(run, Stage.GEMINI_QUERY, Status.SKIPPED, db_session=db_session)
+                db_session.commit()
+                mapping,input_tokens, output_tokens, total_tokens = json_data,0,0,0
+                run.gemini_header_mapping = json.dumps(mapping)
+                run.gemini_input_tokens = input_tokens
+                run.gemini_output_tokens = output_tokens
+                run.gemini_total_tokens = total_tokens
+                run.estimated_cost = (
+                    (run.gemini_input_tokens or 0) * 0.30 / 1_000_000 +
+                    (run.gemini_output_tokens or 0) * 2.50 / 1_000_000
+                )
+            else:
+                self._update_stage(run, Stage.SAMPLING, Status.RUNNING, db_session=db_session)
+                sample_data, error_msg, sample_warnings = sampler.extract_sample(file_path, encoding=run.file_encoding)
+                if error_msg:
+                    self._update_stage(run, Stage.SAMPLING, Status.ERROR, error_message=error_msg, warning='; '.join(sample_warnings) if sample_warnings else None, db_session=db_session)
+                    raise ValueError(error_msg)
+                # Store the sampled rows for frontend access immediately after sampling
+                try:
+                    run.gemini_sample_rows = json.dumps(sample_data)
+                except Exception as e:
+                    error_msg = f"Failed to serialize gemini_sample_rows: {str(e)}"
+                    self._update_stage(run, Stage.SAMPLING, Status.ERROR, error_message=error_msg, warning='; '.join(sample_warnings) if sample_warnings else None, db_session=db_session)
+                    logger.error(error_msg)
+                    raise ValueError(error_msg)
+                db_session.commit()
+                self._update_stage(run, Stage.SAMPLING, Status.OK, warning='; '.join(sample_warnings) if sample_warnings else None, db_session=db_session)
+
+                self._update_stage(run, Stage.GEMINI_QUERY, Status.RUNNING, db_session=db_session)
+                mapping, error_msg, gemini_warnings, input_tokens, output_tokens, total_tokens = gemini_query.run_gemini(sample_data)
+                if error_msg:
+                    self._update_stage(run, Stage.GEMINI_QUERY, Status.ERROR, error_message=error_msg, warning='; '.join(gemini_warnings) if gemini_warnings else None, db_session=db_session)
+                    raise ValueError(error_msg)
+                run.gemini_header_mapping = json.dumps(mapping)
+                run.gemini_input_tokens = input_tokens
+                run.gemini_output_tokens = output_tokens
+                run.gemini_total_tokens = total_tokens
+                run.estimated_cost = (
+                    (run.gemini_input_tokens or 0) * 0.30 / 1_000_000 +
+                    (run.gemini_output_tokens or 0) * 2.50 / 1_000_000
+                )
+                self._update_stage(run, Stage.GEMINI_QUERY, Status.OK, warning='; '.join(gemini_warnings) if gemini_warnings else None, db_session=db_session)
 
             self._update_stage(run, Stage.NORMALIZATION, Status.RUNNING, db_session=db_session)
             norm = normalizer.Normalizer(mapping)
@@ -146,10 +207,10 @@ class PipelineOrchestrator:
                         serializable_invalid_lines.append(item)
                 run.invalid_line_numbers = json.dumps(serializable_invalid_lines)
 
-            # Check if all stages are OK to mark as finished
+            # Check if all stages are OK or SKIPPED to mark as finished
             stage_stats = json.loads(run.stage_stats) if run.stage_stats else {}
             all_ok = all(
-                stage_stats.get(stage.value, {}).get('status') == Status.OK.value
+                stage_stats.get(stage.value, {}).get('status') in [Status.OK.value, Status.SKIPPED.value]
                 for stage in [Stage.CLASSIFICATION, Stage.SAMPLING, Stage.GEMINI_QUERY, Stage.NORMALIZATION]
             )
             if all_ok:
@@ -287,10 +348,17 @@ class PipelineOrchestrator:
         file_handler.setLevel(logging.DEBUG)
         root_logger.addHandler(file_handler)
         
-        # Stream handler (console)
-        stream_handler = logging.StreamHandler()
+        # Stream handler (console) with UTF-8 encoding
+        import sys
+        stream_handler = logging.StreamHandler(sys.stdout)
         stream_handler.setFormatter(formatter)
         stream_handler.setLevel(logging.DEBUG)
+        # Force UTF-8 encoding for the stream handler
+        if hasattr(stream_handler.stream, 'reconfigure'):
+            try:
+                stream_handler.stream.reconfigure(encoding='utf-8', errors='replace')
+            except Exception:
+                pass
         root_logger.addHandler(stream_handler)
         
         # Set root logger level

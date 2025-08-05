@@ -5,7 +5,8 @@
             "companyaddress", "companyaddr", "empresadireccion", "direccionempresa", "workplaceaddress", "officeaddress",
             "адрескомпании", "компанияадрес", "公司地址", "企业地址", "địachỉcôngty", "côngtyđịachỉ"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "normalize": false
     },
     "company_company": {
         "description": "Company",
@@ -13,7 +14,8 @@
             "company", "corporation", "corp", "enterprise", "business", "organization", "empresa", "compañia", "corporacion", "negocio",
             "компания", "корпорация", "предприятие", "公司", "企业", "机构", "côngty", "doanhnghiệp", "tổchức"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "normalize": false
     },
     "company_department": {
         "description": "Company department",
@@ -21,7 +23,8 @@
             "department", "dept", "division", "section", "departamento", "division", "seccion", "area",
             "отдел", "департамент", "подразделение", "部门", "科室", "部", "phòngban", "bộphận", "khu vực"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "normalize": false
     },
     "company_income": {
         "description": "Company income",
@@ -29,7 +32,8 @@
             "income", "salary", "wage", "pay", "earnings", "salario", "sueldo", "ingreso", "ingresos", "pago",
             "доход", "зарплата", "заработок", "收入", "工资", "薪水", "薪资", "thunhập", "lương", "tiềncông"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "normalize": true
     },
     "company_office": {
         "description": "Company office",
@@ -37,7 +41,8 @@
             "office", "workplace", "worksite", "oficina", "lugardetrabajo", "despacho",
             "офис", "рабочееместо", "办公室", "工作地点", "办公地", "vănphòng", "nơilàmviệc", "chỗlàm"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "normalize": false
     },
     "company_position": {
         "description": "Company position",
@@ -45,7 +50,8 @@
             "position", "jobtitle", "role", "title", "rank", "cargo", "puesto", "posicion", "titulo",
             "должность", "позиция", "звание", "职位", "职务", "岗位", "vịtrí", "chứcvụ", "cấpbậc"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "normalize": false
     },
     "company_ein_number": {
         "description": "Employer Identification Number - Number",
@@ -53,7 +59,8 @@
             "ein", "einnumber", "employerid", "employeridentificationnumber", "federaltaxid", "numeroempleador",
             "номерработодателя", "税务编号", "雇主编号", "sốngườisửdụnglao động"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "normalize":true
     },
     "company_duns_number": {
         "description": "Data Universal Numbering System - Number",
@@ -61,7 +68,8 @@
             "duns", "dunsnumber", "dunsid", "datauniversalnumberingsystem", "numeroentidad",
             "универсальныйномер", "通用数据编号", "hệthốngđánhsốliệuvũtrụ"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "normalize": true
     },
     "company_sos_number": {
         "description": "Secretary of State Number - Number",
@@ -69,7 +77,8 @@
             "sos", "sosnumber", "secretaryofstatenumber", "numerosecretario",
             "номерминистерства", "州务卿编号", "sốthưkýnhànước"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "normalize": true
     },
     "company_creditsafe_number": {
         "description": "CreditSafe Number - Number",
@@ -77,7 +86,8 @@
             "creditsafe", "creditsafenumber", "creditsafeid", "numerocredito",
             "кредитныйномер", "信用安全编号", "sốtínddụnganbàn"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "normalize": true
     },
     "company_tax_number": {
         "description": "Company Tax Number",
@@ -85,7 +95,8 @@
             "companytaxnumber", "taxpayerid", "tin", "taxidentificationnumber", "numerotributario", "rfc", "cuit", "nit",
             "налоговыйномер", "税号", "纳税人识别号", "企业税号", "sốthuếcôngty", "mãsốthuế"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "normalize": true
     },
     "date_expire": {
         "description": "Expiration date",
@@ -93,7 +104,8 @@
             "expiredate", "expirydate", "expirationdate", "expiry", "expires", "vencimiento", "fechavencimiento", "expira",
             "датаистечения", "срокдействия", "истекает", "到期日", "过期时间", "失效日期", "hạnsửdụng", "ngàyhếthạn"
         ],
-        "conflictive": true
+        "conflictive": true,
+        "normalize": true
     },
     "date_login": {
         "description": "Login date",
@@ -101,7 +113,8 @@
             "logindate", "lastlogin", "signindate", "accessdate", "fechaacceso", "ultimoacceso", "iniciosesion",
             "датавхода", "последнийвход", "авторизация", "登录日期", "登录时间", "最后登录", "ngàyđăngnhập", "lầncuốiđăngnhập"
         ],
-        "conflictive": true
+        "conflictive": true,
+        "normalize": true
     },
     "date_register": {
         "description": "Register date",
@@ -164,7 +177,8 @@
             "serial", "serialnumber", "deviceserial", "numeroserie", "serie",
             "серийныйномер", "序列号", "设备序列号", "sốseri", "sốserithiếtbị"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "normalize": true
     },
     "device_specs": {
         "description": "Device - Specifications",
@@ -292,7 +306,8 @@
             "почта", "электроннаяпочта", "емайл", "адресэлектронноойпочты", "邮箱", "电子邮件", "邮件地址", "电子信箱",
             "email", "thưđiệntử", "địachỉemail", "hộpthư"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "normalize": true
     },
     "digid_email_domain": {
         "description": "Email domain",
@@ -316,7 +331,8 @@
             "emailverified", "verified", "confirmed", "emailconfirmed", "correoconfirmado", "verificado",
             "подтвержденныйемайл", "проверен", "邮箱已验证", "已验证", "emailđãxácthực", "đãxácnhận"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "normalize": true
     },
     "digid_group": {
         "description": "Digid Group",
@@ -452,7 +468,8 @@
             "transitnumber", "transit", "numerotransito", "transitrouting",
             "транзитныйномер", "过境号码", "转账号码", "sốtranzitngânhàng"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "normalize": true
     },
     "financial_account_branch_code": {
         "description": "Financial account - Branch code",
@@ -468,7 +485,8 @@
             "checkdigits", "checksum", "digitoscontrol", "verificacion", "controldigits",
             "контрольныецифры", "校验数字", "检查位", "sốkiểmtra"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "normalize": true
     },
     "financial_account_iban": {
         "description": "Financial account - IBAN",
@@ -484,7 +502,8 @@
             "accountnumber", "account", "numerocuenta", "cuenta", "cuentabancaria",
             "номерсчета", "банковскийсчет", "账户号码", "银行账号", "sốtàikhoản"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "normalize": true
     },
     "financial_card_cvv": {
         "description": "Financial card - CVV",
@@ -492,7 +511,8 @@
             "cvv", "cvv2", "cvc", "securitycode", "codigoseguridad", "csc",
             "кодбезопасности", "cvvкод", "安全码", "验证码", "mãbảomật"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "normalize": true
     },
     "financial_card_exp": {
         "description": "Financial card - Expiration date",
@@ -500,7 +520,8 @@
             "cardexp", "expirationdate", "expiry", "cardexpiry", "vencimientotarjeta", "expiraciontarjeta",
             "срокдействиякарты", "истечениекарты", "卡片到期日", "有效期", "hạnsửdụngthẻ"
         ],
-        "conflictive": true
+        "conflictive": true,
+        "normalize": true
     },
     "financial_card_holder": {
         "description": "Financial card - Holder",
@@ -516,7 +537,8 @@
             "cardnumber", "creditcard", "debitcard", "numerotarjeta", "tarjetacredito",
             "номеркарты", "кредитнаякарта", "卡号", "信用卡号", "sốthẻ"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "normalize": true
     },
     "financial_card_pin": {
         "description": "Financial card - PIN",
@@ -524,7 +546,8 @@
             "pin", "cardpin", "pincode", "pintarjeta", "codigopin", "clave",
             "пинкод", "密码", "pin码", "mãpin"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "normalize": true
     },
     "financial_card_type": {
         "description": "Financial card - Type",
@@ -548,7 +571,8 @@
             "lastnumbers", "lastdigits", "ultimosnumeros", "ultimoscuatro", "last4",
             "последниецифры", "最后几位", "尾号", "sốcuối"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "normalize": true
     },
     "financial_crypto_ada_wallet": {
         "description": "Wallet - Cardano",
@@ -680,7 +704,7 @@
     "location_coordinates": {
         "description": "Coordinates",
         "variants": [
-            "coordinates", "coords", "coordenadas", "gps", "position",
+            "coordinates", "coords", "coordenadas", "gps",
             "координаты", "坐标", "位置坐标", "tọađộ"
         ],
         "conflictive": false
@@ -771,7 +795,8 @@
             "streetnumber", "number", "numero", "numerocalle", "numerovia",
             "номердома", "门牌号", "街道号码", "sốnhà"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "normalize": true
     },
     "location_timezone": {
         "description": "Timezone",
@@ -1089,7 +1114,8 @@
         "description": "Petname",
         "variants": [
             "petname", "pet", "mascota", "nombremascota", "animal", "perro", "gato",
-            "кличкапитомца", "питомец", "宠物名", "宠物", "tênthúcưng", "vậtнuôi"
+            "кличкапитомца", "питомец", "宠物名", "宠物", "tênthúcưng", "vậtнuôi", "dogname", "catname",
+            "tênchó", "têngiảitri"
         ],
         "conflictive": false
     },
@@ -1155,7 +1181,8 @@
             "loyaltyprogramnumber", "loyaltynumber", "numerofidelidad", "programafidelidad",
             "номерпрограммылояльности", "忠诚计划号码", "会员号", "sốthànhviên"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "normalize": true
     },
     "pdata_id_loyalty_program_name": {
         "description": "Loyalty program name",
@@ -1275,7 +1302,8 @@
             "ssnnumber", "ssn", "socialsecuritynumber", "segurosocial", "numerossn",
             "номерсоцстраха", "社会保障号码", "社保号", "sốbảohiểm"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "normalize": true
     },
     "pdata_id_tax_country": {
         "description": "Tax Number - Number",
@@ -1291,7 +1319,8 @@
             "taxnumber", "numerotax", "numerotributario", "identificadortributario",
             "налоговыйномер", "税号", "纳税号", "sốthuế"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "normalize": true
     },
     "pdata_id_sin_number": {
         "description": "Social Insurance - Number",
@@ -1299,7 +1328,8 @@
             "sinnumber", "sin", "socialinsurance", "segurosocialcanada", "numerosin",
             "номерсоциальногострахования", "社会保险号", "社保号码", "sốbảohiểmxãhội"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "normalize": true
     },
     "pdata_id_vat_number": {
         "description": "VAT Number",
@@ -1307,7 +1337,8 @@
             "vatnumber", "vat", "iva", "numeroiva", "identificadoriva",
             "номерндс", "增值税号", "增值税编号", "sốthuếgtgt"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "normalize": true
     },
     "pdata_id_visa_number": {
         "description": "VISA Number",
@@ -1315,7 +1346,8 @@
             "visanumber", "visa", "numerovisa", "visado", "numerovisado",
             "номервизы", "签证号码", "签证号", "sốthịthực"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "normalize": true
     },
     "pdata_medical_bloodtype": {
         "description": "Blood type",
@@ -1363,7 +1395,8 @@
             "birthdate", "dateofbirth", "birthday", "born", "fechanacimiento", "nacimiento",
             "датарождения", "деньрождения", "出生日期", "生日", "ngàysinh"
         ],
-        "conflictive": true
+        "conflictive": true,
+        "normalize": true
     },
     "pdata_pdata_description": {
         "description": "Description",
@@ -1395,7 +1428,8 @@
             "fax", "numerofax", "faxnumber", "telefax",
             "факс", "номерфакса", "传真", "传真号码", "sốfax"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "normalize": true
     },
     "pdata_pdata_firstname": {
         "description": "First name",
@@ -1483,7 +1517,8 @@
             "phonenumber", "phone", "telefono", "mobile", "celular", "tel",
             "телефон", "номертелефона", "电话", "电话号码", "điệnthoại"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "normalize": true
     },
     "pdata_pdata_political": {
         "description": "Political",
@@ -1539,7 +1574,8 @@
             "age", "years", "años", "edad", "yearsold",
             "возраст", "лет", "年龄", "岁", "tuổi"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "normalize": true
     },
     "pdata_pdata_secondarylastname": {
         "description": "Secondary last name",
@@ -1555,7 +1591,8 @@
             "deanumber", "dea", "nacionalprovider", "proveedornacional", "npi",
             "номернацпоставщика", "国家提供商标识", "全国供应商号", "sốnhàcungcấpquốcgia"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "normalize": true
     },
     "professional_npi_number": {
         "description": "Drug Enforcement Administration - Number",
@@ -1563,7 +1600,8 @@
             "npinumber", "npi", "drugenforcementnumber", "administraciondrogas",
             "номеруправленияпонаркотикам", "缉毒署编号", "禁毒局号码", "sốcựcchốngmatuy"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "normalize": true
     },
     "professional_job": {
         "description": "Professional job",
@@ -1787,7 +1825,8 @@
             "passworddatechange", "datechange", "fechacambio", "passwordexpiry", "passwordlastchange",
             "датасменыпароля", "смена", "密码更改日期", "密码修改时间", "ngàythayđổimậtkhẩu"
         ],
-        "conflictive": true
+        "conflictive": true,
+        "normalize": true
     },
     "pwd_hash": {
         "description": "Password - Hash",
@@ -2003,7 +2042,8 @@
             "vehiclepermitnumber", "permitnumber", "numeropermiso", "permisovehiculo", "numeroautorizacion",
             "номерразрешения", "пермитномер", "车辆许可号", "许可证号码", "sốphépxe"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "normalize": true
     },
     "vehicle_plate": {
         "description": "Vehicle - Plate",

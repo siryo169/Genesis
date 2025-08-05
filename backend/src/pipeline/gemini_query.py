@@ -41,8 +41,15 @@ def load_known_headers() -> Dict:
 def format_prompt_for_gemini(sample_data: List[List[str]], known_headers: Dict) -> str:
     """Formats the data and known headers into a prompt for Gemini."""
     # Try to reconstruct the original lines for clarity in the prompt
+
     csv_sample_string = "\n".join([",".join(map(str, row)) for row in sample_data])
-    known_headers_string = json.dumps(known_headers, indent=2)
+    # Only send key + description to Gemini (remove variants and conflictive fields)
+    filtered_headers = {}
+    for k, v in known_headers.items():
+        filtered_headers[k] = {
+            "description": v.get("description", "")
+        }
+    known_headers_string = json.dumps(filtered_headers, indent=2)
     total_columns = len(sample_data[0]) if sample_data else 0
 
     return f"""

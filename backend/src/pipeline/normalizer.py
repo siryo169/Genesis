@@ -268,7 +268,14 @@ class Normalizer:
                     input_processed_rows += 1
                     if len(row) != num_columns:
                         reason = f"Column count mismatch (got {len(row)}, expected {num_columns})"
-                        logger.warning(f"Row {row_num} has {len(row)} columns, expected {num_columns}. Discarding row: {orig_line}")
+                        # Safe logging with Unicode handling
+                        safe_line = orig_line
+                        try:
+                            # Try to encode/decode to handle Unicode safely
+                            safe_line = orig_line.encode('utf-8', errors='replace').decode('utf-8')
+                        except Exception:
+                            safe_line = repr(orig_line)  # Use repr as fallback
+                        logger.warning(f"Row {row_num} has {len(row)} columns, expected {num_columns}. Discarding row: {safe_line}")
                         invalid_file.write(f"{row_num},{reason},\"{orig_line}\"\n")
                         skipped_line_numbers.append(row_num)
                         continue
@@ -297,7 +304,13 @@ class Normalizer:
                         continue
                     if len(row_list) != num_columns:
                         reason = f"Column count mismatch (got {len(row_list)}, expected {num_columns})"
-                        logger.warning(f"Row {row_num} has {len(row_list)} columns, expected {num_columns}. Discarding row: {row_list}")
+                        # Safe logging with Unicode handling
+                        safe_row = str(row_list)
+                        try:
+                            safe_row = str(row_list).encode('utf-8', errors='replace').decode('utf-8')
+                        except Exception:
+                            safe_row = repr(row_list)
+                        logger.warning(f"Row {row_num} has {len(row_list)} columns, expected {num_columns}. Discarding row: {safe_row}")
                         invalid_file.write(f"{row_num},{reason},\"{row_list}\"\n")
                         skipped_line_numbers.append(row_num)
                         continue
@@ -306,6 +319,10 @@ class Normalizer:
                     output_written_rows += 1
         else:
             return False, "Unsupported file type for normalization", warnings, 0, 0, [], 0
+        
+        # Post-processing analysis: Check for repetitive substrings in each column
+        self._analyze_repetitive_patterns(output_path, new_headers)
+        
         output_file_size = 0
         try:
             output_file_size = os.path.getsize(output_path)
@@ -314,6 +331,86 @@ class Normalizer:
         if output_written_rows != input_processed_rows:
             warnings.append(f"{output_written_rows} of {input_processed_rows} non-empty rows written to normalized CSV (some rows were skipped)")
         return True, "", warnings, output_written_rows, input_processed_rows, skipped_line_numbers, output_file_size
+
+    def _analyze_repetitive_patterns(self, output_path: Path, headers: List[str]):
+        """
+        Analyze the output file for repetitive substring patterns in each column.
+        Logs warnings for the longest substrings (length >= 3) that appear in more than 50% of rows in the same column.
+        Avoids reporting substrings that are contained within longer reported substrings.
+        """
+        try:
+            import pandas as pd
+            # Read the normalized output file
+            df = pd.read_csv(output_path, encoding='utf-8')
+            
+            if len(df) == 0:
+                return  # No data to analyze
+            
+            total_rows = len(df)
+            threshold = total_rows * 0.5  # 50% threshold
+            
+            for col_idx, header in enumerate(headers):
+                if col_idx >= len(df.columns):
+                    continue
+                    
+                column_name = df.columns[col_idx]
+                column_data = df[column_name].astype(str).fillna('')
+                
+                # Skip if column has too few non-empty values
+                non_empty_values = [val for val in column_data if val.strip()]
+                if len(non_empty_values) < 3:
+                    continue
+                
+                # Extract all substrings of length >= 3 from all values in this column
+                substring_counts = {}
+                
+                for value in non_empty_values:
+                    value_str = str(value).strip()
+                    if len(value_str) < 3:
+                        continue
+                    
+                    # Generate all substrings of length >= 3
+                    seen_substrings = set()  # Avoid counting same substring multiple times per value
+                    for i in range(len(value_str)):
+                        for j in range(i + 3, len(value_str) + 1):
+                            substring = value_str[i:j]
+                            if substring not in seen_substrings:
+                                seen_substrings.add(substring)
+                                substring_counts[substring] = substring_counts.get(substring, 0) + 1
+                
+                # Find substrings that exceed the threshold
+                qualifying_substrings = []
+                for substring, count in substring_counts.items():
+                    if count > threshold and len(substring) >= 3:
+                        qualifying_substrings.append((substring, count))
+                
+                # Sort by length (descending) then by count (descending)
+                qualifying_substrings.sort(key=lambda x: (-len(x[0]), -x[1]))
+                
+                # Filter out substrings that are contained in longer ones
+                reported_substrings = []
+                for substring, count in qualifying_substrings:
+                    # Check if this substring is contained in any already reported substring
+                    is_contained = False
+                    for reported_sub, _ in reported_substrings:
+                        if substring in reported_sub and substring != reported_sub:
+                            is_contained = True
+                            break
+                    
+                    if not is_contained:
+                        reported_substrings.append((substring, count))
+                
+                # Report the filtered substrings
+                for substring, count in reported_substrings:
+                    percentage = (count / total_rows) * 100
+                    logger.warning(f"Repetitive pattern detected in column {col_idx} '{header}': "
+                                 f"substring '{substring}' appears in {count}/{total_rows} rows "
+                                 f"({percentage:.1f}% of all rows)")
+                        
+        except Exception as e:
+            logger.debug(f"Error during repetitive pattern analysis: {e}")
+            # Don't fail the normalization process if analysis fails
+            pass
 
     def _process_row(self, row: List[Any], new_headers: List[str]) -> List[Any]:
         """Processes a single row for normalization, including stripping prefixes if specified."""

@@ -32,11 +32,21 @@ def sanitize_for_json(data: Any) -> Any:
         return None
     return data
 
-# Setup logging
+# Setup logging with UTF-8 support
+import sys
 logging.basicConfig(
     level=logging.DEBUG,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.StreamHandler(sys.stdout)
+    ]
 )
+# Force UTF-8 encoding for console output
+if hasattr(sys.stdout, 'reconfigure'):
+    try:
+        sys.stdout.reconfigure(encoding='utf-8', errors='replace')
+    except Exception:
+        pass
 logger = logging.getLogger(__name__)
 
 # Initialize FastAPI app
@@ -447,6 +457,11 @@ async def pipeline_ws(websocket: WebSocket):
     
     try:
         while True:
+            # Check if websocket is still connected before proceeding
+            if websocket.client_state.name != 'CONNECTED':
+                logger.info("WebSocket connection is no longer active, breaking loop")
+                break
+                
             # Create a fresh database session for each query to ensure latest data
             db_session = SessionLocal()
             try:
@@ -460,7 +475,18 @@ async def pipeline_ws(websocket: WebSocket):
                 
                 # Sanitize data before sending
                 sanitized_data = sanitize_for_json(data)
-                await websocket.send_json(sanitized_data)
+                
+                # Check connection state again before sending
+                if websocket.client_state.name == 'CONNECTED':
+                    try:
+                        await websocket.send_json(sanitized_data)
+                    except Exception as send_error:
+                        logger.warning(f"Failed to send WebSocket message: {send_error}")
+                        break  # Exit loop if we can't send
+                else:
+                    logger.info("WebSocket disconnected while preparing to send data")
+                    break
+                    
             except Exception as db_error:
                 logger.error(f"Database error in WebSocket: {db_error}")
                 # Don't break the loop for DB errors, just wait and retry

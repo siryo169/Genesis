@@ -469,6 +469,10 @@ body {
   top: 50%;
 }
 
+.left-1\/2 {
+  left: 50%;
+}
+
 .z-10 {
   z-index: 10;
 }
@@ -517,6 +521,11 @@ body {
 .my-2 {
   margin-top: 8px;
   margin-bottom: 8px;
+}
+
+.mx-auto {
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .mb-1 {
@@ -577,6 +586,10 @@ body {
 
 .mt-6 {
   margin-top: 24px;
+}
+
+.mt-0 {
+  margin-top: 0;
 }
 
 .block {
@@ -716,6 +729,14 @@ body {
   height: 100svh;
 }
 
+.h-14 {
+  height: 3.5rem;
+}
+
+.h-screen {
+  height: 100vh;
+}
+
 .max-h-48 {
   max-height: 12rem;
 }
@@ -840,6 +861,10 @@ body {
   width: 100%;
 }
 
+.w-8 {
+  width: 32px;
+}
+
 .min-w-0 {
   min-width: 0;
 }
@@ -900,15 +925,19 @@ body {
   max-width: 32rem;
 }
 
+.max-w-4xl {
+  max-width: 56rem;
+}
+
 .flex-1 {
   flex: 1;
 }
 
-.shrink-0 {
+.flex-shrink-0, .shrink-0 {
   flex-shrink: 0;
 }
 
-.grow {
+.flex-grow, .grow {
   flex-grow: 1;
 }
 
@@ -1605,6 +1634,11 @@ body {
 .text-xs {
   font-size: .75rem;
   line-height: 1rem;
+}
+
+.text-xl {
+  font-size: 1.25rem;
+  line-height: 1.75rem;
 }
 
 .font-bold {
@@ -2851,6 +2885,11 @@ body {
 
   .md\:p-8 {
     padding: 32px;
+  }
+
+  .md\:px-6 {
+    padding-left: 24px;
+    padding-right: 24px;
   }
 
   .md\:text-sm {

@@ -9,8 +9,9 @@ import { FileUpload } from "@/components/csv-monitor/FileUpload";
 import { FileDetailDialog } from "@/components/csv-monitor/FileDetailDialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { RefreshCw, Search, Loader2, Activity, CheckCircle2, Loader, Files, X, Download, Calendar as CalendarIcon, FileQuestion, Wand2, Settings, AlertTriangle, Info, Key, Eye, EyeOff, Copy, Pencil, ChevronDown, Check, Plus, ArrowUp } from "lucide-react";
+import { RefreshCw, Search, Loader2, Activity, CheckCircle2, Loader, Files, X, Download, Calendar as CalendarIcon, FileQuestion, Wand2, Settings, AlertTriangle, Info, Key, Eye, EyeOff, Copy, Pencil, ChevronDown, Check, Plus, ArrowUp, Database, Cloud, Settings2 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { AlertDialog, AlertDialogAction, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
 import { formatDuration, cn } from "@/lib/utils";
@@ -27,64 +28,28 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { apiClient } from "@/lib/api-client";
+import { dataProvider } from "@/lib/data-provider";
 import config from "@/lib/config";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { dataProvider } from '@/lib/data-provider';
 
-// Timestamp helpers
-const nowStatic = Date.now(); // Use a static "now" for initial mock data for consistency
-const sec = (s: number) => s * 1000;
-const min = (m: number) => m * 60000;
-
-const createStep = (status: ProcessingStatus, startTime?: number, endTime?: number, errorMessage?: string, value?: boolean): ProcessingStep => {
-  const step: ProcessingStep = { status };
-  if (startTime) step.startTime = startTime;
-  if (endTime) step.endTime = endTime;
-  if (status === 'error' && errorMessage) step.errorMessage = errorMessage;
-  if (value !== undefined ) step.value = value;
-  return step;
-};
-
+// Mock logs for analysis
 const mockLogs = `
-2025-06-23 12:18:05,257 - src.pipeline.watcher - INFO - New CSV detected: /Users/davidortega/Desktop/CSV_Pipeline/backend/data/inbound/sample3_copy.csv
+2025-06-23 12:18:05,257 - src.pipeline.watcher - INFO - New CSV detected: sample3_copy.csv
 2025-06-23 12:18:05,263 - src.pipeline.orchestrator - INFO - Pipeline stage classification: running
 2025-06-23 12:18:05,265 - src.pipeline.classifier - WARNING - Row 4 has 2 columns, expected 3
 2025-06-23 12:18:05,266 - src.pipeline.orchestrator - INFO - Pipeline stage classification: ok
 2025-06-23 12:18:05,268 - src.pipeline.orchestrator - INFO - Pipeline stage sampling: running
-2025-06-23 12:18:05,269 - src.pipeline.sampler - INFO - Extracted 4 uniformly sampled rows from /Users/davidortega/Desktop/CSV_Pipeline/backend/data/inbound/sample3_copy.csv
+2025-06-23 12:18:05,269 - src.pipeline.sampler - INFO - Extracted 4 uniformly sampled rows from sample3_copy.csv
 2025-06-23 12:18:05,269 - src.pipeline.orchestrator - INFO - Pipeline stage sampling: ok
 2025-06-23 12:18:05,271 - src.pipeline.orchestrator - INFO - Pipeline stage gemini_query: running
 2025-06-23 12:18:05,273 - src.pipeline.gemini_query - INFO - Querying Gemini API for header mapping...
 2025-06-23 12:18:07,032 - src.pipeline.gemini_query - INFO - Successfully received and parsed mapping from Gemini. 3 columns matched.
-2025-06-23 12:18:07,033 - src.pipeline.gemini_query - DEBUG - Gemini response content: {
-  "header_mapping": {
-    "0": "pdata_pdata_fullname",
-    "1": "digid_email",
-    "2": "location_address"
-  },
-  "normalization_map": {
-    "pdata_pdata_fullname": false,
-    "digid_email": true,
-    "location_address": false
-  },
-  "matched_columns_count": 3,
-  "input_has_header": true
-}
 2025-06-23 12:18:07,033 - src.pipeline.orchestrator - INFO - Pipeline stage gemini_query: ok
 2025-06-23 12:18:07,040 - src.pipeline.orchestrator - INFO - Pipeline stage verification: running
-2025-06-23 12:18:07,043 - src.pipeline.normalizer - INFO - Normalizer initialized with header mapping and normalization rules.
 2025-06-23 12:18:07,043 - src.pipeline.normalizer - ERROR - Verification failed: Row 4 has 2 columns, expected 3
-2025-06-23 12:18:07,043 - src.pipeline.orchestrator - ERROR - Pipeline failed for sample3_copy.csv: Verification failed: Verification failed: Row 4 has 2 columns, expected 3
+2025-06-23 12:18:07,043 - src.pipeline.orchestrator - ERROR - Pipeline failed for sample3_copy.csv: Verification failed
 2025-06-23 12:18:07,047 - src.pipeline.orchestrator - INFO - Pipeline stage verification: error
-2025-06-23 12:18:07,050 - src.pipeline.orchestrator - WARNING - Pipeline processing for sample3_copy.csv ended with ERRORS (run ID: 95f7a344-9cf6-40a0-9dc9-3b9ec6f6d512). Check the log file for details.
-2025-06-23 12:18:07,051 - src.pipeline.watcher - WARNING - Processing of /Users/davidortega/Desktop/CSV_Pipeline/backend/data/inbound/sample3_copy.csv ended with ERRORS (run ID: 95f7a344-9cf6-40a0-9dc9-3b9ec6f6d512). Check logs for details.
 `.trim();
-
-// Remove PIPELINE_ORDER and NORMALIZER_PIPELINE_ORDER and all normalizer_checks logic
-// Only use entry.normalization for normalization status, error, and timing
-// Remove MainPipelineStepKey and any code referencing 'classifier', 'is_tabular', 'gemini_query', 'normalization' fields directly on CsvProcessingEntry
-// Remove any code that tries to use entry.classifier, entry.is_tabular, entry.gemini_query, entry.normalization
-
 
 export default function CsvMonitorPage() {
   const [csvData, setCsvData] = useState<CsvProcessingEntry[]>([]);
@@ -127,6 +92,10 @@ export default function CsvMonitorPage() {
 
   const [modelInfoDialog, setModelInfoDialog] = useState<{ open: boolean, model: string | null }>({ open: false, model: null });
   const [keyDialog, setKeyDialog] = useState<{ open: boolean, model: string | null }>({ open: false, model: null });
+  
+  // Mock mode toggle state - initialize from dataProvider
+  const [isMockMode, setIsMockMode] = useState(() => dataProvider.getCurrentMode() === 'mock');
+  
   const [showFullKey, setShowFullKey] = useState<{ [model: string]: boolean }>({});
   const [modelKeys, setModelKeys] = useState<{ [model: string]: string }>({
     'Gemini 2.5 Pro': 'AIzaSyA1234567890XyZ',
@@ -745,6 +714,23 @@ export default function CsvMonitorPage() {
     setUploadSelectedModel(model);
   }
 
+  // Handle data source mode toggle
+  const handleModeToggle = (checked: boolean) => {
+    const newMode = checked ? 'mock' : 'real';
+    setIsMockMode(checked);
+    dataProvider.switchMode(newMode);
+    
+    // Show toast notification
+    toast({
+      title: "Data Source Changed",
+      description: `Switched to ${checked ? 'Mock Data' : 'Live API'} mode`,
+      variant: "default",
+    });
+    
+    // Refresh page to see changes
+    window.location.reload();
+  };
+
   useEffect(() => {
     if (keyDialog.open) {
       setEditKey('');
@@ -882,11 +868,31 @@ export default function CsvMonitorPage() {
   return (
     <div className="min-h-screen bg-background text-foreground p-4 md:p-8">
       <header className="mb-8">
-        <div className="flex items-center space-x-3">
-          <span className="h-10 w-10 text-primary"><Logo /></span>
-          {/* <h1 className="text-4xl font-headline font-bold tracking-tight">
-            Genesis
-          </h1> */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-3">
+            <span className="h-10 w-10 text-primary"><Logo /></span>
+            {/* <h1 className="text-4xl font-headline font-bold tracking-tight">
+              Genesis
+            </h1> */}
+          </div>
+          
+          {/* Data Source Indicator */}
+          <Badge 
+            variant={isMockMode ? "secondary" : "default"} 
+            className="flex items-center gap-1"
+          >
+            {isMockMode ? (
+              <>
+                <Database className="h-3 w-3" />
+                Mock Data
+              </>
+            ) : (
+              <>
+                <Cloud className="h-3 w-3" />
+                Live API
+              </>
+            )}
+          </Badge>
         </div>
         <p className="text-muted-foreground mt-1">
           Dashboard for data processing pipeline status.
@@ -1225,6 +1231,93 @@ export default function CsvMonitorPage() {
         </TabsContent>
         <TabsContent value="settings" className="mt-6">
           <div className="space-y-8">
+            {/* Data Source Section */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Settings2 className="h-5 w-5" />
+                  Data Source
+                </CardTitle>
+                <CardDescription>
+                  Configure how the application loads data. Switch between mock data for development and live API for production.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="flex items-center justify-between p-4 border rounded-lg">
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2">
+                      {isMockMode ? (
+                        <Database className="h-4 w-4 text-blue-500" />
+                      ) : (
+                        <Cloud className="h-4 w-4 text-green-500" />
+                      )}
+                      <Label htmlFor="mock-mode-toggle" className="text-base font-medium">
+                        {isMockMode ? 'Mock Data Mode' : 'Live API Mode'}
+                      </Label>
+                    </div>
+                    <p className="text-sm text-muted-foreground">
+                      {isMockMode 
+                        ? 'Using simulated data for development and testing'
+                        : 'Connected to live backend API for real data'
+                      }
+                    </p>
+                  </div>
+                  <Switch 
+                    id="mock-mode-toggle"
+                    checked={isMockMode}
+                    onCheckedChange={handleModeToggle}
+                  />
+                </div>
+                
+                {/* Status Information */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2 border-t">
+                  <div className="space-y-1">
+                    <p className="text-sm font-medium">Current Mode</p>
+                    <p className="text-sm text-muted-foreground">
+                      {isMockMode ? 'Development (Mock Data)' : 'Production (Live API)'}
+                    </p>
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-sm font-medium">Data Updates</p>
+                    <p className="text-sm text-muted-foreground">
+                      {isMockMode ? 'Simulated real-time changes' : 'WebSocket & polling from backend'}
+                    </p>
+                  </div>
+                </div>
+                
+                {/* Action Buttons */}
+                <div className="flex gap-2 pt-2 border-t">
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    className="flex items-center gap-2"
+                    onClick={() => {
+                      // TODO: Implement refresh logic
+                      console.log('Refresh clicked - mode:', isMockMode ? 'mock' : 'live');
+                    }}
+                  >
+                    <RefreshCw className="h-4 w-4" />
+                    Refresh Data
+                  </Button>
+                  
+                  {isMockMode && (
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      className="flex items-center gap-2"
+                      onClick={() => {
+                        // TODO: Implement reset logic
+                        console.log('Reset mock data clicked');
+                      }}
+                    >
+                      <Settings2 className="h-4 w-4" />
+                      Reset Mock Data
+                    </Button>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+
             {/* Notifications Section */}
             <Card>
               <CardHeader>

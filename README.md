@@ -1,4 +1,4 @@
-# GENESIS - Automated Breach Processing Pipeline
+ f# GENESIS - Automated Breach Processing Pipeline
 
 A full-stack application for processing, analyzing, and normalizing tabular data files (CSV, XLS, XLSX, and other structured formats). Genesis intelligently infers column structures, verifies field types, and generates normalized CSV files with properly encapsulated fields. The backend uses a robust Python pipeline powered by Gemini AI to automatically map and validate data fields, while the frontend provides a real-time dashboard to monitor processing status.
 

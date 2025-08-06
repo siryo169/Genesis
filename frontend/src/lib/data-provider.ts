@@ -10,6 +10,7 @@ export class DataProvider {
   private listeners: Set<(data: CsvProcessingEntry[]) => void> = new Set();
   private currentData: CsvProcessingEntry[] = [];
   private ws: WebSocket | null = null;
+  private clientInitialized = false;
 
   constructor() {
     // Check localStorage for saved mode preference, default to 'mock'
@@ -143,6 +144,9 @@ export class DataProvider {
   }
 
   subscribe(listener: (data: CsvProcessingEntry[]) => void, onError?: (err: any) => void) {
+    if (typeof window !== 'undefined' && !this.clientInitialized) {
+      this.initializeForClient();
+    }
     this.listeners.add(listener);
     if (onError) this.errorListeners.add(onError);
     // Immediately notify with current data

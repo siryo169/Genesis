@@ -1073,10 +1073,6 @@ body {
   align-items: stretch;
 }
 
-.justify-start {
-  justify-content: flex-start;
-}
-
 .justify-end {
   justify-content: flex-end;
 }
@@ -1590,6 +1586,10 @@ body {
 
 .pt-5 {
   padding-top: 1.25rem;
+}
+
+.pt-4 {
+  padding-top: 16px;
 }
 
 .text-left {
@@ -2816,10 +2816,6 @@ body {
 
   .sm\:w-\[150px\] {
     width: 150px;
-  }
-
-  .sm\:w-\[260px\] {
-    width: 260px;
   }
 
   .sm\:w-auto {

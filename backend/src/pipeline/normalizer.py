@@ -68,7 +68,6 @@ class Normalizer:
         
         def is_quoted(s):
             result = len(s) >= 2 and s.startswith('"') and s.endswith('"')
-            # logger.debug(f"[SPLIT] is_quoted('{s}') = {result}")
             return result
 
         def split_unquoted_fields(field, delimiters):

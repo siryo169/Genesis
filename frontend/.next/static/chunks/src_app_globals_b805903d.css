@@ -409,6 +409,10 @@ body {
   left: .25rem;
 }
 
+.left-1\/2 {
+  left: 50%;
+}
+
 .left-2 {
   left: 8px;
 }
@@ -469,10 +473,6 @@ body {
   top: 50%;
 }
 
-.left-1\/2 {
-  left: 50%;
-}
-
 .z-10 {
   z-index: 10;
 }
@@ -508,6 +508,11 @@ body {
   margin-right: .875rem;
 }
 
+.mx-auto {
+  margin-left: auto;
+  margin-right: auto;
+}
+
 .my-0\.5 {
   margin-top: .125rem;
   margin-bottom: .125rem;
@@ -523,11 +528,6 @@ body {
   margin-bottom: 8px;
 }
 
-.mx-auto {
-  margin-left: auto;
-  margin-right: auto;
-}
-
 .mb-1 {
   margin-bottom: .25rem;
 }
@@ -538,10 +538,6 @@ body {
 
 .mb-4 {
   margin-bottom: 16px;
-}
-
-.mb-8 {
-  margin-bottom: 32px;
 }
 
 .ml-1 {
@@ -568,12 +564,12 @@ body {
   margin-right: 8px;
 }
 
-.mt-1 {
-  margin-top: .25rem;
+.mt-0 {
+  margin-top: 0;
 }
 
-.mt-12 {
-  margin-top: 3rem;
+.mt-1 {
+  margin-top: .25rem;
 }
 
 .mt-2 {
@@ -586,10 +582,6 @@ body {
 
 .mt-6 {
   margin-top: 24px;
-}
-
-.mt-0 {
-  margin-top: 0;
 }
 
 .block {
@@ -643,6 +635,10 @@ body {
 
 .h-12 {
   height: 3rem;
+}
+
+.h-14 {
+  height: 3.5rem;
 }
 
 .h-2 {
@@ -725,16 +721,12 @@ body {
   height: 1px;
 }
 
-.h-svh {
-  height: 100svh;
-}
-
-.h-14 {
-  height: 3.5rem;
-}
-
 .h-screen {
   height: 100vh;
+}
+
+.h-svh {
+  height: 100svh;
 }
 
 .max-h-48 {
@@ -833,6 +825,10 @@ body {
   width: 18rem;
 }
 
+.w-8 {
+  width: 32px;
+}
+
 .w-9 {
   width: 2.25rem;
 }
@@ -859,10 +855,6 @@ body {
 
 .w-full {
   width: 100%;
-}
-
-.w-8 {
-  width: 32px;
 }
 
 .min-w-0 {
@@ -905,6 +897,10 @@ body {
   max-width: 48rem;
 }
 
+.max-w-4xl {
+  max-width: 56rem;
+}
+
 .max-w-5xl {
   max-width: 64rem;
 }
@@ -923,10 +919,6 @@ body {
 
 .max-w-lg {
   max-width: 32rem;
-}
-
-.max-w-4xl {
-  max-width: 56rem;
 }
 
 .flex-1 {
@@ -1594,7 +1586,7 @@ body {
   vertical-align: middle;
 }
 
-.font-body, .font-headline {
+.font-body {
   font-family: Titillium Web, sans-serif;
 }
 
@@ -1605,11 +1597,6 @@ body {
 .text-2xl {
   font-size: 1.5rem;
   line-height: 2rem;
-}
-
-.text-4xl {
-  font-size: 2.25rem;
-  line-height: 2.5rem;
 }
 
 .text-\[0\.8rem\] {
@@ -1631,14 +1618,14 @@ body {
   line-height: 1.25rem;
 }
 
-.text-xs {
-  font-size: .75rem;
-  line-height: 1rem;
-}
-
 .text-xl {
   font-size: 1.25rem;
   line-height: 1.75rem;
+}
+
+.text-xs {
+  font-size: .75rem;
+  line-height: 1rem;
 }
 
 .font-bold {
@@ -2857,10 +2844,6 @@ body {
 
   .md\:flex {
     display: flex;
-  }
-
-  .md\:w-\[400px\] {
-    width: 400px;
   }
 
   .md\:w-auto {

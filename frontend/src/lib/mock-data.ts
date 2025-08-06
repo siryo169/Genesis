@@ -1,3 +1,4 @@
+
 import type { CsvProcessingEntry, ProcessingStatus } from '@/types/csv-status';
 
 // Timestamp helpers
@@ -5,7 +6,7 @@ const nowStatic = Date.now();
 const sec = (s: number) => s * 1000;
 const min = (m: number) => m * 60000;
 
-const createStageStats = (status: ProcessingStatus, startOffset?: number, endOffset?: number, errorMessage?: string) => {
+const createStageStats = (status: ProcessingStatus | 'skipped', startOffset?: number, endOffset?: number, errorMessage?: string) => {
   const stats: any = { status };
   if (startOffset !== undefined) stats.start_time = new Date(nowStatic + startOffset).toISOString();
   if (endOffset !== undefined) stats.end_time = new Date(nowStatic + endOffset).toISOString();
@@ -19,6 +20,7 @@ export const mockCsvData: CsvProcessingEntry[] = [
     id: "1",
     filename: "customer_data_2024.csv",
     status: "ok",
+    priority: "normal",
     insertion_date: new Date(nowStatic - min(30)).toISOString(),
     extracted_fields: ["name", "email", "phone", "address"],
     rowCount: 15423,
@@ -42,6 +44,7 @@ export const mockCsvData: CsvProcessingEntry[] = [
     id: "2",
     filename: "sales_report_Q4.csv",
     status: "running",
+    priority: "normal",
     insertion_date: new Date(nowStatic - min(15)).toISOString(),
     extracted_fields: ["product_id", "sales_amount", "date"],
     rowCount: 8756,
@@ -59,6 +62,7 @@ export const mockCsvData: CsvProcessingEntry[] = [
     id: "3",
     filename: "employee_records.csv",
     status: "error",
+    priority: "high",
     insertion_date: new Date(nowStatic - min(45)).toISOString(),
     extracted_fields: ["employee_id", "department", "salary"],
     rowCount: 2340,
@@ -76,6 +80,7 @@ export const mockCsvData: CsvProcessingEntry[] = [
     id: "4",
     filename: "inventory_snapshot.csv",
     status: "ok",
+    priority: "low",
     insertion_date: new Date(nowStatic - min(60)).toISOString(),
     extracted_fields: ["item_code", "quantity", "location", "last_updated"],
     rowCount: 12987,
@@ -99,6 +104,7 @@ export const mockCsvData: CsvProcessingEntry[] = [
     id: "5",
     filename: "transaction_log.csv",
     status: "enqueued",
+    priority: "normal",
     insertion_date: new Date(nowStatic - min(5)).toISOString(),
     extracted_fields: [],
     rowCount: 45678,
@@ -115,6 +121,7 @@ export const mockCsvData: CsvProcessingEntry[] = [
     id: "6",
     filename: "user_analytics.csv",
     status: "error",
+    priority: "low",
     insertion_date: new Date(nowStatic - min(90)).toISOString(),
     extracted_fields: ["user_id", "session_duration"],
     rowCount: 5432,
@@ -132,6 +139,7 @@ export const mockCsvData: CsvProcessingEntry[] = [
     id: "7",
     filename: "marketing_leads.csv",
     status: "running",
+    priority: "high",
     insertion_date: new Date(nowStatic - min(10)).toISOString(),
     extracted_fields: ["lead_id", "company", "contact_email", "interest_level"],
     rowCount: 3456,
@@ -153,6 +161,7 @@ export const mockCsvData: CsvProcessingEntry[] = [
     id: "8",
     filename: "financial_summary.csv",
     status: "ok",
+    priority: "high",
     insertion_date: new Date(nowStatic - min(120)).toISOString(),
     extracted_fields: ["account_id", "balance", "currency", "last_transaction"],
     rowCount: 7890,
@@ -177,6 +186,7 @@ export const mockCsvData: CsvProcessingEntry[] = [
     id: "9",
     filename: "malformed_data.csv",
     status: "error",
+    priority: "normal",
     insertion_date: new Date(nowStatic - min(50)).toISOString(),
     extracted_fields: [],
     rowCount: 100,
@@ -194,6 +204,7 @@ export const mockCsvData: CsvProcessingEntry[] = [
     id: "10",
     filename: "archive.zip",
     status: "error",
+    priority: "normal",
     insertion_date: new Date(nowStatic - min(55)).toISOString(),
     extracted_fields: [],
     rowCount: 1,
@@ -211,6 +222,7 @@ export const mockCsvData: CsvProcessingEntry[] = [
     id: "11",
     filename: "large_file_timeout.csv",
     status: "error",
+    priority: "low",
     insertion_date: new Date(nowStatic - min(65)).toISOString(),
     extracted_fields: ["id", "data"],
     rowCount: 100000,
@@ -228,6 +240,7 @@ export const mockCsvData: CsvProcessingEntry[] = [
     id: "12",
     filename: "no_mapping.csv",
     status: "error",
+    priority: "high",
     insertion_date: new Date(nowStatic - min(70)).toISOString(),
     extracted_fields: [],
     rowCount: 500,
@@ -274,3 +287,5 @@ export const generateMockUpdate = (): CsvProcessingEntry[] => {
     return entry;
   });
 }; 
+
+    

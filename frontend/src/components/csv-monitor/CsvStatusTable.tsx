@@ -1,3 +1,4 @@
+
 "use client";
 
 import type { CsvProcessingEntry } from "@/types/csv-status";
@@ -8,15 +9,16 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { StatusBadge, getStatusClassNames } from "./StatusBadge";
+import { StatusBadge } from "./StatusBadge";
 import { NormalizerStatusCell } from "./NormalizerStatusCell";
 import { Button } from "@/components/ui/button";
-import { ArrowUpDown, Download, CheckCircle2, XCircle, Circle, RefreshCcw, LogsIcon, Wand2 } from "lucide-react"; 
+import { ArrowUpDown, Download, CheckCircle2, XCircle, Circle, RefreshCcw, LogsIcon, Wand2, MoreVertical, ArrowUpCircle, ArrowRightCircle, ArrowDownCircle } from "lucide-react"; 
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import React, { useState } from "react";
 import knownHeaders from "@/known_headers.json"; 
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogClose } from '@/components/ui/dialog';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Input } from '@/components/ui/input';
 import { apiClient } from '@/lib/api-client';
 import { Loader2 } from "lucide-react";
@@ -49,6 +51,19 @@ const CRITICAL_HEADERS = [
   "pdata_id_ssn_number",
   "pdata_id_nid_number"
 ];
+
+const PriorityIcon = ({ priority }: { priority?: 'high' | 'normal' | 'low' }) => {
+  switch (priority) {
+    case 'high':
+      return <ArrowUpCircle className="h-5 w-5 text-red-500" />;
+    case 'normal':
+      return <ArrowRightCircle className="h-5 w-5 text-yellow-500" />;
+    case 'low':
+      return <ArrowDownCircle className="h-5 w-5 text-green-500" />;
+    default:
+      return <ArrowRightCircle className="h-5 w-5 text-muted-foreground" />;
+  }
+};
 
 export function CsvStatusTable({ data, sortConfig, requestSort, now, onDownload, onRetry, onRowClick }: CsvStatusTableProps) {
   const getSortIndicator = (key: keyof CsvProcessingEntry) => {
@@ -146,14 +161,14 @@ export function CsvStatusTable({ data, sortConfig, requestSort, now, onDownload,
       <table className="min-w-full border-collapse relative">
         <TableHeader className="bg-muted sticky top-0 z-10">
           <TableRow>
-            <TableHead>
-                <Button variant="ghost" onClick={() => requestSort('filename')} className="px-2 py-1 group text-xs">
-                Filename {getSortIndicator('filename')}
+            <TableHead className="w-12">
+              <Button variant="ghost" onClick={() => requestSort('priority')} className="px-2 py-1 group text-xs">
+                P {getSortIndicator('priority')}
               </Button>
             </TableHead>
             <TableHead>
-              <Button variant="ghost" onClick={() => requestSort('insertion_date')} className="px-2 py-1 group">
-                Insertion Date {getSortIndicator('insertion_date')}
+                <Button variant="ghost" onClick={() => requestSort('filename')} className="px-2 py-1 group text-xs">
+                Filename {getSortIndicator('filename')}
               </Button>
             </TableHead>
             <TableHead>
@@ -188,8 +203,8 @@ export function CsvStatusTable({ data, sortConfig, requestSort, now, onDownload,
             data.map((entry) => {
               const isFullyCompleted = 
                 entry.stage_stats?.classification?.status === 'ok' &&
-                entry.stage_stats?.sampling?.status === 'ok' &&
-                entry.stage_stats?.gemini_query?.status === 'ok' &&
+                (entry.stage_stats?.sampling?.status === 'ok' || entry.stage_stats?.sampling?.status === 'skipped') &&
+                (entry.stage_stats?.gemini_query?.status === 'ok' || entry.stage_stats?.gemini_query?.status === 'skipped') &&
                 entry.stage_stats?.normalization?.status === 'ok';
 
               const hasError = [
@@ -201,7 +216,19 @@ export function CsvStatusTable({ data, sortConfig, requestSort, now, onDownload,
 
               return (
                 <TableRow key={entry.id} className="hover:bg-muted/20 transition-colors cursor-pointer" onClick={() => onRowClick(entry)}>
-                    <TableCell className="font-medium py-3 px-4 whitespace-nowrap text-xs max-w-[260px] overflow-hidden text-ellipsis" title={entry.filename}>
+                  <TableCell>
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <div><PriorityIcon priority={entry.priority} /></div>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>Priority: {entry.priority || 'normal'}</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </TableCell>
+                  <TableCell className="font-medium py-3 px-4 whitespace-nowrap text-xs max-w-[260px] overflow-hidden text-ellipsis" title={entry.filename}>
                       <TooltipProvider delayDuration={100}>
                         <Tooltip>
                           <TooltipTrigger asChild>
@@ -211,12 +238,9 @@ export function CsvStatusTable({ data, sortConfig, requestSort, now, onDownload,
                         </Tooltip>
                       </TooltipProvider>
                     </TableCell>
-                    <TableCell className="py-3 px-4 text-sm text-muted-foreground text-nowrap">
-                      {formatUTCDate(entry.insertion_date)}
-                  </TableCell>
                   <TableCell className="py-3 px-4">
                     <StatusBadge 
-                      status={entry.status === 'enqueued' ? 'enqueued' : entry.stage_stats?.classification?.status} 
+                      status={entry.status === 'enqueued' ? 'not_started' : entry.stage_stats?.classification?.status || 'not_started'}
                       startTime={entry.stage_stats?.classification?.start_time ? new Date(entry.stage_stats.classification.start_time).getTime() : undefined}
                       endTime={entry.stage_stats?.classification?.end_time ? new Date(entry.stage_stats.classification.end_time).getTime() : undefined}
                       error_message={entry.stage_stats?.classification?.error_message}
@@ -227,13 +251,13 @@ export function CsvStatusTable({ data, sortConfig, requestSort, now, onDownload,
                     <TooltipProvider delayDuration={100}>
                       <Tooltip>
                         <TooltipTrigger asChild>
-                          <span className="font-medium">
+                          <span className="font-medium text-muted-foreground">
                             {(() => {
                               const step = entry.stage_stats?.classification;
                               if (step?.status === 'ok') {
                                 return 'Tabular'; // or other logic if you want to distinguish
                               }
-                              return '';
+                              return '—';
                             })()}
                           </span>
                         </TooltipTrigger>
@@ -244,7 +268,7 @@ export function CsvStatusTable({ data, sortConfig, requestSort, now, onDownload,
                               if (step?.status === 'ok') {
                                 return 'File type: Tabular';
                               }
-                              return 'Status: Enqueued';
+                              return 'Status: Not Started';
                             })()}
                           </p>
                         </TooltipContent>
@@ -255,7 +279,7 @@ export function CsvStatusTable({ data, sortConfig, requestSort, now, onDownload,
                     <div className="relative flex flex-col items-center justify-center" style={{ minHeight: 10 }}>
                       <div className="flex items-center justify-center h-full">
                         <StatusBadge
-                          status={entry.stage_stats?.sampling?.status}
+                          status={entry.stage_stats?.sampling?.status || 'not_started'}
                           startTime={entry.stage_stats?.sampling?.start_time ? new Date(entry.stage_stats.sampling.start_time).getTime() : undefined}
                           endTime={entry.stage_stats?.sampling?.end_time ? new Date(entry.stage_stats.sampling.end_time).getTime() : undefined}
                           error_message={entry.stage_stats?.sampling?.error_message}
@@ -278,7 +302,7 @@ export function CsvStatusTable({ data, sortConfig, requestSort, now, onDownload,
                   </TableCell>
                   <TableCell className="py-3 px-4">
                     <StatusBadge 
-                      status={entry.stage_stats?.gemini_query?.status}
+                      status={entry.stage_stats?.gemini_query?.status || 'not_started'}
                       startTime={entry.stage_stats?.gemini_query?.start_time ? new Date(entry.stage_stats.gemini_query.start_time).getTime() : undefined}
                       endTime={entry.stage_stats?.gemini_query?.end_time ? new Date(entry.stage_stats.gemini_query.end_time).getTime() : undefined}
                       error_message={entry.stage_stats?.gemini_query?.error_message}
@@ -288,7 +312,7 @@ export function CsvStatusTable({ data, sortConfig, requestSort, now, onDownload,
                   <TableCell className="py-3 px-4 text-sm text-muted-foreground" title={entry.extracted_fields ? entry.extracted_fields.join(", ") : "No fields extracted"}>
                     {(() => {
                       if (!entry.extracted_fields) {
-                        return <span className="text-muted-foreground">No fields extracted</span>;
+                        return <span className="text-muted-foreground"></span>;
                       }
                       const headers = entry.extracted_fields.slice(0, 4);
                       const prioritized = headers.filter(h => CRITICAL_HEADERS.includes(h));
@@ -325,67 +349,38 @@ export function CsvStatusTable({ data, sortConfig, requestSort, now, onDownload,
                   </TableCell>
                   <TableCell className="py-3 px-4">
                     <StatusBadge
-                      status={entry.stage_stats?.normalization?.status}
+                      status={entry.stage_stats?.normalization?.status || 'not_started'}
                       startTime={entry.stage_stats?.normalization?.start_time ? new Date(entry.stage_stats.normalization.start_time).getTime() : undefined}
                       endTime={entry.stage_stats?.normalization?.end_time ? new Date(entry.stage_stats.normalization.end_time).getTime() : undefined}
                       error_message={entry.stage_stats?.normalization?.error_message}
                       now={now}
                     />
                   </TableCell>
-                  {/* Remove normalizer_checks substages columns */}
                   <TableCell className="py-3 px-4 text-right">
-                    <div className="flex items-center justify-end space-x-2">
-                       {hasError && (
-                        <>
-                          {entry.stage_stats?.gemini_query?.status === 'error' && (
-                            <TooltipProvider delayDuration={100}>
-                              <Tooltip>
-                                <TooltipTrigger asChild>
-                                  <Button variant="outline" size="icon" onClick={(e) => { e.stopPropagation(); onRetry(entry.id); }}>
-                                    <RefreshCcw className="h-4 w-4" />
-                                  </Button>
-                                </TooltipTrigger>
-                                <TooltipContent>Retry</TooltipContent>
-                              </Tooltip>
-                            </TooltipProvider>
-                          )}
-                          <TooltipProvider delayDuration={100}>
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <Button variant="outline" size="icon" onClick={(e) => { e.stopPropagation(); handleOpenLogDialog(entry); }}>
-                                  <LogsIcon className="h-4 w-4" />
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={(e) => e.stopPropagation()}>
+                          <MoreVertical className="h-4 w-4" />
+                          <span className="sr-only">More actions</span>
                         </Button>
-                              </TooltipTrigger>
-                              <TooltipContent>Logs</TooltipContent>
-                            </Tooltip>
-                          </TooltipProvider>
-                        </>
-                      )}
-                      {isFullyCompleted && (
-                          <>
-                            <TooltipProvider delayDuration={100}>
-                              <Tooltip>
-                                <TooltipTrigger asChild>
-                        <Button variant="outline" size="sm" onClick={(e) => { e.stopPropagation(); onDownload(entry.filename); }}>
-                                    <Download className="mr-0 h-3.5 w-3.5" />
-                                  </Button>
-                                </TooltipTrigger>
-                                <TooltipContent>Download</TooltipContent>
-                              </Tooltip>
-                            </TooltipProvider>
-                            <TooltipProvider delayDuration={100}>
-                              <Tooltip>
-                                <TooltipTrigger asChild>
-                                  <Button variant="outline" size="sm" onClick={(e) => { e.stopPropagation(); handleOpenLogDialog(entry); }}>
-                                    <LogsIcon className="mr-0 h-3.5 w-3.5" />
-                        </Button>
-                                </TooltipTrigger>
-                                <TooltipContent>Logs</TooltipContent>
-                              </Tooltip>
-                            </TooltipProvider>
-                          </>
-                      )}
-                    </div>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" onClick={(e) => e.stopPropagation()}>
+                        <DropdownMenuItem onSelect={() => onDownload(entry.filename)} disabled={!isFullyCompleted}>
+                          <Download className="mr-2 h-4 w-4" />
+                          <span>Download</span>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onSelect={() => handleOpenLogDialog(entry)} disabled={entry.status === 'enqueued'}>
+                          <LogsIcon className="mr-2 h-4 w-4" />
+                          <span>Logs</span>
+                        </DropdownMenuItem>
+                         {hasError && entry.stage_stats?.gemini_query?.status === 'error' && (
+                          <DropdownMenuItem onSelect={() => onRetry(entry.id)}>
+                             <RefreshCcw className="mr-2 h-4 w-4" />
+                             <span>Retry</span>
+                          </DropdownMenuItem>
+                         )}
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </TableCell>
                 </TableRow>
               );
@@ -527,3 +522,5 @@ function getStatusColor(status: string): string {
       return 'bg-gray-500';
   }
 }
+
+    

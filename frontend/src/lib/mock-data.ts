@@ -171,6 +171,75 @@ export const mockCsvData: CsvProcessingEntry[] = [
       gemini_query: createStageStats('ok', -min(118), -min(115)),
       normalization: createStageStats('ok', -min(115), -min(110))
     }
+  },
+  // New mock entries for error chart
+  {
+    id: "9",
+    filename: "malformed_data.csv",
+    status: "error",
+    insertion_date: new Date(nowStatic - min(50)).toISOString(),
+    extracted_fields: [],
+    rowCount: 100,
+    fileSize: "0.1 MB",
+    original_row_count: 100,
+    ai_model: "Gemini 2.5 Flash",
+    stage_stats: {
+      classification: createStageStats('error', -min(50), -min(49), 'classification: Parsing Failed - Inconsistent delimiters'),
+      sampling: createStageStats('enqueued'),
+      gemini_query: createStageStats('enqueued'),
+      normalization: createStageStats('enqueued')
+    }
+  },
+  {
+    id: "10",
+    filename: "archive.zip",
+    status: "error",
+    insertion_date: new Date(nowStatic - min(55)).toISOString(),
+    extracted_fields: [],
+    rowCount: 1,
+    fileSize: "5.0 MB",
+    original_row_count: 1,
+    ai_model: "Gemini 2.5 Flash",
+    stage_stats: {
+      classification: createStageStats('error', -min(55), -min(54), 'classification: Unsupported File Type'),
+      sampling: createStageStats('enqueued'),
+      gemini_query: createStageStats('enqueued'),
+      normalization: createStageStats('enqueued')
+    }
+  },
+  {
+    id: "11",
+    filename: "large_file_timeout.csv",
+    status: "error",
+    insertion_date: new Date(nowStatic - min(65)).toISOString(),
+    extracted_fields: ["id", "data"],
+    rowCount: 100000,
+    fileSize: "25 MB",
+    original_row_count: 100000,
+    ai_model: "Gemini 2.5 Flash",
+    stage_stats: {
+      classification: createStageStats('ok', -min(65), -min(64)),
+      sampling: createStageStats('ok', -min(64), -min(63)),
+      gemini_query: createStageStats('error', -min(63), -min(62), 'gemini_query: Timeout after 180 seconds'),
+      normalization: createStageStats('enqueued')
+    }
+  },
+  {
+    id: "12",
+    filename: "no_mapping.csv",
+    status: "error",
+    insertion_date: new Date(nowStatic - min(70)).toISOString(),
+    extracted_fields: [],
+    rowCount: 500,
+    fileSize: "0.5 MB",
+    original_row_count: 500,
+    ai_model: "Gemini 2.5 Flash",
+    stage_stats: {
+      classification: createStageStats('ok', -min(70), -min(69)),
+      sampling: createStageStats('ok', -min(69), -min(68)),
+      gemini_query: createStageStats('ok', -min(68), -min(67)),
+      normalization: createStageStats('error', -min(67), -min(66), 'normalization: No known headers matched')
+    }
   }
 ];
 

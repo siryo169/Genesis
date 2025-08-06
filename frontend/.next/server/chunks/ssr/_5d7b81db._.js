@@ -93,7 +93,7 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$theme$2
 ;
 ;
 const metadata = {
-    title: 'Genesis',
+    title: 'Project Genesis',
     description: 'Dashboard for data processing pipeline status.'
 };
 function RootLayout({ children }) {

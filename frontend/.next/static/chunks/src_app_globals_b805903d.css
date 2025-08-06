@@ -580,6 +580,10 @@ body {
   margin-top: 24px;
 }
 
+.mt-8 {
+  margin-top: 32px;
+}
+
 .block {
   display: block;
 }

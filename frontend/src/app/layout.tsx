@@ -4,7 +4,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { ThemeProvider } from "@/components/theme-provider";
 
 export const metadata: Metadata = {
-  title: 'Genesis',
+  title: 'Project Genesis',
   description: 'Dashboard for data processing pipeline status.',
 };
 

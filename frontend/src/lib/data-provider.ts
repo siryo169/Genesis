@@ -1,39 +1,40 @@
 import config from './config';
 import { apiClient } from './api-client';
-import { generateMockData } from './mock-data';
-import { CsvStatus, PipelineRun, CsvProcessingEntry } from '@/types/csv-status';
+import { mockCsvData, generateMockUpdate } from './mock-data';
+import { CsvProcessingEntry } from '@/types/csv-status';
 
 export class DataProvider {
-  private mode: 'demo' | 'real';
+  private mode: 'mock' | 'real';
   private mockUpdateInterval: NodeJS.Timeout | null = null;
-  private fallbackInterval: NodeJS.Timeout | null = null; // Add fallback interval tracking
+  private fallbackInterval: NodeJS.Timeout | null = null;
   private listeners: Set<(data: CsvProcessingEntry[]) => void> = new Set();
   private currentData: CsvProcessingEntry[] = [];
   private ws: WebSocket | null = null;
 
   constructor() {
-    this.mode = config.mode;
-    // Log the mode for debugging
+    // Check localStorage for saved mode preference, default to 'mock'
+    const savedMode = localStorage.getItem('dataSourceMode') as 'mock' | 'real' | null;
+    this.mode = savedMode || 'mock';
     console.log(`DataProvider initialized in ${this.mode} mode`);
     this.init();
   }
 
   private init() {
-    if (this.mode === 'demo') {
-      this.initDemoMode();
+    if (this.mode === 'mock') {
+      this.initMockMode();
     } else {
       this.initRealMode();
     }
   }
 
-  private initDemoMode() {
+  private initMockMode() {
     // Start with initial mock data
-    this.currentData = generateMockData() as unknown as CsvProcessingEntry[];
+    this.currentData = [...mockCsvData];
     this.notifyListeners();
 
-    // Update mock data periodically
+    // Update mock data periodically with small changes
     this.mockUpdateInterval = setInterval(() => {
-      this.currentData = generateMockData() as unknown as CsvProcessingEntry[];
+      this.currentData = generateMockUpdate();
       this.notifyListeners();
     }, config.pollingInterval);
   }
@@ -150,7 +151,7 @@ export class DataProvider {
   }
 
   async getStats() {
-    if (this.mode === 'demo') {
+    if (this.mode === 'mock') {
       const total = this.currentData.length;
       return {
         total,
@@ -169,15 +170,39 @@ export class DataProvider {
   }
 
   async forceRefresh() {
-    if (this.mode === 'demo') {
-      this.currentData = generateMockData() as unknown as CsvProcessingEntry[];
+    if (this.mode === 'mock') {
+      this.currentData = generateMockUpdate();
       this.notifyListeners();
     } else {
       await this.fetchRealData();
     }
   }
 
-  cleanup() {
+  // New method to switch between mock and real modes
+  switchMode(newMode: 'mock' | 'real') {
+    if (this.mode === newMode) return; // No change needed
+    
+    // Save preference to localStorage
+    localStorage.setItem('dataSourceMode', newMode);
+    
+    // Cleanup current mode resources (but keep listeners)
+    this.cleanupResources();
+    
+    // Switch to new mode
+    this.mode = newMode;
+    console.log(`DataProvider switched to ${this.mode} mode`);
+    
+    // Reinitialize with new mode
+    this.init();
+  }
+
+  // Get current mode
+  getCurrentMode(): 'mock' | 'real' {
+    return this.mode;
+  }
+
+  // Clean up resources only (intervals and websocket)
+  private cleanupResources() {
     if (this.mockUpdateInterval) {
       clearInterval(this.mockUpdateInterval);
       this.mockUpdateInterval = null;
@@ -188,11 +213,15 @@ export class DataProvider {
     }
     if (this.ws) {
       if (this.ws.readyState === WebSocket.OPEN) {
-        this.ws.close(1000, 'DataProvider cleanup');
+        this.ws.close(1000, 'DataProvider mode switch');
       }
       this.ws = null;
     }
-    // Clear all listeners
+  }
+
+  cleanup() {
+    this.cleanupResources();
+    // Clear all listeners only on full cleanup
     this.listeners.clear();
     this.errorListeners.clear();
   }

@@ -142,7 +142,7 @@ export function CsvStatusTable({ data, sortConfig, requestSort, now, onDownload,
 
   return (
     <>
-    <ScrollArea className="h-[500px] rounded-md border shadow-sm">
+    <ScrollArea className="min-h-[400px] flex-grow rounded-md border shadow-sm">
       <table className="min-w-full border-collapse relative">
         <TableHeader className="bg-muted sticky top-0 z-10">
           <TableRow>

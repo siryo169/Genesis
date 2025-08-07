@@ -8,8 +8,8 @@ import { formatDuration } from "@/lib/utils";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import knownHeaders from "@/known_headers.json"; 
-import React, { useState } from "react";
-import { Calendar, Clock, Hourglass, Database, Hash, ShieldAlert, Bot, FileText, DollarSign, BadgePercent } from 'lucide-react';
+import React, from "react";
+import { Calendar, Clock, Hourglass, Database, Hash, ShieldAlert, Bot, FileText, DollarSign, BadgePercent, BrainCircuit, Scaling } from 'lucide-react';
 
 interface FileDetailDialogProps {
   entry: CsvProcessingEntry | null;
@@ -18,19 +18,23 @@ interface FileDetailDialogProps {
 }
 
 const DetailRow = ({ icon: Icon, label, value }: { icon: React.FC<any>, label: string, value: React.ReactNode }) => (
-  <div className="grid grid-cols-2 gap-4 py-2 first:pt-0 last:pb-0">
+  <div className="grid grid-cols-[auto,1fr] items-center gap-4 py-2 first:pt-0 last:pb-0">
     <dt className="flex items-center text-sm font-medium text-muted-foreground">
-      <Icon className="h-4 w-4 mr-2" />
-      {label}
+      <Icon className="h-4 w-4 mr-2 flex-shrink-0" />
+      <span>{label}</span>
     </dt>
-    <dd className="text-sm text-right font-mono">{value}</dd>
+    <dd className="text-sm text-right font-mono truncate">{String(value)}</dd>
   </div>
 );
 
-const DetailSection = ({ title, children }: { title: string, children: React.ReactNode }) => (
-  <div className="space-y-1">
-    <h4 className="text-sm font-semibold text-foreground mb-1">{title}</h4>
-    <dl className="divide-y divide-border/50 border-t border-border/50">
+
+const DetailSection = ({ title, icon: Icon, children }: { title: string, icon: React.FC<any>, children: React.ReactNode }) => (
+  <div>
+    <h4 className="text-base font-semibold text-foreground mb-2 flex items-center">
+      <Icon className="h-5 w-5 mr-3 text-primary" />
+      {title}
+    </h4>
+    <dl className="divide-y divide-border/50 border-t border-b border-border/50">
       {children}
     </dl>
   </div>
@@ -103,112 +107,108 @@ export function FileDetailDialog({ entry, isOpen, onOpenChange }: FileDetailDial
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl h-[80vh]">
+      <DialogContent className="max-w-5xl">
         <DialogHeader>
           <DialogTitle className="truncate text-lg">{entry.filename}</DialogTitle>
           <DialogDescription>
             Detailed processing information and status for this file.
           </DialogDescription>
         </DialogHeader>
-        <ScrollArea className="h-full pr-6 -mr-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {/* Left Column */}
-            <div className="space-y-6">
-              <h3 className="text-base font-semibold text-foreground">File Metadata</h3>
-              
-              <DetailSection title="Timestamps">
-                <DetailRow icon={Calendar} label="Insertion Date" value={formatUTCDate(entry.insertion_date)} />
-                <DetailRow icon={Clock} label="Processing Start" value={formatUTCDate(entry.start_time)} />
-                <DetailRow icon={Clock} label="Processing End" value={formatUTCDate(entry.end_time)} />
-                <DetailRow icon={Hourglass} label="Total Duration" value={totalDuration} />
-              </DetailSection>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-4">
+          {/* Left Column */}
+          <div className="space-y-6">
+            <DetailSection title="Timestamps" icon={Calendar}>
+              <DetailRow icon={Calendar} label="Insertion Date" value={formatUTCDate(entry.insertion_date)} />
+              <DetailRow icon={Clock} label="Processing Start" value={formatUTCDate(entry.start_time)} />
+              <DetailRow icon={Clock} label="Processing End" value={formatUTCDate(entry.end_time)} />
+              <DetailRow icon={Hourglass} label="Total Duration" value={totalDuration} />
+            </DetailSection>
 
-              <DetailSection title="File Metrics">
-                <DetailRow icon={Database} label="Original File Size" value={formatFileSize(entry.original_file_size)} />
-                <DetailRow icon={Hash} label="Original Row Count" value={entry.original_row_count?.toLocaleString() ?? 'N/A'} />
-                <DetailRow icon={Database} label="Final File Size" value={formatFileSize(entry.final_file_size)} />
-                <DetailRow icon={Hash} label="Final Row Count" value={entry.final_row_count?.toLocaleString() ?? 'N/A'} />
-                <DetailRow icon={BadgePercent} label="Valid Row Percentage" value={entry.valid_row_percentage != null ? entry.valid_row_percentage.toFixed(2) + '%' : 'N/A'} />
-                <DetailRow icon={ShieldAlert} label="Invalid Lines" value={invalidLines} />
-              </DetailSection>
+            <DetailSection title="File Metrics" icon={Scaling}>
+              <DetailRow icon={Database} label="Original File Size" value={formatFileSize(entry.original_file_size)} />
+              <DetailRow icon={Hash} label="Original Row Count" value={entry.original_row_count?.toLocaleString() ?? 'N/A'} />
+              <DetailRow icon={Database} label="Final File Size" value={formatFileSize(entry.final_file_size)} />
+              <DetailRow icon={Hash} label="Final Row Count" value={entry.final_row_count?.toLocaleString() ?? 'N/A'} />
+              <DetailRow icon={BadgePercent} label="Valid Row Percentage" value={entry.valid_row_percentage != null ? entry.valid_row_percentage.toFixed(2) + '%' : 'N/A'} />
+              <DetailRow icon={ShieldAlert} label="Invalid Lines" value={invalidLines} />
+            </DetailSection>
 
-              <DetailSection title="AI Usage">
-                <DetailRow icon={Bot} label="AI Model Used" value={entry.ai_model ?? 'N/A'} />
-                <DetailRow icon={FileText} label="Gemini Input Tokens" value={entry.gemini_input_tokens?.toLocaleString() ?? 'N/A'} />
-                <DetailRow icon={FileText} label="Gemini Output Tokens" value={entry.gemini_output_tokens?.toLocaleString() ?? 'N/A'} />
-                <DetailRow icon={FileText} label="Gemini Total Tokens" value={entry.gemini_total_tokens?.toLocaleString() ?? 'N/A'} />
-                <DetailRow icon={DollarSign} label="Estimated Cost" value={typeof entry.estimated_cost === 'number' ? `$${entry.estimated_cost.toFixed(6)}` : 'N/A'} />
-              </DetailSection>
+            <DetailSection title="AI Usage" icon={BrainCircuit}>
+              <DetailRow icon={Bot} label="AI Model Used" value={entry.ai_model ?? 'N/A'} />
+              <DetailRow icon={FileText} label="Gemini Input Tokens" value={entry.gemini_input_tokens?.toLocaleString() ?? 'N/A'} />
+              <DetailRow icon={FileText} label="Gemini Output Tokens" value={entry.gemini_output_tokens?.toLocaleString() ?? 'N/A'} />
+              <DetailRow icon={FileText} label="Gemini Total Tokens" value={entry.gemini_total_tokens?.toLocaleString() ?? 'N/A'} />
+              <DetailRow icon={DollarSign} label="Estimated Cost" value={typeof entry.estimated_cost === 'number' ? `$${entry.estimated_cost.toFixed(6)}` : 'N/A'} />
+            </DetailSection>
 
+          </div>
+
+          {/* Right Column */}
+          <div className="space-y-6">
+            <div>
+              <h3 className="text-base font-semibold text-foreground">Overall Status</h3>
+              <div className="flex justify-between items-center py-2 border-b border-t border-border/50 mt-1">
+                <span className="text-sm text-muted-foreground">Current Status</span>
+                <Badge variant="outline" className={getStatusClassNames(entry.status)}>
+                    {entry.status}
+                </Badge>
+              </div>
             </div>
 
-            {/* Right Column */}
-            <div className="space-y-6">
-              <div>
-                <h3 className="text-base font-semibold text-foreground">Overall Status</h3>
-                <div className="flex justify-between items-center py-2 border-b border-t border-border/50 mt-1">
-                  <span className="text-sm text-muted-foreground">Current Status</span>
-                  <Badge variant="outline" className={getStatusClassNames(entry.status)}>
-                      {entry.status}
-                  </Badge>
-                </div>
-              </div>
-
-              <div>
-                  <h3 className="text-base font-semibold text-foreground mb-1">Processing Steps</h3>
-                  <Table>
-                      <TableHeader>
-                      <TableRow>
-                          <TableHead>Step</TableHead>
-                          <TableHead>Status</TableHead>
-                          <TableHead className="text-right">Duration</TableHead>
-                      </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {['classification', 'sampling', 'gemini_query', 'normalization'].map((stage) => {
-                          const stat = entry.stage_stats?.[stage];
-                          let duration = 'N/A';
-                          if (stat?.start_time && stat?.end_time) {
-                            const ms = new Date(stat.end_time).getTime() - new Date(stat.start_time).getTime();
-                            duration = formatDuration(ms);
-                          }
-                          return (
-                            <TableRow key={stage}>
-                              <TableCell className="font-medium">{stage.charAt(0).toUpperCase() + stage.slice(1).replace('_', ' ')}</TableCell>
-                              <TableCell>
-                                <Badge variant="outline" className={getStatusClassNames(stat?.status)}>
-                                  {stat?.status || 'enqueued'}
-                                </Badge>
-                              </TableCell>
-                              <TableCell className="text-right font-mono">{duration}</TableCell>
-                            </TableRow>
-                          );
-                        })}
-                      </TableBody>
-                  </Table>
-              </div>
-
-              <div>
-                  <h3 className="text-base font-semibold text-foreground mb-2">Extracted Fields</h3>
-                  {entry.extracted_fields && entry.extracted_fields.length > 0 ? (
-                  <div className="flex flex-wrap gap-2">
-                      {entry.extracted_fields.map((field, idx) => {
-                        let color: string | undefined = undefined;
-                        let fontWeight: string | undefined = undefined;
-                        if (CRITICAL_HEADERS.includes(field)) fontWeight = 'bold';
-                        else if (!(field in knownHeaders)) color = 'orange';
+            <div>
+                <h3 className="text-base font-semibold text-foreground mb-1">Processing Steps</h3>
+                <Table>
+                    <TableHeader>
+                    <TableRow>
+                        <TableHead>Step</TableHead>
+                        <TableHead>Status</TableHead>
+                        <TableHead className="text-right">Duration</TableHead>
+                    </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {['classification', 'sampling', 'gemini_query', 'normalization'].map((stage) => {
+                        const stat = entry.stage_stats?.[stage];
+                        let duration = 'N/A';
+                        if (stat?.start_time && stat?.end_time) {
+                          const ms = new Date(stat.end_time).getTime() - new Date(stat.start_time).getTime();
+                          duration = formatDuration(ms);
+                        }
                         return (
-                          <Badge key={`${field}-${idx}`} variant="secondary" style={{ color, fontWeight }}>{field}</Badge>
+                          <TableRow key={stage}>
+                            <TableCell className="font-medium">{stage.charAt(0).toUpperCase() + stage.slice(1).replace('_', ' ')}</TableCell>
+                            <TableCell>
+                              <Badge variant="outline" className={getStatusClassNames(stat?.status)}>
+                                {stat?.status || 'enqueued'}
+                              </Badge>
+                            </TableCell>
+                            <TableCell className="text-right font-mono">{duration}</TableCell>
+                          </TableRow>
                         );
                       })}
-                  </div>
-                  ) : (
-                  <p className="text-sm text-muted-foreground">No fields extracted yet.</p>
-                  )}
-              </div>
+                    </TableBody>
+                </Table>
+            </div>
+
+            <div>
+                <h3 className="text-base font-semibold text-foreground mb-2">Extracted Fields</h3>
+                {entry.extracted_fields && entry.extracted_fields.length > 0 ? (
+                <div className="flex flex-wrap gap-2">
+                    {entry.extracted_fields.map((field, idx) => {
+                      let color: string | undefined = undefined;
+                      let fontWeight: string | undefined = undefined;
+                      if (CRITICAL_HEADERS.includes(field)) fontWeight = 'bold';
+                      else if (!(field in knownHeaders)) color = 'orange';
+                      return (
+                        <Badge key={`${field}-${idx}`} variant="secondary" style={{ color, fontWeight }}>{field}</Badge>
+                      );
+                    })}
+                </div>
+                ) : (
+                <p className="text-sm text-muted-foreground">No fields extracted yet.</p>
+                )}
             </div>
           </div>
-        </ScrollArea>
+        </div>
       </DialogContent>
     </Dialog>
   );

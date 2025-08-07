@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { formatDuration } from "@/lib/utils";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { Circle, Loader2 } from "lucide-react";
+import { Circle, Loader2, CheckCircle2, XCircle } from "lucide-react";
 
 interface StatusBadgeProps {
   status: ProcessingStatus | 'not_started' | 'skipped';
@@ -22,33 +22,34 @@ interface StatusBadgeProps {
 export function getStatusClassNames(status: ProcessingStatus | 'not_started' | 'skipped'): string {
   switch (status) {
     case "ok":
-      return "text-green-500 border-green-500/50 bg-green-500/10";
+      return "text-green-700 border-green-500/50 bg-green-500/10 dark:text-green-300";
     case "running":
-      return "text-yellow-500 border-yellow-500/50 bg-yellow-500/10";
+      return "text-blue-700 border-blue-500/50 bg-blue-500/10 dark:text-blue-300";
     case "error":
-      return "text-red-500 border-red-500/50 bg-red-500/10";
+      return "text-destructive border-destructive/50 bg-destructive/10";
     case "not_started":
     case "enqueued":
+    case "skipped":
     default:
       return "text-muted-foreground border-border bg-muted";
   }
 }
 
-const StatusDot = ({ status }: { status: ProcessingStatus | 'not_started' | 'skipped' }) => {
-  const dotClass = "h-2 w-2 rounded-full mr-2";
+const StatusIcon = ({ status }: { status: ProcessingStatus | 'not_started' | 'skipped' }) => {
+  const iconClass = "h-4 w-4 mr-2";
   switch (status) {
     case "ok":
-      return <span className={cn(dotClass, "bg-green-500")} />;
+      return <CheckCircle2 className={cn(iconClass, "text-green-500")} />;
     case "running":
-      return <Loader2 className="h-3 w-3 mr-2 animate-spin text-yellow-500" />;
+      return <Loader2 className={cn(iconClass, "animate-spin text-blue-500")} />;
     case "error":
-      return <span className={cn(dotClass, "bg-red-500")} />;
+      return <XCircle className={cn(iconClass, "text-destructive")} />;
     case "not_started":
     case "enqueued":
     case "skipped":
-      return <span className={cn(dotClass, "bg-muted-foreground")} />;
+      return <Circle className={cn(iconClass, "text-muted-foreground")} />;
     default:
-      return <span className={cn(dotClass, "bg-gray-400")} />;
+      return <Circle className={cn(iconClass, "text-gray-400")} />;
   }
 };
 
@@ -65,55 +66,55 @@ export function StatusBadge({
   
   // Normalize status
   let currentStatus = status;
-  if (status === 'enqueued') {
-      currentStatus = 'not_started';
-  }
-  if(status === 'skipped'){
-    mainText = "Skipped"
-  }
+  if (status === 'enqueued') currentStatus = 'not_started';
+  if (status === 'skipped') mainText = "Skipped";
 
   if (currentStatus === 'ok') {
     mainText = 'Completed';
     if (typeof startTime === 'number' && typeof endTime === 'number') {
       const duration = endTime - startTime;
-      durationText = ` (${formatDuration(duration)})`;
+      durationText = formatDuration(duration);
     }
   } else if (currentStatus === 'running') {
     mainText = 'Running';
     if (typeof startTime === 'number' && typeof now === 'number') {
       const elapsed = now - startTime;
-      durationText = ` (${formatDuration(elapsed)})`;
+      durationText = formatDuration(elapsed);
     }
   } else if (currentStatus === 'error') {
     mainText = 'Error';
   }
 
-
-  const badgeDisplayLabel = `${mainText}${durationText}`;
-  const ariaLabelContent = `Status: ${badgeDisplayLabel}${currentStatus === 'error' && error_message ? `. Error: ${error_message}` : ''}`;
+  const badgeDisplayLabel = `${mainText}`;
+  const ariaLabelContent = `Status: ${mainText}${currentStatus === 'ok' && durationText ? ` (took ${durationText})` : ''}${currentStatus === 'error' && error_message ? `. Error: ${error_message}` : ''}`;
 
   const badgeElement = (
     <Badge
       variant="outline"
       className={cn(
-        "px-2 py-1 text-xs font-medium rounded-full flex items-center",
+        "px-2.5 py-1 text-sm font-medium rounded-full flex items-center justify-center w-32",
         getStatusClassNames(currentStatus),
         className
       )}
       aria-label={ariaLabelContent}
     >
-      <StatusDot status={currentStatus} />
+      <StatusIcon status={currentStatus} />
       <span>{badgeDisplayLabel}</span>
     </Badge>
   );
 
-  if (currentStatus === 'error' && error_message) {
+  const tooltipContent = [
+    error_message,
+    durationText && `Duration: ${durationText}`
+  ].filter(Boolean).join('\n');
+
+  if (tooltipContent) {
     return (
       <TooltipProvider delayDuration={100}>
         <Tooltip>
           <TooltipTrigger asChild>{badgeElement}</TooltipTrigger>
-          <TooltipContent>
-            <p>{error_message}</p>
+          <TooltipContent className="whitespace-pre-wrap">
+            <p>{tooltipContent}</p>
           </TooltipContent>
         </Tooltip>
       </TooltipProvider>
@@ -122,5 +123,3 @@ export function StatusBadge({
 
   return badgeElement;
 }
-
-    

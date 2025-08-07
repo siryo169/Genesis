@@ -56,12 +56,12 @@ const CRITICAL_HEADERS = [
 
 type Priority = CsvProcessingEntry['priority'];
 
-const priorityConfig: Record<NonNullable<Priority>, { icon: React.FC<any>, color: string, label: string }> = {
-  'urgent': { icon: ChevronsUp, color: 'bg-red-500 hover:bg-red-600', label: 'Urgent' },
-  'high': { icon: ArrowUp, color: 'bg-orange-500 hover:bg-orange-600', label: 'High' },
-  'medium': { icon: ArrowRight, color: 'bg-yellow-500 hover:bg-yellow-600', label: 'Medium' },
-  'low': { icon: ArrowDown, color: 'bg-blue-500 hover:bg-blue-600', label: 'Low' },
-  'very-low': { icon: ChevronsDown, color: 'bg-gray-500 hover:bg-gray-600', label: 'Very Low' },
+const priorityConfig: Record<NonNullable<Priority>, { icon: React.FC<any>, label: string, className: string, iconClassName: string }> = {
+  'urgent': { icon: ChevronsUp, label: 'Urgent', className: 'bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-300 border-red-200 dark:border-red-800/60', iconClassName: 'text-red-600 dark:text-red-400' },
+  'high': { icon: ArrowUp, label: 'High', className: 'bg-orange-100 dark:bg-orange-900/40 text-orange-700 dark:text-orange-300 border-orange-200 dark:border-orange-800/60', iconClassName: 'text-orange-600 dark:text-orange-400' },
+  'medium': { icon: ArrowRight, label: 'Medium', className: 'bg-yellow-100 dark:bg-yellow-900/40 text-yellow-700 dark:text-yellow-300 border-yellow-200 dark:border-yellow-800/60', iconClassName: 'text-yellow-600 dark:text-yellow-400' },
+  'low': { icon: ArrowDown, label: 'Low', className: 'bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-800/60', iconClassName: 'text-blue-600 dark:text-blue-400' },
+  'very-low': { icon: ChevronsDown, label: 'Very Low', className: 'bg-gray-100 dark:bg-gray-700/40 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-gray-600/60', iconClassName: 'text-gray-500 dark:text-gray-400' },
 };
 
 
@@ -76,15 +76,15 @@ const PriorityLabel = ({ priority = 'medium', entryId, onPriorityChange }: { pri
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="icon" className={cn("h-8 w-8 rounded-full text-white", config.color)} onClick={(e) => e.stopPropagation()}>
-          <Icon className="h-5 w-5" />
-          <span className="sr-only">Change priority</span>
+        <Button variant="outline" size="sm" className={cn("w-28 justify-start gap-2 border", config.className)} onClick={(e) => e.stopPropagation()}>
+           <Icon className={cn("h-4 w-4", config.iconClassName)} />
+           <span className="font-semibold">{config.label}</span>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="start" onClick={(e) => e.stopPropagation()}>
         {Object.entries(priorityConfig).map(([key, value]) => (
           <DropdownMenuItem key={key} onSelect={() => handlePrioritySelect(key as Priority)}>
-            <value.icon className={cn("mr-2 h-4 w-4", value.color.replace('bg-', 'text-').replace(' hover:bg-.*', ''))} />
+            <value.icon className={cn("mr-2 h-4 w-4", value.iconClassName)} />
             <span>{value.label}</span>
           </DropdownMenuItem>
         ))}
@@ -189,7 +189,7 @@ export function CsvStatusTable({ data, sortConfig, requestSort, now, onDownload,
       <table className="min-w-full border-collapse relative">
         <TableHeader className="bg-muted sticky top-0 z-10">
           <TableRow>
-            <TableHead className="w-[100px] text-center">
+            <TableHead className="w-[150px] text-center">
               <Button variant="ghost" onClick={() => requestSort('priority')} className="px-2 py-1 group text-xs">
                 Priority {getSortIndicator('priority')}
               </Button>
@@ -244,7 +244,7 @@ export function CsvStatusTable({ data, sortConfig, requestSort, now, onDownload,
 
               return (
                 <TableRow key={entry.id} className="hover:bg-muted/20 transition-colors cursor-pointer" onClick={() => onRowClick(entry)}>
-                  <TableCell className="w-[100px] text-center">
+                  <TableCell className="w-[150px]">
                     <div className="flex justify-center items-center">
                       <PriorityLabel priority={entry.priority} entryId={entry.id} onPriorityChange={onPriorityChange} />
                     </div>
@@ -545,4 +545,3 @@ function getStatusColor(status: string): string {
 }
 
     
-

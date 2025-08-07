@@ -12,7 +12,7 @@ import {
 import { StatusBadge } from "./StatusBadge";
 import { NormalizerStatusCell } from "./NormalizerStatusCell";
 import { Button } from "@/components/ui/button";
-import { ArrowUpDown, Download, CheckCircle2, XCircle, Circle, RefreshCcw, LogsIcon, Wand2, MoreVertical, ArrowUpCircle, ArrowRightCircle, ArrowDownCircle, ChevronsUp, ArrowDown } from "lucide-react"; 
+import { ArrowUpDown, Download, CheckCircle2, XCircle, Circle, RefreshCcw, LogsIcon, Wand2, MoreVertical, ArrowUpCircle, ArrowRightCircle, ArrowDownCircle, ChevronsUp, ArrowDown, ChevronsDown, Minus } from "lucide-react"; 
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import React, { useState } from "react";
@@ -37,6 +37,7 @@ interface CsvStatusTableProps {
   onDownload: (filename: string) => void;
   onRetry: (id: string) => void;
   onRowClick: (entry: CsvProcessingEntry) => void;
+  onPriorityChange: (entryId: string, newPriority: CsvProcessingEntry['priority']) => void;
 }
 
 const truncateFields = (fields: string[], maxLength: number = 50) => {
@@ -54,31 +55,46 @@ const CRITICAL_HEADERS = [
   "pdata_id_nid_number"
 ];
 
-const PriorityLabel = ({ priority }: { priority?: 'high' | 'normal' | 'low' }) => {
-  const styles = {
-    high: "bg-red-500/10 text-red-500 border border-red-500/20",
-    normal: "bg-blue-500/10 text-blue-500 border border-blue-500/20",
-    low: "bg-gray-500/10 text-gray-500 border border-gray-500/20"
-  };
+type Priority = CsvProcessingEntry['priority'];
 
-  const icons = {
-    high: <ChevronsUp className="h-3 w-3" />,
-    normal: <ArrowRightCircle className="h-3 w-3" />,
-    low: <ArrowDown className="h-3 w-3" />
-  };
-
-  const currentPriority = priority || 'normal';
-  
-  return (
-    <Badge variant="outline" className={cn("flex items-center justify-center gap-1.5 w-20 capitalize", styles[currentPriority])}>
-      {icons[currentPriority]}
-      <span>{currentPriority}</span>
-    </Badge>
-  );
+const priorityConfig: Record<NonNullable<Priority>, { icon: React.FC<any>, color: string, label: string }> = {
+  'urgent': { icon: ChevronsUp, color: 'bg-red-500 hover:bg-red-600', label: 'Urgent' },
+  'high': { icon: ArrowUpCircle, color: 'bg-orange-500 hover:bg-orange-600', label: 'High' },
+  'normal': { icon: ArrowRightCircle, color: 'bg-yellow-500 hover:bg-yellow-600', label: 'Normal' },
+  'low': { icon: ArrowDownCircle, color: 'bg-blue-500 hover:bg-blue-600', label: 'Low' },
+  'very-low': { icon: ChevronsDown, color: 'bg-gray-500 hover:bg-gray-600', label: 'Very Low' },
 };
 
 
-export function CsvStatusTable({ data, sortConfig, requestSort, now, onDownload, onRetry, onRowClick }: CsvStatusTableProps) {
+const PriorityLabel = ({ priority = 'normal', entryId, onPriorityChange }: { priority?: Priority, entryId: string, onPriorityChange: CsvStatusTableProps['onPriorityChange'] }) => {
+  const config = priorityConfig[priority];
+  const Icon = config.icon;
+
+  const handlePrioritySelect = (newPriority: Priority) => {
+    onPriorityChange(entryId, newPriority);
+  };
+  
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="ghost" size="icon" className={cn("h-8 w-8 rounded-full text-white", config.color)} onClick={(e) => e.stopPropagation()}>
+          <Icon className="h-5 w-5" />
+          <span className="sr-only">Change priority</span>
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="start" onClick={(e) => e.stopPropagation()}>
+        {Object.entries(priorityConfig).map(([key, value]) => (
+          <DropdownMenuItem key={key} onSelect={() => handlePrioritySelect(key as Priority)}>
+            <value.icon className={cn("mr-2 h-4 w-4", value.color.replace('bg-', 'text-').replace(' hover:bg-.*', ''))} />
+            <span>{value.label}</span>
+          </DropdownMenuItem>
+        ))}
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+};
+
+export function CsvStatusTable({ data, sortConfig, requestSort, now, onDownload, onRetry, onRowClick, onPriorityChange }: CsvStatusTableProps) {
   const getSortIndicator = (key: keyof CsvProcessingEntry) => {
     if (sortConfig.key === key) {
       return sortConfig.direction === 'ascending' ? ' ▲' : ' ▼';
@@ -229,8 +245,10 @@ export function CsvStatusTable({ data, sortConfig, requestSort, now, onDownload,
 
               return (
                 <TableRow key={entry.id} className="hover:bg-muted/20 transition-colors cursor-pointer" onClick={() => onRowClick(entry)}>
-                  <TableCell className="text-center">
-                     <PriorityLabel priority={entry.priority} />
+                  <TableCell className="w-[100px] text-center">
+                    <div className="flex justify-center items-center">
+                      <PriorityLabel priority={entry.priority} entryId={entry.id} onPriorityChange={onPriorityChange} />
+                    </div>
                   </TableCell>
                   <TableCell className="font-medium py-3 px-4 whitespace-nowrap text-xs max-w-[260px] overflow-hidden text-ellipsis" title={entry.filename}>
                       <TooltipProvider delayDuration={100}>
@@ -528,3 +546,4 @@ function getStatusColor(status: string): string {
 }
 
     
+

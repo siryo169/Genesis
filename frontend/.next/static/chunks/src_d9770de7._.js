@@ -3640,7 +3640,7 @@ const SelectGroup = __TURBOPACK__imported__module__$5b$project$5d2f$node_modules
 const SelectValue = __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$radix$2d$ui$2f$react$2d$select$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Value"];
 const SelectTrigger = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["forwardRef"])(_c = ({ className, children, ...props }, ref)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$radix$2d$ui$2f$react$2d$select$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Trigger"], {
         ref: ref,
-        className: (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$utils$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["cn"])("flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1", className),
+        className: (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$utils$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["cn"])("flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1", "hover:bg-accent-hover/10", className),
         ...props,
         children: [
             children,
@@ -3650,12 +3650,12 @@ const SelectTrigger = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$proje
                     className: "h-4 w-4 opacity-50"
                 }, void 0, false, {
                     fileName: "[project]/src/components/ui/select.tsx",
-                    lineNumber: 29,
+                    lineNumber: 30,
                     columnNumber: 7
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/src/components/ui/select.tsx",
-                lineNumber: 28,
+                lineNumber: 29,
                 columnNumber: 5
             }, this)
         ]
@@ -3674,12 +3674,12 @@ const SelectScrollUpButton = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5
             className: "h-4 w-4"
         }, void 0, false, {
             fileName: "[project]/src/components/ui/select.tsx",
-            lineNumber: 47,
+            lineNumber: 48,
             columnNumber: 5
         }, this)
     }, void 0, false, {
         fileName: "[project]/src/components/ui/select.tsx",
-        lineNumber: 39,
+        lineNumber: 40,
         columnNumber: 3
     }, this));
 _c2 = SelectScrollUpButton;
@@ -3692,12 +3692,12 @@ const SelectScrollDownButton = /*#__PURE__*/ (0, __TURBOPACK__imported__module__
             className: "h-4 w-4"
         }, void 0, false, {
             fileName: "[project]/src/components/ui/select.tsx",
-            lineNumber: 64,
+            lineNumber: 65,
             columnNumber: 5
         }, this)
     }, void 0, false, {
         fileName: "[project]/src/components/ui/select.tsx",
-        lineNumber: 56,
+        lineNumber: 57,
         columnNumber: 3
     }, this));
 _c3 = SelectScrollDownButton;
@@ -3711,7 +3711,7 @@ const SelectContent = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$proje
             children: [
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(SelectScrollUpButton, {}, void 0, false, {
                     fileName: "[project]/src/components/ui/select.tsx",
-                    lineNumber: 86,
+                    lineNumber: 87,
                     columnNumber: 7
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$radix$2d$ui$2f$react$2d$select$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Viewport"], {
@@ -3719,23 +3719,23 @@ const SelectContent = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$proje
                     children: children
                 }, void 0, false, {
                     fileName: "[project]/src/components/ui/select.tsx",
-                    lineNumber: 87,
+                    lineNumber: 88,
                     columnNumber: 7
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(SelectScrollDownButton, {}, void 0, false, {
                     fileName: "[project]/src/components/ui/select.tsx",
-                    lineNumber: 96,
+                    lineNumber: 97,
                     columnNumber: 7
                 }, this)
             ]
         }, void 0, true, {
             fileName: "[project]/src/components/ui/select.tsx",
-            lineNumber: 75,
+            lineNumber: 76,
             columnNumber: 5
         }, this)
     }, void 0, false, {
         fileName: "[project]/src/components/ui/select.tsx",
-        lineNumber: 74,
+        lineNumber: 75,
         columnNumber: 3
     }, this));
 _c5 = SelectContent;
@@ -3746,7 +3746,7 @@ const SelectLabel = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project
         ...props
     }, void 0, false, {
         fileName: "[project]/src/components/ui/select.tsx",
-        lineNumber: 106,
+        lineNumber: 107,
         columnNumber: 3
     }, this));
 _c7 = SelectLabel;
@@ -3763,30 +3763,30 @@ const SelectItem = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$
                         className: "h-4 w-4"
                     }, void 0, false, {
                         fileName: "[project]/src/components/ui/select.tsx",
-                        lineNumber: 128,
+                        lineNumber: 129,
                         columnNumber: 9
                     }, this)
                 }, void 0, false, {
                     fileName: "[project]/src/components/ui/select.tsx",
-                    lineNumber: 127,
+                    lineNumber: 128,
                     columnNumber: 7
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/src/components/ui/select.tsx",
-                lineNumber: 126,
+                lineNumber: 127,
                 columnNumber: 5
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$radix$2d$ui$2f$react$2d$select$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["ItemText"], {
                 children: children
             }, void 0, false, {
                 fileName: "[project]/src/components/ui/select.tsx",
-                lineNumber: 132,
+                lineNumber: 133,
                 columnNumber: 5
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/src/components/ui/select.tsx",
-        lineNumber: 118,
+        lineNumber: 119,
         columnNumber: 3
     }, this));
 _c9 = SelectItem;
@@ -3797,7 +3797,7 @@ const SelectSeparator = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$pro
         ...props
     }, void 0, false, {
         fileName: "[project]/src/components/ui/select.tsx",
-        lineNumber: 141,
+        lineNumber: 142,
         columnNumber: 3
     }, this));
 _c11 = SelectSeparator;

@@ -37,6 +37,7 @@ interface CsvStatusTableProps {
   onRetry: (id: string) => void;
   onRowClick: (entry: CsvProcessingEntry) => void;
   onPriorityChange: (entryId: string, newPriority: CsvProcessingEntry['priority']) => void;
+  density?: 'comfort' | 'dense';
 }
 
 const truncateFields = (fields: string[], maxLength: number = 50) => {
@@ -76,7 +77,7 @@ const PriorityLabel = ({ priority = 'medium', entryId, onPriorityChange }: { pri
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="outline" size="icon" className={cn("rounded-full border", config.className)} onClick={(e) => e.stopPropagation()}>
+        <Button variant="outline" size="icon" className={cn("rounded-full border w-7 h-7", config.className)} onClick={(e) => e.stopPropagation()}>
            <Icon className={cn("h-4 w-4", config.iconClassName)} />
            <span className="sr-only">{config.label}</span>
         </Button>
@@ -93,7 +94,7 @@ const PriorityLabel = ({ priority = 'medium', entryId, onPriorityChange }: { pri
   );
 };
 
-export function CsvStatusTable({ data, sortConfig, requestSort, now, onDownload, onRetry, onRowClick, onPriorityChange }: CsvStatusTableProps) {
+export function CsvStatusTable({ data, sortConfig, requestSort, now, onDownload, onRetry, onRowClick, onPriorityChange, density = 'comfort' }: CsvStatusTableProps) {
   const getSortIndicator = (key: keyof CsvProcessingEntry) => {
     if (sortConfig.key === key) {
       return sortConfig.direction === 'ascending' ? ' ▲' : ' ▼';
@@ -183,6 +184,8 @@ export function CsvStatusTable({ data, sortConfig, requestSort, now, onDownload,
     return `${d.getUTCFullYear()}-${String(d.getUTCMonth()+1).padStart(2,'0')}-${String(d.getUTCDate()).padStart(2,'0')} ${String(d.getUTCHours()).padStart(2,'0')}:${String(d.getUTCMinutes()).padStart(2,'0')}:${String(d.getUTCSeconds()).padStart(2,'0')} UTC`;
   }
 
+  const cellPaddingClass = density === 'dense' ? 'py-1 px-4' : 'py-3 px-4';
+
   return (
     <>
     <ScrollArea className="min-h-[400px] flex-grow rounded-md border shadow-sm">
@@ -244,12 +247,12 @@ export function CsvStatusTable({ data, sortConfig, requestSort, now, onDownload,
 
               return (
                 <TableRow key={entry.id} className="hover:bg-muted/20 transition-colors cursor-pointer" onClick={() => onRowClick(entry)}>
-                  <TableCell className="w-[150px]">
+                  <TableCell className={cn("w-[150px]", cellPaddingClass)}>
                     <div className="flex justify-center items-center">
                       <PriorityLabel priority={entry.priority} entryId={entry.id} onPriorityChange={onPriorityChange} />
                     </div>
                   </TableCell>
-                  <TableCell className="font-medium py-3 px-4 whitespace-nowrap text-xs max-w-[260px] overflow-hidden text-ellipsis" title={entry.filename}>
+                  <TableCell className={cn("font-medium whitespace-nowrap text-xs max-w-[260px] overflow-hidden text-ellipsis", cellPaddingClass)} title={entry.filename}>
                       <TooltipProvider delayDuration={100}>
                         <Tooltip>
                           <TooltipTrigger asChild>
@@ -259,7 +262,7 @@ export function CsvStatusTable({ data, sortConfig, requestSort, now, onDownload,
                         </Tooltip>
                       </TooltipProvider>
                     </TableCell>
-                  <TableCell className="py-3 px-4">
+                  <TableCell className={cellPaddingClass}>
                     <StatusBadge 
                       status={entry.status === 'enqueued' ? 'not_started' : entry.stage_stats?.classification?.status || 'not_started'}
                       startTime={entry.stage_stats?.classification?.start_time ? new Date(entry.stage_stats.classification.start_time).getTime() : undefined}
@@ -268,7 +271,7 @@ export function CsvStatusTable({ data, sortConfig, requestSort, now, onDownload,
                       now={now} 
                     />
                   </TableCell>
-                    <TableCell className="py-3 px-4 text-center text-xs">
+                    <TableCell className={cn("text-center text-xs", cellPaddingClass)}>
                     <TooltipProvider delayDuration={100}>
                       <Tooltip>
                         <TooltipTrigger asChild>
@@ -296,7 +299,7 @@ export function CsvStatusTable({ data, sortConfig, requestSort, now, onDownload,
                       </Tooltip>
                     </TooltipProvider>
                   </TableCell>
-                  <TableCell className="py-3 px-4 align-middle">
+                  <TableCell className={cn("align-middle", cellPaddingClass)}>
                     <div className="relative flex flex-col items-center justify-center" style={{ minHeight: 10 }}>
                       <div className="flex items-center justify-center h-full">
                         <StatusBadge
@@ -321,7 +324,7 @@ export function CsvStatusTable({ data, sortConfig, requestSort, now, onDownload,
                       )}
                     </div>
                   </TableCell>
-                  <TableCell className="py-3 px-4">
+                  <TableCell className={cellPaddingClass}>
                     <StatusBadge 
                       status={entry.stage_stats?.gemini_query?.status || 'not_started'}
                       startTime={entry.stage_stats?.gemini_query?.start_time ? new Date(entry.stage_stats.gemini_query.start_time).getTime() : undefined}
@@ -330,7 +333,7 @@ export function CsvStatusTable({ data, sortConfig, requestSort, now, onDownload,
                       now={now}
                     />
                   </TableCell>
-                  <TableCell className="py-3 px-4 text-sm text-muted-foreground" title={entry.extracted_fields ? entry.extracted_fields.join(", ") : "No fields extracted"}>
+                  <TableCell className={cn("text-sm text-muted-foreground", cellPaddingClass)} title={entry.extracted_fields ? entry.extracted_fields.join(", ") : "No fields extracted"}>
                     {(() => {
                       if (!entry.extracted_fields) {
                         return <span className="text-muted-foreground"></span>;
@@ -368,7 +371,7 @@ export function CsvStatusTable({ data, sortConfig, requestSort, now, onDownload,
                       </span>
                     )}
                   </TableCell>
-                  <TableCell className="py-3 px-4">
+                  <TableCell className={cellPaddingClass}>
                     <StatusBadge
                       status={entry.stage_stats?.normalization?.status || 'not_started'}
                       startTime={entry.stage_stats?.normalization?.start_time ? new Date(entry.stage_stats.normalization.start_time).getTime() : undefined}
@@ -377,7 +380,7 @@ export function CsvStatusTable({ data, sortConfig, requestSort, now, onDownload,
                       now={now}
                     />
                   </TableCell>
-                  <TableCell className="py-3 px-4 text-right">
+                  <TableCell className={cn("text-right", cellPaddingClass)}>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <Button variant="ghost" size="icon" className="h-8 w-8" onClick={(e) => e.stopPropagation()}>

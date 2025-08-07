@@ -10,9 +10,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { StatusBadge } from "./StatusBadge";
-import { NormalizerStatusCell } from "./NormalizerStatusCell";
 import { Button } from "@/components/ui/button";
-import { ArrowUpDown, Download, CheckCircle2, XCircle, Circle, RefreshCcw, LogsIcon, Wand2, MoreVertical, ArrowUpCircle, ArrowRightCircle, ArrowDownCircle, ChevronsUp, ArrowDown, ChevronsDown, Minus } from "lucide-react"; 
+import { ArrowUpDown, Download, CheckCircle2, XCircle, Circle, RefreshCcw, LogsIcon, Wand2, MoreVertical, ArrowUp, ArrowRight, ArrowDown, ChevronsUp, ChevronsDown, Minus } from "lucide-react"; 
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import React, { useState } from "react";
@@ -59,9 +58,9 @@ type Priority = CsvProcessingEntry['priority'];
 
 const priorityConfig: Record<NonNullable<Priority>, { icon: React.FC<any>, color: string, label: string }> = {
   'urgent': { icon: ChevronsUp, color: 'bg-red-500 hover:bg-red-600', label: 'Urgent' },
-  'high': { icon: ArrowUpCircle, color: 'bg-orange-500 hover:bg-orange-600', label: 'High' },
-  'medium': { icon: ArrowRightCircle, color: 'bg-yellow-500 hover:bg-yellow-600', label: 'Medium' },
-  'low': { icon: ArrowDownCircle, color: 'bg-blue-500 hover:bg-blue-600', label: 'Low' },
+  'high': { icon: ArrowUp, color: 'bg-orange-500 hover:bg-orange-600', label: 'High' },
+  'medium': { icon: ArrowRight, color: 'bg-yellow-500 hover:bg-yellow-600', label: 'Medium' },
+  'low': { icon: ArrowDown, color: 'bg-blue-500 hover:bg-blue-600', label: 'Low' },
   'very-low': { icon: ChevronsDown, color: 'bg-gray-500 hover:bg-gray-600', label: 'Very Low' },
 };
 

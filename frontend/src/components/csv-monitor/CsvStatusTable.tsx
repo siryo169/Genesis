@@ -78,7 +78,7 @@ const PriorityLabel = ({ priority = 'medium', entryId, onPriorityChange }: { pri
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="outline" size="icon" className={cn("rounded-full border w-7 h-7", config.className)} onClick={(e) => e.stopPropagation()}>
+        <Button variant="outline" size="icon" className={cn("rounded-full border w-[22px] h-[22px]", config.className)} onClick={(e) => e.stopPropagation()}>
            <Icon className={cn("h-4 w-4", config.iconClassName)} />
            <span className="sr-only">{config.label}</span>
         </Button>
@@ -190,43 +190,41 @@ export function CsvStatusTable({ data, sortConfig, requestSort, now, onDownload,
   return (
     <>
     <div className="relative flex-grow flex flex-col">
-      <Table>
-        <TableHeader className="bg-muted sticky top-0 z-10">
-          <TableRow>
-            <TableHead className="w-[150px] text-center">
-              <Button variant="ghost" onClick={() => requestSort('priority')} className="px-2 py-1 group text-xs">
-                Priority {getSortIndicator('priority')}
-              </Button>
-            </TableHead>
-            <TableHead>
-                <Button variant="ghost" onClick={() => requestSort('filename')} className="px-2 py-1 group text-xs">
-                Filename {getSortIndicator('filename')}
-              </Button>
-            </TableHead>
-            <TableHead>
-               <span className="px-2 py-1 group text-xs">Classifier</span>
-            </TableHead>
-            <TableHead>
-                <Button variant="ghost" disabled className="px-2 py-1 group text-xs">
-                File Type
-              </Button>
-            </TableHead>
-            <TableHead>
-              <span className="px-2 py-1 group text-xs">Sampling</span>
-            </TableHead>
-            <TableHead>
-              <span className="px-2 py-1 group text-xs">Gemini Query</span>
-            </TableHead>
-            <TableHead className="text-xs">Extracted Fields</TableHead>
-            <TableHead>
-              <span className="px-2 py-1 group text-xs">Normalizer</span>
-            </TableHead>
-            <TableHead className="text-right px-4 text-xs">Actions</TableHead>
-          </TableRow>
-        </TableHeader>
-      </Table>
       <ScrollArea className="flex-grow">
         <Table className="min-w-full border-collapse relative">
+          <TableHeader className="bg-muted sticky top-0 z-10">
+            <TableRow>
+              <TableHead className="w-[150px] text-center">
+                <Button variant="ghost" onClick={() => requestSort('priority')} className="px-2 py-1 group text-xs">
+                  Priority {getSortIndicator('priority')}
+                </Button>
+              </TableHead>
+              <TableHead>
+                  <Button variant="ghost" onClick={() => requestSort('filename')} className="px-2 py-1 group text-xs">
+                  Filename {getSortIndicator('filename')}
+                </Button>
+              </TableHead>
+              <TableHead>
+                 <span className="px-2 py-1 group text-xs">Classifier</span>
+              </TableHead>
+              <TableHead>
+                  <Button variant="ghost" disabled className="px-2 py-1 group text-xs">
+                  File Type
+                </Button>
+              </TableHead>
+              <TableHead>
+                <span className="px-2 py-1 group text-xs">Sampling</span>
+              </TableHead>
+              <TableHead>
+                <span className="px-2 py-1 group text-xs">Gemini Query</span>
+              </TableHead>
+              <TableHead className="text-xs">Extracted Fields</TableHead>
+              <TableHead>
+                <span className="px-2 py-1 group text-xs">Normalizer</span>
+              </TableHead>
+              <TableHead className="text-right px-4 text-xs">Actions</TableHead>
+            </TableRow>
+          </TableHeader>
           <TableBody>
             {data.length === 0 ? (
               <TableRow>
@@ -256,7 +254,7 @@ export function CsvStatusTable({ data, sortConfig, requestSort, now, onDownload,
                         <PriorityLabel priority={entry.priority} entryId={entry.id} onPriorityChange={onPriorityChange} />
                       </div>
                     </TableCell>
-                    <TableCell className={cn("font-medium whitespace-nowrap text-xs max-w-[260px] overflow-hidden text-ellipsis", cellPaddingClass)} title={entry.filename}>
+                    <TableCell className={cn("font-medium whitespace-nowrap text-sm max-w-[260px] overflow-hidden text-ellipsis", cellPaddingClass)} title={entry.filename}>
                         <TooltipProvider delayDuration={100}>
                           <Tooltip>
                             <TooltipTrigger asChild>
@@ -552,5 +550,7 @@ function getStatusColor(status: string): string {
       return 'bg-gray-500';
   }
 }
+
+    
 
     

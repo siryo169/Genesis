@@ -1384,7 +1384,7 @@ const PriorityLabel = ({ priority = 'medium', entryId, onPriorityChange })=>{
                 children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
                     variant: "outline",
                     size: "icon",
-                    className: (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$utils$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["cn"])("rounded-full border w-7 h-7", config.className),
+                    className: (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$utils$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["cn"])("rounded-full border w-[22px] h-[22px]", config.className),
                     onClick: (e)=>e.stopPropagation(),
                     children: [
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(Icon, {
@@ -1574,160 +1574,154 @@ function CsvStatusTable({ data, sortConfig, requestSort, now, onDownload, onRetr
         children: [
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                 className: "relative flex-grow flex flex-col",
-                children: [
-                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Table"], {
-                        children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableHeader"], {
-                            className: "bg-muted sticky top-0 z-10",
-                            children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableRow"], {
-                                children: [
-                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableHead"], {
-                                        className: "w-[150px] text-center",
-                                        children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
-                                            variant: "ghost",
-                                            onClick: ()=>requestSort('priority'),
-                                            className: "px-2 py-1 group text-xs",
-                                            children: [
-                                                "Priority ",
-                                                getSortIndicator('priority')
-                                            ]
-                                        }, void 0, true, {
+                children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$scroll$2d$area$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["ScrollArea"], {
+                    className: "flex-grow",
+                    children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Table"], {
+                        className: "min-w-full border-collapse relative",
+                        children: [
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableHeader"], {
+                                className: "bg-muted sticky top-0 z-10",
+                                children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableRow"], {
+                                    children: [
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableHead"], {
+                                            className: "w-[150px] text-center",
+                                            children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
+                                                variant: "ghost",
+                                                onClick: ()=>requestSort('priority'),
+                                                className: "px-2 py-1 group text-xs",
+                                                children: [
+                                                    "Priority ",
+                                                    getSortIndicator('priority')
+                                                ]
+                                            }, void 0, true, {
+                                                fileName: "[project]/src/components/csv-monitor/CsvStatusTable.tsx",
+                                                lineNumber: 198,
+                                                columnNumber: 17
+                                            }, this)
+                                        }, void 0, false, {
                                             fileName: "[project]/src/components/csv-monitor/CsvStatusTable.tsx",
                                             lineNumber: 197,
                                             columnNumber: 15
-                                        }, this)
-                                    }, void 0, false, {
-                                        fileName: "[project]/src/components/csv-monitor/CsvStatusTable.tsx",
-                                        lineNumber: 196,
-                                        columnNumber: 13
-                                    }, this),
-                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableHead"], {
-                                        children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
-                                            variant: "ghost",
-                                            onClick: ()=>requestSort('filename'),
-                                            className: "px-2 py-1 group text-xs",
-                                            children: [
-                                                "Filename ",
-                                                getSortIndicator('filename')
-                                            ]
-                                        }, void 0, true, {
+                                        }, this),
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableHead"], {
+                                            children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
+                                                variant: "ghost",
+                                                onClick: ()=>requestSort('filename'),
+                                                className: "px-2 py-1 group text-xs",
+                                                children: [
+                                                    "Filename ",
+                                                    getSortIndicator('filename')
+                                                ]
+                                            }, void 0, true, {
+                                                fileName: "[project]/src/components/csv-monitor/CsvStatusTable.tsx",
+                                                lineNumber: 203,
+                                                columnNumber: 19
+                                            }, this)
+                                        }, void 0, false, {
                                             fileName: "[project]/src/components/csv-monitor/CsvStatusTable.tsx",
                                             lineNumber: 202,
-                                            columnNumber: 17
-                                        }, this)
-                                    }, void 0, false, {
-                                        fileName: "[project]/src/components/csv-monitor/CsvStatusTable.tsx",
-                                        lineNumber: 201,
-                                        columnNumber: 13
-                                    }, this),
-                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableHead"], {
-                                        children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                            className: "px-2 py-1 group text-xs",
-                                            children: "Classifier"
+                                            columnNumber: 15
+                                        }, this),
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableHead"], {
+                                            children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                className: "px-2 py-1 group text-xs",
+                                                children: "Classifier"
+                                            }, void 0, false, {
+                                                fileName: "[project]/src/components/csv-monitor/CsvStatusTable.tsx",
+                                                lineNumber: 208,
+                                                columnNumber: 18
+                                            }, this)
                                         }, void 0, false, {
                                             fileName: "[project]/src/components/csv-monitor/CsvStatusTable.tsx",
                                             lineNumber: 207,
-                                            columnNumber: 16
-                                        }, this)
-                                    }, void 0, false, {
-                                        fileName: "[project]/src/components/csv-monitor/CsvStatusTable.tsx",
-                                        lineNumber: 206,
-                                        columnNumber: 13
-                                    }, this),
-                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableHead"], {
-                                        children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
-                                            variant: "ghost",
-                                            disabled: true,
-                                            className: "px-2 py-1 group text-xs",
-                                            children: "File Type"
+                                            columnNumber: 15
+                                        }, this),
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableHead"], {
+                                            children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
+                                                variant: "ghost",
+                                                disabled: true,
+                                                className: "px-2 py-1 group text-xs",
+                                                children: "File Type"
+                                            }, void 0, false, {
+                                                fileName: "[project]/src/components/csv-monitor/CsvStatusTable.tsx",
+                                                lineNumber: 211,
+                                                columnNumber: 19
+                                            }, this)
                                         }, void 0, false, {
                                             fileName: "[project]/src/components/csv-monitor/CsvStatusTable.tsx",
                                             lineNumber: 210,
-                                            columnNumber: 17
-                                        }, this)
-                                    }, void 0, false, {
-                                        fileName: "[project]/src/components/csv-monitor/CsvStatusTable.tsx",
-                                        lineNumber: 209,
-                                        columnNumber: 13
-                                    }, this),
-                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableHead"], {
-                                        children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                            className: "px-2 py-1 group text-xs",
-                                            children: "Sampling"
+                                            columnNumber: 15
+                                        }, this),
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableHead"], {
+                                            children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                className: "px-2 py-1 group text-xs",
+                                                children: "Sampling"
+                                            }, void 0, false, {
+                                                fileName: "[project]/src/components/csv-monitor/CsvStatusTable.tsx",
+                                                lineNumber: 216,
+                                                columnNumber: 17
+                                            }, this)
                                         }, void 0, false, {
                                             fileName: "[project]/src/components/csv-monitor/CsvStatusTable.tsx",
                                             lineNumber: 215,
                                             columnNumber: 15
-                                        }, this)
-                                    }, void 0, false, {
-                                        fileName: "[project]/src/components/csv-monitor/CsvStatusTable.tsx",
-                                        lineNumber: 214,
-                                        columnNumber: 13
-                                    }, this),
-                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableHead"], {
-                                        children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                            className: "px-2 py-1 group text-xs",
-                                            children: "Gemini Query"
+                                        }, this),
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableHead"], {
+                                            children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                className: "px-2 py-1 group text-xs",
+                                                children: "Gemini Query"
+                                            }, void 0, false, {
+                                                fileName: "[project]/src/components/csv-monitor/CsvStatusTable.tsx",
+                                                lineNumber: 219,
+                                                columnNumber: 17
+                                            }, this)
                                         }, void 0, false, {
                                             fileName: "[project]/src/components/csv-monitor/CsvStatusTable.tsx",
                                             lineNumber: 218,
                                             columnNumber: 15
-                                        }, this)
-                                    }, void 0, false, {
-                                        fileName: "[project]/src/components/csv-monitor/CsvStatusTable.tsx",
-                                        lineNumber: 217,
-                                        columnNumber: 13
-                                    }, this),
-                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableHead"], {
-                                        className: "text-xs",
-                                        children: "Extracted Fields"
-                                    }, void 0, false, {
-                                        fileName: "[project]/src/components/csv-monitor/CsvStatusTable.tsx",
-                                        lineNumber: 220,
-                                        columnNumber: 13
-                                    }, this),
-                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableHead"], {
-                                        children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                            className: "px-2 py-1 group text-xs",
-                                            children: "Normalizer"
+                                        }, this),
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableHead"], {
+                                            className: "text-xs",
+                                            children: "Extracted Fields"
+                                        }, void 0, false, {
+                                            fileName: "[project]/src/components/csv-monitor/CsvStatusTable.tsx",
+                                            lineNumber: 221,
+                                            columnNumber: 15
+                                        }, this),
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableHead"], {
+                                            children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                className: "px-2 py-1 group text-xs",
+                                                children: "Normalizer"
+                                            }, void 0, false, {
+                                                fileName: "[project]/src/components/csv-monitor/CsvStatusTable.tsx",
+                                                lineNumber: 223,
+                                                columnNumber: 17
+                                            }, this)
                                         }, void 0, false, {
                                             fileName: "[project]/src/components/csv-monitor/CsvStatusTable.tsx",
                                             lineNumber: 222,
                                             columnNumber: 15
+                                        }, this),
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableHead"], {
+                                            className: "text-right px-4 text-xs",
+                                            children: "Actions"
+                                        }, void 0, false, {
+                                            fileName: "[project]/src/components/csv-monitor/CsvStatusTable.tsx",
+                                            lineNumber: 225,
+                                            columnNumber: 15
                                         }, this)
-                                    }, void 0, false, {
-                                        fileName: "[project]/src/components/csv-monitor/CsvStatusTable.tsx",
-                                        lineNumber: 221,
-                                        columnNumber: 13
-                                    }, this),
-                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableHead"], {
-                                        className: "text-right px-4 text-xs",
-                                        children: "Actions"
-                                    }, void 0, false, {
-                                        fileName: "[project]/src/components/csv-monitor/CsvStatusTable.tsx",
-                                        lineNumber: 224,
-                                        columnNumber: 13
-                                    }, this)
-                                ]
-                            }, void 0, true, {
+                                    ]
+                                }, void 0, true, {
+                                    fileName: "[project]/src/components/csv-monitor/CsvStatusTable.tsx",
+                                    lineNumber: 196,
+                                    columnNumber: 13
+                                }, this)
+                            }, void 0, false, {
                                 fileName: "[project]/src/components/csv-monitor/CsvStatusTable.tsx",
                                 lineNumber: 195,
                                 columnNumber: 11
-                            }, this)
-                        }, void 0, false, {
-                            fileName: "[project]/src/components/csv-monitor/CsvStatusTable.tsx",
-                            lineNumber: 194,
-                            columnNumber: 9
-                        }, this)
-                    }, void 0, false, {
-                        fileName: "[project]/src/components/csv-monitor/CsvStatusTable.tsx",
-                        lineNumber: 193,
-                        columnNumber: 7
-                    }, this),
-                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$scroll$2d$area$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["ScrollArea"], {
-                        className: "flex-grow",
-                        children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Table"], {
-                            className: "min-w-full border-collapse relative",
-                            children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableBody"], {
+                            }, this),
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableBody"], {
                                 children: data.length === 0 ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableRow"], {
                                     children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableCell"], {
                                         colSpan: 9,
@@ -1735,12 +1729,12 @@ function CsvStatusTable({ data, sortConfig, requestSort, now, onDownload, onRetr
                                         children: "No files found. Try uploading a new file or clearing your filters."
                                     }, void 0, false, {
                                         fileName: "[project]/src/components/csv-monitor/CsvStatusTable.tsx",
-                                        lineNumber: 233,
+                                        lineNumber: 231,
                                         columnNumber: 17
                                     }, this)
                                 }, void 0, false, {
                                     fileName: "[project]/src/components/csv-monitor/CsvStatusTable.tsx",
-                                    lineNumber: 232,
+                                    lineNumber: 230,
                                     columnNumber: 15
                                 }, this) : data.map((entry)=>{
                                     const isFullyCompleted = entry.stage_stats?.classification?.status === 'ok' && (entry.stage_stats?.sampling?.status === 'ok' || entry.stage_stats?.sampling?.status === 'skipped') && (entry.stage_stats?.gemini_query?.status === 'ok' || entry.stage_stats?.gemini_query?.status === 'skipped') && entry.stage_stats?.normalization?.status === 'ok';
@@ -1764,21 +1758,21 @@ function CsvStatusTable({ data, sortConfig, requestSort, now, onDownload, onRetr
                                                         onPriorityChange: onPriorityChange
                                                     }, void 0, false, {
                                                         fileName: "[project]/src/components/csv-monitor/CsvStatusTable.tsx",
-                                                        lineNumber: 256,
+                                                        lineNumber: 254,
                                                         columnNumber: 25
                                                     }, this)
                                                 }, void 0, false, {
                                                     fileName: "[project]/src/components/csv-monitor/CsvStatusTable.tsx",
-                                                    lineNumber: 255,
+                                                    lineNumber: 253,
                                                     columnNumber: 23
                                                 }, this)
                                             }, void 0, false, {
                                                 fileName: "[project]/src/components/csv-monitor/CsvStatusTable.tsx",
-                                                lineNumber: 254,
+                                                lineNumber: 252,
                                                 columnNumber: 21
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableCell"], {
-                                                className: (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$utils$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["cn"])("font-medium whitespace-nowrap text-xs max-w-[260px] overflow-hidden text-ellipsis", cellPaddingClass),
+                                                className: (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$utils$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["cn"])("font-medium whitespace-nowrap text-sm max-w-[260px] overflow-hidden text-ellipsis", cellPaddingClass),
                                                 title: entry.filename,
                                                 children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$tooltip$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TooltipProvider"], {
                                                     delayDuration: 100,
@@ -1791,35 +1785,35 @@ function CsvStatusTable({ data, sortConfig, requestSort, now, onDownload, onRetr
                                                                     children: entry.filename
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/src/components/csv-monitor/CsvStatusTable.tsx",
-                                                                    lineNumber: 263,
+                                                                    lineNumber: 261,
                                                                     columnNumber: 31
                                                                 }, this)
                                                             }, void 0, false, {
                                                                 fileName: "[project]/src/components/csv-monitor/CsvStatusTable.tsx",
-                                                                lineNumber: 262,
+                                                                lineNumber: 260,
                                                                 columnNumber: 29
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$tooltip$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TooltipContent"], {
                                                                 children: entry.filename
                                                             }, void 0, false, {
                                                                 fileName: "[project]/src/components/csv-monitor/CsvStatusTable.tsx",
-                                                                lineNumber: 265,
+                                                                lineNumber: 263,
                                                                 columnNumber: 29
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/src/components/csv-monitor/CsvStatusTable.tsx",
-                                                        lineNumber: 261,
+                                                        lineNumber: 259,
                                                         columnNumber: 27
                                                     }, this)
                                                 }, void 0, false, {
                                                     fileName: "[project]/src/components/csv-monitor/CsvStatusTable.tsx",
-                                                    lineNumber: 260,
+                                                    lineNumber: 258,
                                                     columnNumber: 25
                                                 }, this)
                                             }, void 0, false, {
                                                 fileName: "[project]/src/components/csv-monitor/CsvStatusTable.tsx",
-                                                lineNumber: 259,
+                                                lineNumber: 257,
                                                 columnNumber: 21
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableCell"], {
@@ -1832,12 +1826,12 @@ function CsvStatusTable({ data, sortConfig, requestSort, now, onDownload, onRetr
                                                     now: now
                                                 }, void 0, false, {
                                                     fileName: "[project]/src/components/csv-monitor/CsvStatusTable.tsx",
-                                                    lineNumber: 270,
+                                                    lineNumber: 268,
                                                     columnNumber: 23
                                                 }, this)
                                             }, void 0, false, {
                                                 fileName: "[project]/src/components/csv-monitor/CsvStatusTable.tsx",
-                                                lineNumber: 269,
+                                                lineNumber: 267,
                                                 columnNumber: 21
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableCell"], {
@@ -1859,12 +1853,12 @@ function CsvStatusTable({ data, sortConfig, requestSort, now, onDownload, onRetr
                                                                     })()
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/src/components/csv-monitor/CsvStatusTable.tsx",
-                                                                    lineNumber: 282,
+                                                                    lineNumber: 280,
                                                                     columnNumber: 30
                                                                 }, this)
                                                             }, void 0, false, {
                                                                 fileName: "[project]/src/components/csv-monitor/CsvStatusTable.tsx",
-                                                                lineNumber: 281,
+                                                                lineNumber: 279,
                                                                 columnNumber: 27
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$tooltip$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TooltipContent"], {
@@ -1879,28 +1873,28 @@ function CsvStatusTable({ data, sortConfig, requestSort, now, onDownload, onRetr
                                                                     })()
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/src/components/csv-monitor/CsvStatusTable.tsx",
-                                                                    lineNumber: 293,
+                                                                    lineNumber: 291,
                                                                     columnNumber: 29
                                                                 }, this)
                                                             }, void 0, false, {
                                                                 fileName: "[project]/src/components/csv-monitor/CsvStatusTable.tsx",
-                                                                lineNumber: 292,
+                                                                lineNumber: 290,
                                                                 columnNumber: 27
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/src/components/csv-monitor/CsvStatusTable.tsx",
-                                                        lineNumber: 280,
+                                                        lineNumber: 278,
                                                         columnNumber: 25
                                                     }, this)
                                                 }, void 0, false, {
                                                     fileName: "[project]/src/components/csv-monitor/CsvStatusTable.tsx",
-                                                    lineNumber: 279,
+                                                    lineNumber: 277,
                                                     columnNumber: 23
                                                 }, this)
                                             }, void 0, false, {
                                                 fileName: "[project]/src/components/csv-monitor/CsvStatusTable.tsx",
-                                                lineNumber: 278,
+                                                lineNumber: 276,
                                                 columnNumber: 23
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableCell"], {
@@ -1921,12 +1915,12 @@ function CsvStatusTable({ data, sortConfig, requestSort, now, onDownload, onRetr
                                                                 now: now
                                                             }, void 0, false, {
                                                                 fileName: "[project]/src/components/csv-monitor/CsvStatusTable.tsx",
-                                                                lineNumber: 309,
+                                                                lineNumber: 307,
                                                                 columnNumber: 27
                                                             }, this)
                                                         }, void 0, false, {
                                                             fileName: "[project]/src/components/csv-monitor/CsvStatusTable.tsx",
-                                                            lineNumber: 308,
+                                                            lineNumber: 306,
                                                             columnNumber: 25
                                                         }, this),
                                                         entry.stage_stats?.sampling?.status === 'ok' && entry.gemini_sample_rows && entry.gemini_sample_rows.length > 0 && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -1945,18 +1939,18 @@ function CsvStatusTable({ data, sortConfig, requestSort, now, onDownload, onRetr
                                                             children: "Inspect"
                                                         }, void 0, false, {
                                                             fileName: "[project]/src/components/csv-monitor/CsvStatusTable.tsx",
-                                                            lineNumber: 318,
+                                                            lineNumber: 316,
                                                             columnNumber: 27
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/src/components/csv-monitor/CsvStatusTable.tsx",
-                                                    lineNumber: 307,
+                                                    lineNumber: 305,
                                                     columnNumber: 23
                                                 }, this)
                                             }, void 0, false, {
                                                 fileName: "[project]/src/components/csv-monitor/CsvStatusTable.tsx",
-                                                lineNumber: 306,
+                                                lineNumber: 304,
                                                 columnNumber: 21
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableCell"], {
@@ -1969,12 +1963,12 @@ function CsvStatusTable({ data, sortConfig, requestSort, now, onDownload, onRetr
                                                     now: now
                                                 }, void 0, false, {
                                                     fileName: "[project]/src/components/csv-monitor/CsvStatusTable.tsx",
-                                                    lineNumber: 332,
+                                                    lineNumber: 330,
                                                     columnNumber: 23
                                                 }, this)
                                             }, void 0, false, {
                                                 fileName: "[project]/src/components/csv-monitor/CsvStatusTable.tsx",
-                                                lineNumber: 331,
+                                                lineNumber: 329,
                                                 columnNumber: 21
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableCell"], {
@@ -1987,7 +1981,7 @@ function CsvStatusTable({ data, sortConfig, requestSort, now, onDownload, onRetr
                                                                 className: "text-muted-foreground"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/src/components/csv-monitor/CsvStatusTable.tsx",
-                                                                lineNumber: 343,
+                                                                lineNumber: 341,
                                                                 columnNumber: 34
                                                             }, this);
                                                         }
@@ -2019,7 +2013,7 @@ function CsvStatusTable({ data, sortConfig, requestSort, now, onDownload, onRetr
                                                                 children: field
                                                             }, `${field}-${idx}`, false, {
                                                                 fileName: "[project]/src/components/csv-monitor/CsvStatusTable.tsx",
-                                                                lineNumber: 362,
+                                                                lineNumber: 360,
                                                                 columnNumber: 29
                                                             }, this);
                                                         });
@@ -2033,13 +2027,13 @@ function CsvStatusTable({ data, sortConfig, requestSort, now, onDownload, onRetr
                                                         children: "More"
                                                     }, void 0, false, {
                                                         fileName: "[project]/src/components/csv-monitor/CsvStatusTable.tsx",
-                                                        lineNumber: 369,
+                                                        lineNumber: 367,
                                                         columnNumber: 25
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/src/components/csv-monitor/CsvStatusTable.tsx",
-                                                lineNumber: 340,
+                                                lineNumber: 338,
                                                 columnNumber: 21
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableCell"], {
@@ -2052,12 +2046,12 @@ function CsvStatusTable({ data, sortConfig, requestSort, now, onDownload, onRetr
                                                     now: now
                                                 }, void 0, false, {
                                                     fileName: "[project]/src/components/csv-monitor/CsvStatusTable.tsx",
-                                                    lineNumber: 381,
+                                                    lineNumber: 379,
                                                     columnNumber: 23
                                                 }, this)
                                             }, void 0, false, {
                                                 fileName: "[project]/src/components/csv-monitor/CsvStatusTable.tsx",
-                                                lineNumber: 380,
+                                                lineNumber: 378,
                                                 columnNumber: 21
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableCell"], {
@@ -2076,7 +2070,7 @@ function CsvStatusTable({ data, sortConfig, requestSort, now, onDownload, onRetr
                                                                         className: "h-4 w-4"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/src/components/csv-monitor/CsvStatusTable.tsx",
-                                                                        lineNumber: 393,
+                                                                        lineNumber: 391,
                                                                         columnNumber: 29
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -2084,18 +2078,18 @@ function CsvStatusTable({ data, sortConfig, requestSort, now, onDownload, onRetr
                                                                         children: "More actions"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/src/components/csv-monitor/CsvStatusTable.tsx",
-                                                                        lineNumber: 394,
+                                                                        lineNumber: 392,
                                                                         columnNumber: 29
                                                                     }, this)
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/src/components/csv-monitor/CsvStatusTable.tsx",
-                                                                lineNumber: 392,
+                                                                lineNumber: 390,
                                                                 columnNumber: 27
                                                             }, this)
                                                         }, void 0, false, {
                                                             fileName: "[project]/src/components/csv-monitor/CsvStatusTable.tsx",
-                                                            lineNumber: 391,
+                                                            lineNumber: 389,
                                                             columnNumber: 25
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$dropdown$2d$menu$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["DropdownMenuContent"], {
@@ -2110,20 +2104,20 @@ function CsvStatusTable({ data, sortConfig, requestSort, now, onDownload, onRetr
                                                                             className: "mr-2 h-4 w-4"
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/src/components/csv-monitor/CsvStatusTable.tsx",
-                                                                            lineNumber: 399,
+                                                                            lineNumber: 397,
                                                                             columnNumber: 29
                                                                         }, this),
                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
                                                                             children: "Download"
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/src/components/csv-monitor/CsvStatusTable.tsx",
-                                                                            lineNumber: 400,
+                                                                            lineNumber: 398,
                                                                             columnNumber: 29
                                                                         }, this)
                                                                     ]
                                                                 }, void 0, true, {
                                                                     fileName: "[project]/src/components/csv-monitor/CsvStatusTable.tsx",
-                                                                    lineNumber: 398,
+                                                                    lineNumber: 396,
                                                                     columnNumber: 27
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$dropdown$2d$menu$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["DropdownMenuItem"], {
@@ -2134,20 +2128,20 @@ function CsvStatusTable({ data, sortConfig, requestSort, now, onDownload, onRetr
                                                                             className: "mr-2 h-4 w-4"
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/src/components/csv-monitor/CsvStatusTable.tsx",
-                                                                            lineNumber: 403,
+                                                                            lineNumber: 401,
                                                                             columnNumber: 29
                                                                         }, this),
                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
                                                                             children: "Logs"
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/src/components/csv-monitor/CsvStatusTable.tsx",
-                                                                            lineNumber: 404,
+                                                                            lineNumber: 402,
                                                                             columnNumber: 29
                                                                         }, this)
                                                                     ]
                                                                 }, void 0, true, {
                                                                     fileName: "[project]/src/components/csv-monitor/CsvStatusTable.tsx",
-                                                                    lineNumber: 402,
+                                                                    lineNumber: 400,
                                                                     columnNumber: 27
                                                                 }, this),
                                                                 hasError && entry.stage_stats?.gemini_query?.status === 'error' && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$dropdown$2d$menu$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["DropdownMenuItem"], {
@@ -2157,63 +2151,63 @@ function CsvStatusTable({ data, sortConfig, requestSort, now, onDownload, onRetr
                                                                             className: "mr-2 h-4 w-4"
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/src/components/csv-monitor/CsvStatusTable.tsx",
-                                                                            lineNumber: 408,
+                                                                            lineNumber: 406,
                                                                             columnNumber: 32
                                                                         }, this),
                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
                                                                             children: "Retry"
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/src/components/csv-monitor/CsvStatusTable.tsx",
-                                                                            lineNumber: 409,
+                                                                            lineNumber: 407,
                                                                             columnNumber: 32
                                                                         }, this)
                                                                     ]
                                                                 }, void 0, true, {
                                                                     fileName: "[project]/src/components/csv-monitor/CsvStatusTable.tsx",
-                                                                    lineNumber: 407,
+                                                                    lineNumber: 405,
                                                                     columnNumber: 29
                                                                 }, this)
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/src/components/csv-monitor/CsvStatusTable.tsx",
-                                                            lineNumber: 397,
+                                                            lineNumber: 395,
                                                             columnNumber: 25
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/src/components/csv-monitor/CsvStatusTable.tsx",
-                                                    lineNumber: 390,
+                                                    lineNumber: 388,
                                                     columnNumber: 23
                                                 }, this)
                                             }, void 0, false, {
                                                 fileName: "[project]/src/components/csv-monitor/CsvStatusTable.tsx",
-                                                lineNumber: 389,
+                                                lineNumber: 387,
                                                 columnNumber: 21
                                             }, this)
                                         ]
                                     }, entry.id, true, {
                                         fileName: "[project]/src/components/csv-monitor/CsvStatusTable.tsx",
-                                        lineNumber: 253,
+                                        lineNumber: 251,
                                         columnNumber: 19
                                     }, this);
                                 })
                             }, void 0, false, {
                                 fileName: "[project]/src/components/csv-monitor/CsvStatusTable.tsx",
-                                lineNumber: 230,
+                                lineNumber: 228,
                                 columnNumber: 11
                             }, this)
-                        }, void 0, false, {
-                            fileName: "[project]/src/components/csv-monitor/CsvStatusTable.tsx",
-                            lineNumber: 229,
-                            columnNumber: 9
-                        }, this)
-                    }, void 0, false, {
+                        ]
+                    }, void 0, true, {
                         fileName: "[project]/src/components/csv-monitor/CsvStatusTable.tsx",
-                        lineNumber: 228,
-                        columnNumber: 7
+                        lineNumber: 194,
+                        columnNumber: 9
                     }, this)
-                ]
-            }, void 0, true, {
+                }, void 0, false, {
+                    fileName: "[project]/src/components/csv-monitor/CsvStatusTable.tsx",
+                    lineNumber: 193,
+                    columnNumber: 7
+                }, this)
+            }, void 0, false, {
                 fileName: "[project]/src/components/csv-monitor/CsvStatusTable.tsx",
                 lineNumber: 192,
                 columnNumber: 5
@@ -2233,20 +2227,20 @@ function CsvStatusTable({ data, sortConfig, requestSort, now, onDownload, onRetr
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/src/components/csv-monitor/CsvStatusTable.tsx",
-                                    lineNumber: 426,
+                                    lineNumber: 424,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$dialog$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["DialogDescription"], {
                                     children: "Inspect the processing logs for this file. Use the search bar to find specific warnings or messages."
                                 }, void 0, false, {
                                     fileName: "[project]/src/components/csv-monitor/CsvStatusTable.tsx",
-                                    lineNumber: 427,
+                                    lineNumber: 425,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/src/components/csv-monitor/CsvStatusTable.tsx",
-                            lineNumber: 425,
+                            lineNumber: 423,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2259,7 +2253,7 @@ function CsvStatusTable({ data, sortConfig, requestSort, now, onDownload, onRetr
                                     className: "w-full"
                                 }, void 0, false, {
                                     fileName: "[project]/src/components/csv-monitor/CsvStatusTable.tsx",
-                                    lineNumber: 430,
+                                    lineNumber: 428,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
@@ -2271,14 +2265,14 @@ function CsvStatusTable({ data, sortConfig, requestSort, now, onDownload, onRetr
                                             className: "h-4 w-4 mr-1"
                                         }, void 0, false, {
                                             fileName: "[project]/src/components/csv-monitor/CsvStatusTable.tsx",
-                                            lineNumber: 437,
+                                            lineNumber: 435,
                                             columnNumber: 15
                                         }, this),
                                         " Download"
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/src/components/csv-monitor/CsvStatusTable.tsx",
-                                    lineNumber: 436,
+                                    lineNumber: 434,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$tooltip$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TooltipProvider"], {
@@ -2297,7 +2291,7 @@ function CsvStatusTable({ data, sortConfig, requestSort, now, onDownload, onRetr
                                                             className: "h-4 w-4 mr-1"
                                                         }, void 0, false, {
                                                             fileName: "[project]/src/components/csv-monitor/CsvStatusTable.tsx",
-                                                            lineNumber: 443,
+                                                            lineNumber: 441,
                                                             columnNumber: 21
                                                         }, this),
                                                         " Analyze with AI",
@@ -2307,47 +2301,47 @@ function CsvStatusTable({ data, sortConfig, requestSort, now, onDownload, onRetr
                                                                 className: "h-4 w-4"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/src/components/csv-monitor/CsvStatusTable.tsx",
-                                                                lineNumber: 444,
+                                                                lineNumber: 442,
                                                                 columnNumber: 71
                                                             }, this)
                                                         }, void 0, false, {
                                                             fileName: "[project]/src/components/csv-monitor/CsvStatusTable.tsx",
-                                                            lineNumber: 444,
+                                                            lineNumber: 442,
                                                             columnNumber: 35
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/src/components/csv-monitor/CsvStatusTable.tsx",
-                                                    lineNumber: 442,
+                                                    lineNumber: 440,
                                                     columnNumber: 19
                                                 }, this)
                                             }, void 0, false, {
                                                 fileName: "[project]/src/components/csv-monitor/CsvStatusTable.tsx",
-                                                lineNumber: 441,
+                                                lineNumber: 439,
                                                 columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$tooltip$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TooltipContent"], {
                                                 children: "Analyze this log with AI"
                                             }, void 0, false, {
                                                 fileName: "[project]/src/components/csv-monitor/CsvStatusTable.tsx",
-                                                lineNumber: 447,
+                                                lineNumber: 445,
                                                 columnNumber: 17
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/src/components/csv-monitor/CsvStatusTable.tsx",
-                                        lineNumber: 440,
+                                        lineNumber: 438,
                                         columnNumber: 15
                                     }, this)
                                 }, void 0, false, {
                                     fileName: "[project]/src/components/csv-monitor/CsvStatusTable.tsx",
-                                    lineNumber: 439,
+                                    lineNumber: 437,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/src/components/csv-monitor/CsvStatusTable.tsx",
-                            lineNumber: 429,
+                            lineNumber: 427,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$scroll$2d$area$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["ScrollArea"], {
@@ -2361,17 +2355,17 @@ function CsvStatusTable({ data, sortConfig, requestSort, now, onDownload, onRetr
                                         ]
                                     }, idx, true, {
                                         fileName: "[project]/src/components/csv-monitor/CsvStatusTable.tsx",
-                                        lineNumber: 457,
+                                        lineNumber: 455,
                                         columnNumber: 39
                                     }, this))
                             }, void 0, false, {
                                 fileName: "[project]/src/components/csv-monitor/CsvStatusTable.tsx",
-                                lineNumber: 452,
+                                lineNumber: 450,
                                 columnNumber: 13
                             }, this)
                         }, void 0, false, {
                             fileName: "[project]/src/components/csv-monitor/CsvStatusTable.tsx",
-                            lineNumber: 451,
+                            lineNumber: 449,
                             columnNumber: 11
                         }, this),
                         logDialogEntry && aiResult[logDialogEntry.id] && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2381,7 +2375,7 @@ function CsvStatusTable({ data, sortConfig, requestSort, now, onDownload, onRetr
                                 children: aiResult[logDialogEntry.id].error
                             }, void 0, false, {
                                 fileName: "[project]/src/components/csv-monitor/CsvStatusTable.tsx",
-                                lineNumber: 464,
+                                lineNumber: 462,
                                 columnNumber: 17
                             }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Card"], {
                                 children: [
@@ -2390,12 +2384,12 @@ function CsvStatusTable({ data, sortConfig, requestSort, now, onDownload, onRetr
                                             children: "AI Log Analysis"
                                         }, void 0, false, {
                                             fileName: "[project]/src/components/csv-monitor/CsvStatusTable.tsx",
-                                            lineNumber: 468,
+                                            lineNumber: 466,
                                             columnNumber: 21
                                         }, this)
                                     }, void 0, false, {
                                         fileName: "[project]/src/components/csv-monitor/CsvStatusTable.tsx",
-                                        lineNumber: 467,
+                                        lineNumber: 465,
                                         columnNumber: 19
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardContent"], {
@@ -2406,7 +2400,7 @@ function CsvStatusTable({ data, sortConfig, requestSort, now, onDownload, onRetr
                                                         children: "Summary:"
                                                     }, void 0, false, {
                                                         fileName: "[project]/src/components/csv-monitor/CsvStatusTable.tsx",
-                                                        lineNumber: 471,
+                                                        lineNumber: 469,
                                                         columnNumber: 24
                                                     }, this),
                                                     " ",
@@ -2414,7 +2408,7 @@ function CsvStatusTable({ data, sortConfig, requestSort, now, onDownload, onRetr
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/src/components/csv-monitor/CsvStatusTable.tsx",
-                                                lineNumber: 471,
+                                                lineNumber: 469,
                                                 columnNumber: 21
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -2423,7 +2417,7 @@ function CsvStatusTable({ data, sortConfig, requestSort, now, onDownload, onRetr
                                                         children: "Errors:"
                                                     }, void 0, false, {
                                                         fileName: "[project]/src/components/csv-monitor/CsvStatusTable.tsx",
-                                                        lineNumber: 472,
+                                                        lineNumber: 470,
                                                         columnNumber: 24
                                                     }, this),
                                                     " ",
@@ -2431,7 +2425,7 @@ function CsvStatusTable({ data, sortConfig, requestSort, now, onDownload, onRetr
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/src/components/csv-monitor/CsvStatusTable.tsx",
-                                                lineNumber: 472,
+                                                lineNumber: 470,
                                                 columnNumber: 21
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -2440,7 +2434,7 @@ function CsvStatusTable({ data, sortConfig, requestSort, now, onDownload, onRetr
                                                         children: "Warnings:"
                                                     }, void 0, false, {
                                                         fileName: "[project]/src/components/csv-monitor/CsvStatusTable.tsx",
-                                                        lineNumber: 473,
+                                                        lineNumber: 471,
                                                         columnNumber: 24
                                                     }, this),
                                                     " ",
@@ -2448,7 +2442,7 @@ function CsvStatusTable({ data, sortConfig, requestSort, now, onDownload, onRetr
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/src/components/csv-monitor/CsvStatusTable.tsx",
-                                                lineNumber: 473,
+                                                lineNumber: 471,
                                                 columnNumber: 21
                                             }, this),
                                             aiResult[logDialogEntry.id].criticalError && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -2457,7 +2451,7 @@ function CsvStatusTable({ data, sortConfig, requestSort, now, onDownload, onRetr
                                                         children: "Critical Error:"
                                                     }, void 0, false, {
                                                         fileName: "[project]/src/components/csv-monitor/CsvStatusTable.tsx",
-                                                        lineNumber: 474,
+                                                        lineNumber: 472,
                                                         columnNumber: 93
                                                     }, this),
                                                     " ",
@@ -2465,7 +2459,7 @@ function CsvStatusTable({ data, sortConfig, requestSort, now, onDownload, onRetr
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/src/components/csv-monitor/CsvStatusTable.tsx",
-                                                lineNumber: 474,
+                                                lineNumber: 472,
                                                 columnNumber: 90
                                             }, this),
                                             aiResult[logDialogEntry.id].recommendation && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -2474,7 +2468,7 @@ function CsvStatusTable({ data, sortConfig, requestSort, now, onDownload, onRetr
                                                         children: "Recommendation:"
                                                     }, void 0, false, {
                                                         fileName: "[project]/src/components/csv-monitor/CsvStatusTable.tsx",
-                                                        lineNumber: 475,
+                                                        lineNumber: 473,
                                                         columnNumber: 94
                                                     }, this),
                                                     " ",
@@ -2482,35 +2476,35 @@ function CsvStatusTable({ data, sortConfig, requestSort, now, onDownload, onRetr
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/src/components/csv-monitor/CsvStatusTable.tsx",
-                                                lineNumber: 475,
+                                                lineNumber: 473,
                                                 columnNumber: 91
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/src/components/csv-monitor/CsvStatusTable.tsx",
-                                        lineNumber: 470,
+                                        lineNumber: 468,
                                         columnNumber: 19
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/src/components/csv-monitor/CsvStatusTable.tsx",
-                                lineNumber: 466,
+                                lineNumber: 464,
                                 columnNumber: 17
                             }, this)
                         }, void 0, false, {
                             fileName: "[project]/src/components/csv-monitor/CsvStatusTable.tsx",
-                            lineNumber: 462,
+                            lineNumber: 460,
                             columnNumber: 13
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/src/components/csv-monitor/CsvStatusTable.tsx",
-                    lineNumber: 424,
+                    lineNumber: 422,
                     columnNumber: 9
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/src/components/csv-monitor/CsvStatusTable.tsx",
-                lineNumber: 423,
+                lineNumber: 421,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$dialog$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Dialog"], {
@@ -2524,12 +2518,12 @@ function CsvStatusTable({ data, sortConfig, requestSort, now, onDownload, onRetr
                                 children: "Extracted Fields"
                             }, void 0, false, {
                                 fileName: "[project]/src/components/csv-monitor/CsvStatusTable.tsx",
-                                lineNumber: 487,
+                                lineNumber: 485,
                                 columnNumber: 13
                             }, this)
                         }, void 0, false, {
                             fileName: "[project]/src/components/csv-monitor/CsvStatusTable.tsx",
-                            lineNumber: 486,
+                            lineNumber: 484,
                             columnNumber: 11
                         }, this),
                         moreDialogEntry && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2544,7 +2538,7 @@ function CsvStatusTable({ data, sortConfig, requestSort, now, onDownload, onRetr
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/src/components/csv-monitor/CsvStatusTable.tsx",
-                                        lineNumber: 492,
+                                        lineNumber: 490,
                                         columnNumber: 17
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2568,7 +2562,7 @@ function CsvStatusTable({ data, sortConfig, requestSort, now, onDownload, onRetr
                                                 children: field
                                             }, `${field}-${idx}`, false, {
                                                 fileName: "[project]/src/components/csv-monitor/CsvStatusTable.tsx",
-                                                lineNumber: 504,
+                                                lineNumber: 502,
                                                 columnNumber: 23
                                             }, this);
                                         }) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -2576,34 +2570,34 @@ function CsvStatusTable({ data, sortConfig, requestSort, now, onDownload, onRetr
                                             children: "No fields extracted"
                                         }, void 0, false, {
                                             fileName: "[project]/src/components/csv-monitor/CsvStatusTable.tsx",
-                                            lineNumber: 508,
+                                            lineNumber: 506,
                                             columnNumber: 24
                                         }, this)
                                     }, void 0, false, {
                                         fileName: "[project]/src/components/csv-monitor/CsvStatusTable.tsx",
-                                        lineNumber: 493,
+                                        lineNumber: 491,
                                         columnNumber: 17
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/src/components/csv-monitor/CsvStatusTable.tsx",
-                                lineNumber: 491,
+                                lineNumber: 489,
                                 columnNumber: 15
                             }, this)
                         }, void 0, false, {
                             fileName: "[project]/src/components/csv-monitor/CsvStatusTable.tsx",
-                            lineNumber: 490,
+                            lineNumber: 488,
                             columnNumber: 13
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/src/components/csv-monitor/CsvStatusTable.tsx",
-                    lineNumber: 485,
+                    lineNumber: 483,
                     columnNumber: 9
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/src/components/csv-monitor/CsvStatusTable.tsx",
-                lineNumber: 484,
+                lineNumber: 482,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$dialog$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Dialog"], {
@@ -2618,20 +2612,20 @@ function CsvStatusTable({ data, sortConfig, requestSort, now, onDownload, onRetr
                                     children: "Gemini Subsample Rows"
                                 }, void 0, false, {
                                     fileName: "[project]/src/components/csv-monitor/CsvStatusTable.tsx",
-                                    lineNumber: 519,
+                                    lineNumber: 517,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$dialog$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["DialogDescription"], {
                                     children: "Sample of the rows sent to Gemini for this file."
                                 }, void 0, false, {
                                     fileName: "[project]/src/components/csv-monitor/CsvStatusTable.tsx",
-                                    lineNumber: 520,
+                                    lineNumber: 518,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/src/components/csv-monitor/CsvStatusTable.tsx",
-                            lineNumber: 518,
+                            lineNumber: 516,
                             columnNumber: 11
                         }, this),
                         sampleRowsDialogEntry && sampleRowsDialogEntry.gemini_sample_rows && sampleRowsDialogEntry.gemini_sample_rows.length > 0 ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2650,30 +2644,30 @@ function CsvStatusTable({ data, sortConfig, requestSort, now, onDownload, onRetr
                                     children: line
                                 }, ridx, false, {
                                     fileName: "[project]/src/components/csv-monitor/CsvStatusTable.tsx",
-                                    lineNumber: 525,
+                                    lineNumber: 523,
                                     columnNumber: 17
                                 }, this))
                         }, void 0, false, {
                             fileName: "[project]/src/components/csv-monitor/CsvStatusTable.tsx",
-                            lineNumber: 523,
+                            lineNumber: 521,
                             columnNumber: 13
                         }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
                             className: "text-sm text-muted-foreground",
                             children: "No sample rows available."
                         }, void 0, false, {
                             fileName: "[project]/src/components/csv-monitor/CsvStatusTable.tsx",
-                            lineNumber: 535,
+                            lineNumber: 533,
                             columnNumber: 13
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/src/components/csv-monitor/CsvStatusTable.tsx",
-                    lineNumber: 517,
+                    lineNumber: 515,
                     columnNumber: 9
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/src/components/csv-monitor/CsvStatusTable.tsx",
-                lineNumber: 516,
+                lineNumber: 514,
                 columnNumber: 7
             }, this)
         ]

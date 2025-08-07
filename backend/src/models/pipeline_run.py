@@ -3,7 +3,7 @@ SQLAlchemy model for tracking pipeline runs and their statuses.
 """
 from datetime import datetime, timezone
 import uuid
-from sqlalchemy import Column, String, DateTime, Integer, create_engine, Text, Float
+from sqlalchemy import Column, String, DateTime, Integer, create_engine, Text, Float, Index
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 import json
@@ -38,6 +38,7 @@ class PipelineRun(Base):
         invalid_lines: Number of invalid lines
         estimated_cost: Estimated cost of the run
         invalid_line_numbers: JSON string of invalid line numbers
+        priority: Priority of the run (1-5) default is 3
     """
     __tablename__ = 'pipeline_runs'
 
@@ -66,6 +67,14 @@ class PipelineRun(Base):
     error_message = Column(String, nullable=True)
     file_encoding = Column(String, nullable=True)
     stage_stats = Column(Text, nullable=True)
+    priority = Column(Integer, nullable=False, default=3)
+
+    # Indexes for optimization
+    __table_args__ = (
+        Index('idx_queue_processing', 'status', 'priority', 'insertion_date'),
+        Index('idx_filename_lookup', 'filename'),
+        Index('idx_status_lookup', 'status'),
+    )
 
     def to_dict(self):
         """Convert the model to a dictionary for API responses."""
@@ -102,6 +111,7 @@ class PipelineRun(Base):
             'error_message': self.error_message,
             'file_encoding': self.file_encoding,
             'stage_stats': json.loads(self.stage_stats) if self.stage_stats else {},
+            'priority': self.priority,
         }
         if self.gemini_sample_rows:
             try:

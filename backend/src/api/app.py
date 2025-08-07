@@ -5,7 +5,7 @@ from typing import List, Dict, Any, Optional, Union
 from pathlib import Path
 import logging
 logging.getLogger("multipart.multipart").setLevel(logging.WARNING)
-from fastapi import FastAPI, HTTPException, BackgroundTasks, WebSocket, WebSocketDisconnect, UploadFile, File, Request, Depends
+from fastapi import FastAPI, HTTPException, BackgroundTasks, WebSocket, WebSocketDisconnect, UploadFile, File, Request, Depends, Form
 from fastapi.responses import FileResponse
 from ..models.pipeline_run import init_db, PipelineRun
 from ..pipeline.watcher import FileWatcher
@@ -87,10 +87,10 @@ def queue_processor(orchestrator):
         db_session = SessionLocal()
         try:
             # Only process one file at a time (simple queue)
-            run = db_session.query(PipelineRun).filter_by(status='enqueued').order_by(PipelineRun.insertion_date.asc()).first()
+            run = db_session.query(PipelineRun).filter_by(status='enqueued').order_by(PipelineRun.priority.asc(),PipelineRun.insertion_date.asc()).first()
             if run:
                 try:
-                    logger.info(f"Processing file from queue: {run.filename}")
+                    logger.info(f"Processing file from queue: {run.filename} (priority {run.priority}, run {run.id})")
                     orchestrator.process_file(Path(settings.INPUT_DIR) / run.filename, db_session)
                 except Exception as e:
                     logger.error(f"Error processing file {run.filename} from queue: {e}", exc_info=True)
@@ -243,8 +243,8 @@ async def get_pipeline_stats(db: Session = Depends(get_db)):
         # Get counts by status
         total = db.query(PipelineRun).count()
         running = db.query(PipelineRun).filter(PipelineRun.status == 'running').count()
-        completed = db.query(PipelineRun.status == 'ok').count()
-        failed = db.query(PipelineRun.status == 'error').count()
+        completed = db.query(PipelineRun).filter(PipelineRun.status == 'ok').count()
+        failed = db.query(PipelineRun).filter(PipelineRun.status == 'error').count()
         
         return {
             "total": total,
@@ -255,6 +255,79 @@ async def get_pipeline_stats(db: Session = Depends(get_db)):
         
     except Exception as e:
         logger.error(f"Error getting pipeline stats: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/pipeline/priority-stats")
+async def get_priority_stats(db: Session = Depends(get_db)):
+    """
+    Get pipeline statistics by priority level.
+    """
+    try:
+        # Get counts by priority for enqueued runs
+        priority_stats = {}
+        for priority in range(1, 6):  # Priorities 1-5
+            count = db.query(PipelineRun).filter(
+                PipelineRun.priority == priority,
+                PipelineRun.status == 'enqueued'
+            ).count()
+            priority_stats[f"priority_{priority}"] = count
+            
+        # Get total enqueued
+        total_enqueued = db.query(PipelineRun).filter(PipelineRun.status == 'enqueued').count()
+        
+        # Get next run to be processed
+        next_run = db.query(PipelineRun).filter_by(status='enqueued').order_by(
+            PipelineRun.priority.asc(),
+            PipelineRun.insertion_date.asc()
+        ).first()
+        
+        result = {
+            "total_enqueued": total_enqueued,
+            "by_priority": priority_stats,
+            "next_run": {
+                "id": str(next_run.id) if next_run else None,
+                "filename": next_run.filename if next_run else None,
+                "priority": next_run.priority if next_run else None,
+                "insertion_date": next_run.insertion_date.isoformat() if next_run and next_run.insertion_date else None
+            } if next_run else None
+        }
+        
+        return result
+        
+    except Exception as e:
+        logger.error(f"Error getting priority stats: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/pipeline/queue")
+async def get_queue_status(db: Session = Depends(get_db)):
+    """
+    Get current queue status ordered by processing priority.
+    """
+    try:
+        # Get enqueued runs ordered by priority and insertion date
+        enqueued_runs = db.query(PipelineRun).filter_by(status='enqueued').order_by(
+            PipelineRun.priority.asc(),
+            PipelineRun.insertion_date.asc()
+        ).all()
+        
+        queue_entries = []
+        for i, run in enumerate(enqueued_runs):
+            queue_entries.append({
+                "position": i + 1,
+                "id": str(run.id),
+                "filename": run.filename,
+                "priority": run.priority,
+                "insertion_date": run.insertion_date.isoformat() if run.insertion_date else None,
+                "estimated_wait_time": f"{i * 30} seconds"  # Rough estimate
+            })
+            
+        return {
+            "total_in_queue": len(queue_entries),
+            "queue": queue_entries
+        }
+        
+    except Exception as e:
+        logger.error(f"Error getting queue status: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.get("/api/pipeline/metrics")
@@ -388,6 +461,7 @@ def convert_run_to_frontend_format(run: PipelineRun) -> Dict[str, Any]:
         'gemini_total_tokens': run.gemini_total_tokens,
         'estimated_cost': run.estimated_cost,
         'stage_stats': run.stage_stats and json.loads(run.stage_stats) or {},
+        'priority': run.priority,
     }
     # Extract up to 4 headers from gemini_header_mapping, prioritizing important ones
     header_mapping = None
@@ -505,23 +579,89 @@ async def pipeline_ws(websocket: WebSocket):
         logger.info(f"WebSocket client removed. Total clients: {len(clients)}")
 
 @app.post("/api/upload")
-async def upload_file(file: UploadFile = File(...)):
+async def upload_file(file: UploadFile = File(...), priority: int = Form(3)):
     """
-    Upload a file and save it to the inbound directory using a temporary extension, then rename.
+    Upload a file and save it to the inbound directory. Let FileWatcher handle the processing.
     """
     try:
+        # Validate priority
+        if not (1 <= priority <= 5):
+            raise HTTPException(status_code=400, detail="Priority must be between 1 and 5")
+            
         inbound_dir = Path(settings.INPUT_DIR)
         inbound_dir.mkdir(parents=True, exist_ok=True)
         temp_path = inbound_dir / (file.filename + ".uploading")
         final_path = inbound_dir / file.filename
-        logger.info(f"Detected start of upload: {file.filename}.uploading")
+        priority_path = inbound_dir / (file.filename + ".priority")
+        
+        logger.info(f"Uploading file: {file.filename} with priority {priority}")
+        
+        # Save the file content
         with open(temp_path, "wb") as f:
             content = await file.read()
             f.write(content)
+        
+        # Save priority metadata if not default
+        if priority != 3:
+            with open(priority_path, "w") as f:
+                f.write(str(priority))
+            logger.info(f"Created priority file for {file.filename} with priority {priority}")
+        
+        # Rename to final name (this will trigger FileWatcher)
         temp_path.rename(final_path)
-        return {"filename": file.filename, "status": "uploaded"}
+        logger.info(f"File {file.filename} uploaded successfully, FileWatcher will process it")
+        
+        return {
+            "filename": file.filename, 
+            "status": "uploaded", 
+            "priority": priority,
+            "message": "File uploaded successfully, processing will begin shortly"
+        }
+        
     except Exception as e:
         logger.error(f"Error uploading file: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.patch("/runs/{run_id}/priority")
+async def update_run_priority(run_id: str, priority: int = Form(...), db: Session = Depends(get_db)):
+    """
+    Update the priority of an existing pipeline run.
+    """
+    try:
+        # Validate priority
+        if not (1 <= priority <= 5):
+            raise HTTPException(status_code=400, detail="Priority must be between 1 and 5")
+            
+        run = db.query(PipelineRun).filter(PipelineRun.id == run_id).first()
+        if not run:
+            raise HTTPException(status_code=404, detail="Run not found")
+            
+        # Only allow priority changes for enqueued runs
+        if run.status != 'enqueued':
+            raise HTTPException(
+                status_code=400, 
+                detail=f"Cannot change priority for run with status '{run.status}'. Only enqueued runs can have their priority changed."
+            )
+            
+        old_priority = run.priority
+        run.priority = priority
+        db.commit()
+        db.refresh(run)
+        
+        logger.info(f"Updated priority for run {run_id} from {old_priority} to {priority}")
+        
+        return {
+            "run_id": run_id,
+            "filename": run.filename,
+            "old_priority": old_priority,
+            "new_priority": priority,
+            "status": "updated"
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error updating priority for run {run_id}: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/runs/{run_id}/retry_gemini_query")

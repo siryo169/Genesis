@@ -6,23 +6,28 @@ class ApiClient {
 
   constructor() {
     this.baseUrl = config.apiBaseUrl;
+    console.log(`🔧 ApiClient initialized with baseUrl: ${this.baseUrl}`);
   }
 
   private async request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
+    const fullUrl = `${this.baseUrl}${endpoint}`;
+    console.log(`🚀 Attempting request to: ${fullUrl}`);
+    
     try {
-      const response = await fetch(`${this.baseUrl}${endpoint}`, {
+      const response = await fetch(fullUrl, {
         ...options,
         headers: {
           'Content-Type': 'application/json',
           ...(options.headers || {}),
         },
       });
+      console.log(`✅ Response received: ${response.status}`);
       if (!response.ok) {
         throw new Error(`API error: ${response.status}`);
       }
       return await response.json();
     } catch (err) {
-      // Suppress error logging here; let the caller handle it
+      console.error(`❌ Request failed for ${fullUrl}:`, err);
       throw err;
     }
   }

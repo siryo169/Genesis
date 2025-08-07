@@ -1,17 +1,17 @@
 (globalThis.TURBOPACK = globalThis.TURBOPACK || []).push([typeof document === "object" ? document.currentScript : undefined, {
 
-"[project]/src/ai/flows/data:09260d [app-client] (ecmascript) <text/javascript>": ((__turbopack_context__) => {
+"[project]/src/ai/flows/data:13ddf6 [app-client] (ecmascript) <text/javascript>": ((__turbopack_context__) => {
 "use strict";
 
 var { g: global, __dirname, k: __turbopack_refresh__, m: module } = __turbopack_context__;
 {
-/* __next_internal_action_entry_do_not_use__ [{"40005c34b31524315249ee3d44ecfed49966a8e96d":"analyzeLogs"},"src/ai/flows/log-analyzer-flow.ts",""] */ __turbopack_context__.s({
+/* __next_internal_action_entry_do_not_use__ [{"4087a810f8d053ce1047051c0e470a6bce6a74acae":"analyzeLogs"},"src/ai/flows/log-analyzer-flow.ts",""] */ __turbopack_context__.s({
     "analyzeLogs": (()=>analyzeLogs)
 });
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$build$2f$webpack$2f$loaders$2f$next$2d$flight$2d$loader$2f$action$2d$client$2d$wrapper$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/build/webpack/loaders/next-flight-loader/action-client-wrapper.js [app-client] (ecmascript)");
 "use turbopack no side effects";
 ;
-var analyzeLogs = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$build$2f$webpack$2f$loaders$2f$next$2d$flight$2d$loader$2f$action$2d$client$2d$wrapper$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["createServerReference"])("40005c34b31524315249ee3d44ecfed49966a8e96d", __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$build$2f$webpack$2f$loaders$2f$next$2d$flight$2d$loader$2f$action$2d$client$2d$wrapper$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["callServer"], void 0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$build$2f$webpack$2f$loaders$2f$next$2d$flight$2d$loader$2f$action$2d$client$2d$wrapper$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["findSourceMapURL"], "analyzeLogs"); //# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIi4vbG9nLWFuYWx5emVyLWZsb3cudHMiXSwic291cmNlc0NvbnRlbnQiOlsiXHJcbid1c2Ugc2VydmVyJztcclxuLyoqXHJcbiAqIEBmaWxlT3ZlcnZpZXcgQW4gQUkgZmxvdyBmb3IgYW5hbHl6aW5nIGxvZyBkYXRhLlxyXG4gKlxyXG4gKiAtIGFuYWx5emVMb2dzIC0gQSBmdW5jdGlvbiB0aGF0IHRha2VzIGEgbG9nIHN0cmluZyBhbmQgcmV0dXJucyBhIHN1bW1hcnkuXHJcbiAqIC0gTG9nQW5hbHlzaXNJbnB1dCAtIFRoZSBpbnB1dCB0eXBlIGZvciB0aGUgYW5hbHl6ZUxvZ3MgZnVuY3Rpb24uXHJcbiAqIC0gTG9nQW5hbHlzaXNPdXRwdXQgLSBUaGUgcmV0dXJuIHR5cGUgZm9yIHRoZSBhbmFseXplTG9ncyBmdW5jdGlvbi5cclxuICovXHJcblxyXG5pbXBvcnQgeyBhaSB9IGZyb20gJ0AvYWkvZ2Vua2l0JztcclxuaW1wb3J0IHsgeiB9IGZyb20gJ3pvZCc7XHJcblxyXG5jb25zdCBMb2dBbmFseXNpc0lucHV0U2NoZW1hID0gei5vYmplY3Qoe1xyXG4gIGxvZ3M6IHouc3RyaW5nKCkuZGVzY3JpYmUoJ1RoZSBmdWxsIHN0cmluZyBjb250ZW50IG9mIHRoZSBsb2dzIHRvIGJlIGFuYWx5emVkLicpLFxyXG59KTtcclxuZXhwb3J0IHR5cGUgTG9nQW5hbHlzaXNJbnB1dCA9IHouaW5mZXI8dHlwZW9mIExvZ0FuYWx5c2lzSW5wdXRTY2hlbWE+O1xyXG5cclxuY29uc3QgTG9nQW5hbHlzaXNPdXRwdXRTY2hlbWEgPSB6Lm9iamVjdCh7XHJcbiAgc3VtbWFyeTogei5zdHJpbmcoKS5kZXNjcmliZSgnQSBicmllZiwgb25lLXBhcmFncmFwaCBzdW1tYXJ5IG9mIHRoZSBrZXkgZXZlbnRzIGluIHRoZSBsb2dzLicpLFxyXG4gIGVycm9yQ291bnQ6IHoubnVtYmVyKCkuZGVzY3JpYmUoJ1RoZSB0b3RhbCBjb3VudCBvZiBFUlJPUiBsZXZlbCBsb2cgZW50cmllcy4nKSxcclxuICB3YXJuaW5nQ291bnQ6IHoubnVtYmVyKCkuZGVzY3JpYmUoJ1RoZSB0b3RhbCBjb3VudCBvZiBXQVJOSU5HIGxldmVsIGxvZyBlbnRyaWVzLicpLFxyXG4gIGNyaXRpY2FsRXJyb3I6IHouc3RyaW5nKCkub3B0aW9uYWwoKS5kZXNjcmliZSgnQSBkZXRhaWxlZCBkZXNjcmlwdGlvbiBvZiB0aGUgbW9zdCBjcml0aWNhbCBlcnJvciBmb3VuZCwgaWYgYW55LicpLFxyXG4gIHJlY29tbWVuZGF0aW9uOiB6LnN0cmluZygpLm9wdGlvbmFsKCkuZGVzY3JpYmUoJ0EgcmVjb21tZW5kZWQgYWN0aW9uIHRvIHJlc29sdmUgdGhlIHByaW1hcnkgaXNzdWUsIGlmIGFwcGxpY2FibGUuJyksXHJcbn0pO1xyXG5leHBvcnQgdHlwZSBMb2dBbmFseXNpc091dHB1dCA9IHouaW5mZXI8dHlwZW9mIExvZ0FuYWx5c2lzT3V0cHV0U2NoZW1hPjtcclxuXHJcblxyXG5jb25zdCBsb2dBbmFseXNpc1Byb21wdCA9IGFpLmRlZmluZVByb21wdCh7XHJcbiAgbmFtZTogJ2xvZ0FuYWx5c2lzUHJvbXB0JyxcclxuICBpbnB1dDogeyBzY2hlbWE6IExvZ0FuYWx5c2lzSW5wdXRTY2hlbWEgfSxcclxuICBvdXRwdXQ6IHsgc2NoZW1hOiBMb2dBbmFseXNpc091dHB1dFNjaGVtYSB9LFxyXG4gIHByb21wdDogYFlvdSBhcmUgYSBoZWxwZnVsIERldk9wcyBhc3Npc3RhbnQuIFlvdXIgdGFzayBpcyB0byBhbmFseXplIHRoZSBwcm92aWRlZCBsb2dzIGFuZCBwcm92aWRlIGEgc3RydWN0dXJlZCBzdW1tYXJ5LlxyXG5cclxuQ2FyZWZ1bGx5IHJldmlldyB0aGUgbG9ncyBwcm92aWRlZCBiZWxvdy4gSWRlbnRpZnkgYWxsIGVycm9ycyBhbmQgd2FybmluZ3MuIERldGVybWluZSB0aGUgcm9vdCBjYXVzZSBvZiBhbnkgZmFpbHVyZXMuXHJcblxyXG5Mb2dzOlxyXG5cXGBcXGBcXGBcclxue3t7bG9nc319fVxyXG5cXGBcXGBcXGBcclxuXHJcbkJhc2VkIG9uIHlvdXIgYW5hbHlzaXMsIHByb3ZpZGUgYSBjb25jaXNlIHN1bW1hcnksIGNvdW50IHRoZSBlcnJvcnMgYW5kIHdhcm5pbmdzLCBpZGVudGlmeSB0aGUgbW9zdCBjcml0aWNhbCBlcnJvciwgYW5kIHN1Z2dlc3QgYSByZXNvbHV0aW9uLiBJZiB0aGVyZSBhcmUgbm8gZXJyb3JzLCB5b3UgY2FuIG9taXQgdGhlIGNyaXRpY2FsRXJyb3IgYW5kIHJlY29tbWVuZGF0aW9uIGZpZWxkcy5gLFxyXG59KTtcclxuXHJcbmNvbnN0IGxvZ0FuYWx5c2lzRmxvdyA9IGFpLmRlZmluZUZsb3coXHJcbiAge1xyXG4gICAgbmFtZTogJ2xvZ0FuYWx5c2lzRmxvdycsXHJcbiAgICBpbnB1dFNjaGVtYTogTG9nQW5hbHlzaXNJbnB1dFNjaGVtYSxcclxuICAgIG91dHB1dFNjaGVtYTogTG9nQW5hbHlzaXNPdXRwdXRTY2hlbWEsXHJcbiAgfSxcclxuICBhc3luYyAoaW5wdXQpID0+IHtcclxuICAgIGNvbnN0IHsgb3V0cHV0IH0gPSBhd2FpdCBsb2dBbmFseXNpc1Byb21wdChpbnB1dCk7XHJcbiAgICBpZiAoIW91dHB1dCkge1xyXG4gICAgICB0aHJvdyBuZXcgRXJyb3IoJ0ZhaWxlZCB0byBnZXQgYSByZXNwb25zZSBmcm9tIHRoZSBBSSBtb2RlbC4nKTtcclxuICAgIH1cclxuICAgIHJldHVybiBvdXRwdXQ7XHJcbiAgfVxyXG4pO1xyXG5cclxuZXhwb3J0IGFzeW5jIGZ1bmN0aW9uIGFuYWx5emVMb2dzKGlucHV0OiBMb2dBbmFseXNpc0lucHV0KTogUHJvbWlzZTxMb2dBbmFseXNpc091dHB1dD4ge1xyXG4gIHJldHVybiBsb2dBbmFseXNpc0Zsb3coaW5wdXQpO1xyXG59XHJcbiJdLCJuYW1lcyI6W10sIm1hcHBpbmdzIjoic1NBMkRzQiJ9
+var analyzeLogs = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$build$2f$webpack$2f$loaders$2f$next$2d$flight$2d$loader$2f$action$2d$client$2d$wrapper$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["createServerReference"])("4087a810f8d053ce1047051c0e470a6bce6a74acae", __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$build$2f$webpack$2f$loaders$2f$next$2d$flight$2d$loader$2f$action$2d$client$2d$wrapper$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["callServer"], void 0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$build$2f$webpack$2f$loaders$2f$next$2d$flight$2d$loader$2f$action$2d$client$2d$wrapper$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["findSourceMapURL"], "analyzeLogs"); //# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIi4vbG9nLWFuYWx5emVyLWZsb3cudHMiXSwic291cmNlc0NvbnRlbnQiOlsiXHJcbid1c2Ugc2VydmVyJztcclxuLyoqXHJcbiAqIEBmaWxlT3ZlcnZpZXcgQW4gQUkgZmxvdyBmb3IgYW5hbHl6aW5nIGxvZyBkYXRhLlxyXG4gKlxyXG4gKiAtIGFuYWx5emVMb2dzIC0gQSBmdW5jdGlvbiB0aGF0IHRha2VzIGEgbG9nIHN0cmluZyBhbmQgcmV0dXJucyBhIHN1bW1hcnkuXHJcbiAqIC0gTG9nQW5hbHlzaXNJbnB1dCAtIFRoZSBpbnB1dCB0eXBlIGZvciB0aGUgYW5hbHl6ZUxvZ3MgZnVuY3Rpb24uXHJcbiAqIC0gTG9nQW5hbHlzaXNPdXRwdXQgLSBUaGUgcmV0dXJuIHR5cGUgZm9yIHRoZSBhbmFseXplTG9ncyBmdW5jdGlvbi5cclxuICovXHJcblxyXG5pbXBvcnQgeyBhaSB9IGZyb20gJ0AvYWkvZ2Vua2l0JztcclxuaW1wb3J0IHsgeiB9IGZyb20gJ3pvZCc7XHJcblxyXG5jb25zdCBMb2dBbmFseXNpc0lucHV0U2NoZW1hID0gei5vYmplY3Qoe1xyXG4gIGxvZ3M6IHouc3RyaW5nKCkuZGVzY3JpYmUoJ1RoZSBmdWxsIHN0cmluZyBjb250ZW50IG9mIHRoZSBsb2dzIHRvIGJlIGFuYWx5emVkLicpLFxyXG59KTtcclxuZXhwb3J0IHR5cGUgTG9nQW5hbHlzaXNJbnB1dCA9IHouaW5mZXI8dHlwZW9mIExvZ0FuYWx5c2lzSW5wdXRTY2hlbWE+O1xyXG5cclxuY29uc3QgTG9nQW5hbHlzaXNPdXRwdXRTY2hlbWEgPSB6Lm9iamVjdCh7XHJcbiAgc3VtbWFyeTogei5zdHJpbmcoKS5kZXNjcmliZSgnQSBicmllZiwgb25lLXBhcmFncmFwaCBzdW1tYXJ5IG9mIHRoZSBrZXkgZXZlbnRzIGluIHRoZSBsb2dzLicpLFxyXG4gIGVycm9yQ291bnQ6IHoubnVtYmVyKCkuZGVzY3JpYmUoJ1RoZSB0b3RhbCBjb3VudCBvZiBFUlJPUiBsZXZlbCBsb2cgZW50cmllcy4nKSxcclxuICB3YXJuaW5nQ291bnQ6IHoubnVtYmVyKCkuZGVzY3JpYmUoJ1RoZSB0b3RhbCBjb3VudCBvZiBXQVJOSU5HIGxldmVsIGxvZyBlbnRyaWVzLicpLFxyXG4gIGNyaXRpY2FsRXJyb3I6IHouc3RyaW5nKCkub3B0aW9uYWwoKS5kZXNjcmliZSgnQSBkZXRhaWxlZCBkZXNjcmlwdGlvbiBvZiB0aGUgbW9zdCBjcml0aWNhbCBlcnJvciBmb3VuZCwgaWYgYW55LicpLFxyXG4gIHJlY29tbWVuZGF0aW9uOiB6LnN0cmluZygpLm9wdGlvbmFsKCkuZGVzY3JpYmUoJ0EgcmVjb21tZW5kZWQgYWN0aW9uIHRvIHJlc29sdmUgdGhlIHByaW1hcnkgaXNzdWUsIGlmIGFwcGxpY2FibGUuJyksXHJcbn0pO1xyXG5leHBvcnQgdHlwZSBMb2dBbmFseXNpc091dHB1dCA9IHouaW5mZXI8dHlwZW9mIExvZ0FuYWx5c2lzT3V0cHV0U2NoZW1hPjtcclxuXHJcblxyXG5jb25zdCBsb2dBbmFseXNpc1Byb21wdCA9IGFpLmRlZmluZVByb21wdCh7XHJcbiAgbmFtZTogJ2xvZ0FuYWx5c2lzUHJvbXB0JyxcclxuICBpbnB1dDogeyBzY2hlbWE6IExvZ0FuYWx5c2lzSW5wdXRTY2hlbWEgfSxcclxuICBvdXRwdXQ6IHsgc2NoZW1hOiBMb2dBbmFseXNpc091dHB1dFNjaGVtYSB9LFxyXG4gIHByb21wdDogYFlvdSBhcmUgYSBoZWxwZnVsIERldk9wcyBhc3Npc3RhbnQuIFlvdXIgdGFzayBpcyB0byBhbmFseXplIHRoZSBwcm92aWRlZCBsb2dzIGFuZCBwcm92aWRlIGEgc3RydWN0dXJlZCBzdW1tYXJ5LlxyXG5cclxuQ2FyZWZ1bGx5IHJldmlldyB0aGUgbG9ncyBwcm92aWRlZCBiZWxvdy4gSWRlbnRpZnkgYWxsIGVycm9ycyBhbmQgd2FybmluZ3MuIERldGVybWluZSB0aGUgcm9vdCBjYXVzZSBvZiBhbnkgZmFpbHVyZXMuXHJcblxyXG5Mb2dzOlxyXG5cXGBcXGBcXGBcclxue3t7bG9nc319fVxyXG5cXGBcXGBcXGBcclxuXHJcbkJhc2VkIG9uIHlvdXIgYW5hbHlzaXMsIHByb3ZpZGUgYSBjb25jaXNlIHN1bW1hcnksIGNvdW50IHRoZSBlcnJvcnMgYW5kIHdhcm5pbmdzLCBpZGVudGlmeSB0aGUgbW9zdCBjcml0aWNhbCBlcnJvciwgYW5kIHN1Z2dlc3QgYSByZXNvbHV0aW9uLiBJZiB0aGVyZSBhcmUgbm8gZXJyb3JzLCB5b3UgY2FuIG9taXQgdGhlIGNyaXRpY2FsRXJyb3IgYW5kIHJlY29tbWVuZGF0aW9uIGZpZWxkcy5gLFxyXG59KTtcclxuXHJcbmNvbnN0IGxvZ0FuYWx5c2lzRmxvdyA9IGFpLmRlZmluZUZsb3coXHJcbiAge1xyXG4gICAgbmFtZTogJ2xvZ0FuYWx5c2lzRmxvdycsXHJcbiAgICBpbnB1dFNjaGVtYTogTG9nQW5hbHlzaXNJbnB1dFNjaGVtYSxcclxuICAgIG91dHB1dFNjaGVtYTogTG9nQW5hbHlzaXNPdXRwdXRTY2hlbWEsXHJcbiAgfSxcclxuICBhc3luYyAoaW5wdXQpID0+IHtcclxuICAgIGNvbnN0IHsgb3V0cHV0IH0gPSBhd2FpdCBsb2dBbmFseXNpc1Byb21wdChpbnB1dCk7XHJcbiAgICBpZiAoIW91dHB1dCkge1xyXG4gICAgICB0aHJvdyBuZXcgRXJyb3IoJ0ZhaWxlZCB0byBnZXQgYSByZXNwb25zZSBmcm9tIHRoZSBBSSBtb2RlbC4nKTtcclxuICAgIH1cclxuICAgIHJldHVybiBvdXRwdXQ7XHJcbiAgfVxyXG4pO1xyXG5cclxuZXhwb3J0IGFzeW5jIGZ1bmN0aW9uIGFuYWx5emVMb2dzKGlucHV0OiBMb2dBbmFseXNpc0lucHV0KTogUHJvbWlzZTxMb2dBbmFseXNpc091dHB1dD4ge1xyXG4gIHJldHVybiBsb2dBbmFseXNpc0Zsb3coaW5wdXQpO1xyXG59XHJcbiJdLCJuYW1lcyI6W10sIm1hcHBpbmdzIjoic1NBMkRzQiJ9
 if (typeof globalThis.$RefreshHelpers$ === 'object' && globalThis.$RefreshHelpers !== null) {
     __turbopack_context__.k.registerExports(module, globalThis.$RefreshHelpers$);
 }
@@ -739,8 +739,8 @@ __turbopack_context__.s({
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$build$2f$polyfills$2f$process$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/build/polyfills/process.js [app-client] (ecmascript)");
 const config = {
     mode: ("TURBOPACK compile-time value", "real") || 'real',
-    apiBaseUrl: ("TURBOPACK compile-time value", "http://localhost:8000") || 'http://localhost:8000',
-    wsBaseUrl: ("TURBOPACK compile-time value", "ws://localhost:8000") || 'ws://localhost:8000',
+    apiBaseUrl: ("TURBOPACK compile-time value", "http://backend:8000") || 'http://localhost:8000',
+    wsBaseUrl: ("TURBOPACK compile-time value", "ws://backend:8000") || 'ws://localhost:8000',
     pollingInterval: 1000
 };
 const __TURBOPACK__default__export__ = config;
@@ -762,26 +762,22 @@ class ApiClient {
     baseUrl;
     constructor(){
         this.baseUrl = __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$config$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"].apiBaseUrl;
-        console.log(`🔧 ApiClient initialized with baseUrl: ${this.baseUrl}`);
     }
     async request(endpoint, options = {}) {
-        const fullUrl = `${this.baseUrl}${endpoint}`;
-        console.log(`🚀 Attempting request to: ${fullUrl}`);
         try {
-            const response = await fetch(fullUrl, {
+            const response = await fetch(`${this.baseUrl}${endpoint}`, {
                 ...options,
                 headers: {
                     'Content-Type': 'application/json',
                     ...options.headers || {}
                 }
             });
-            console.log(`✅ Response received: ${response.status}`);
             if (!response.ok) {
                 throw new Error(`API error: ${response.status}`);
             }
             return await response.json();
         } catch (err) {
-            console.error(`❌ Request failed for ${fullUrl}:`, err);
+            // Suppress error logging here; let the caller handle it
             throw err;
         }
     }
@@ -4667,7 +4663,7 @@ __turbopack_context__.s({
 });
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/compiled/react/jsx-dev-runtime.js [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/compiled/react/index.js [app-client] (ecmascript)");
-var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$ai$2f$flows$2f$data$3a$09260d__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$text$2f$javascript$3e$__ = __turbopack_context__.i("[project]/src/ai/flows/data:09260d [app-client] (ecmascript) <text/javascript>");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$ai$2f$flows$2f$data$3a$13ddf6__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$text$2f$javascript$3e$__ = __turbopack_context__.i("[project]/src/ai/flows/data:13ddf6 [app-client] (ecmascript) <text/javascript>");
 var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$csv$2d$monitor$2f$CsvStatusTable$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/components/csv-monitor/CsvStatusTable.tsx [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$csv$2d$monitor$2f$StatCard$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/components/csv-monitor/StatCard.tsx [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$csv$2d$monitor$2f$FileUpload$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/components/csv-monitor/FileUpload.tsx [app-client] (ecmascript)");
@@ -5222,7 +5218,7 @@ function CsvMonitorPage() {
         "CsvMonitorPage.useCallback[handleAnalyzeLogs]": async ()=>{
             setIsAnalyzingLogs(true);
             try {
-                const result = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$ai$2f$flows$2f$data$3a$09260d__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$text$2f$javascript$3e$__["analyzeLogs"])({
+                const result = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$ai$2f$flows$2f$data$3a$13ddf6__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$text$2f$javascript$3e$__["analyzeLogs"])({
                     logs: mockLogs
                 });
                 setAnalysisResult(result);
@@ -8509,4 +8505,4 @@ if (typeof globalThis.$RefreshHelpers$ === 'object' && globalThis.$RefreshHelper
 }}),
 }]);
 
-//# sourceMappingURL=src_5f5ce8f5._.js.map
+//# sourceMappingURL=src_1e3f8c03._.js.map

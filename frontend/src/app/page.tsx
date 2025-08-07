@@ -93,8 +93,8 @@ export default function CsvMonitorPage() {
   const [modelInfoDialog, setModelInfoDialog] = useState<{ open: boolean, model: string | null }>({ open: false, model: null });
   const [keyDialog, setKeyDialog] = useState<{ open: boolean, model: string | null }>({ open: false, model: null });
   
-  // Mock mode toggle state - initialize from dataProvider
-  const [isMockMode, setIsMockMode] = useState(() => dataProvider.getCurrentMode() === 'mock');
+  // Mock mode toggle state - initialize with default value, update from dataProvider in useEffect
+  const [isMockMode, setIsMockMode] = useState(true);
   
   const [showFullKey, setShowFullKey] = useState<{ [model: string]: boolean }>({});
   const [modelKeys, setModelKeys] = useState<{ [model: string]: string }>({
@@ -277,6 +277,10 @@ export default function CsvMonitorPage() {
         setIsInitialLoading(false);
       }
     );
+    
+    // Sync toggle state with dataProvider mode on client
+    setIsMockMode(dataProvider.getCurrentMode() === 'mock');
+    
     setCurrentTime(Date.now());
     const timerId = setInterval(() => setCurrentTime(Date.now()), 1000);
     return () => {

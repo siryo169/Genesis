@@ -1,0 +1,37 @@
+version: "3.9"
+
+services:
+  backend:
+    build:
+      context: ./backend
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env_sample
+    environment:
+      GEMINI_API_KEY: ${GEMINI_API_KEY}
+    volumes:
+      - ./backend:/app
+      - ./backend/data:/app/data
+      - ./backend/logs:/app/logs
+      - ./backend/pipeline.db:/app/pipeline.db
+    command: >
+      sh -c "pip install --no-cache-dir -r requirements.txt &&
+             uvicorn src.api.app:app --reload --host 0.0.0.0 --port 8000"
+
+  frontend:
+    build:
+      context: ./frontend
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env_sample
+    environment:
+      GEMINI_API_KEY: ${GEMINI_API_KEY}
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules  # para evitar conflictos entre host y contenedor
+    command: >
+      sh -c "npm install && npm run dev"
+    depends_on:
+      - backend

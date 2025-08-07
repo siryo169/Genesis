@@ -13,7 +13,11 @@ export class DataProvider {
 
   constructor() {
     // Check localStorage for saved mode preference, default to 'mock'
-    const savedMode = localStorage.getItem('dataSourceMode') as 'mock' | 'real' | null;
+    // Only access localStorage if we're in the browser
+    let savedMode: 'mock' | 'real' | null = null;
+    if (typeof window !== 'undefined') {
+      savedMode = localStorage.getItem('dataSourceMode') as 'mock' | 'real' | null;
+    }
     this.mode = savedMode || 'mock';
     console.log(`DataProvider initialized in ${this.mode} mode`);
     this.init();
@@ -182,8 +186,10 @@ export class DataProvider {
   switchMode(newMode: 'mock' | 'real') {
     if (this.mode === newMode) return; // No change needed
     
-    // Save preference to localStorage
-    localStorage.setItem('dataSourceMode', newMode);
+    // Save preference to localStorage only if we're in the browser
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('dataSourceMode', newMode);
+    }
     
     // Cleanup current mode resources (but keep listeners)
     this.cleanupResources();

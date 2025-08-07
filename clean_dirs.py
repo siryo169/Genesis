@@ -2,28 +2,39 @@
 """
 Usage examples:
 
-# Clean everything (logs, all data subdirectories, and pipeline.db):
+# Clean everything (logs, all data subdirectories, and recreate fresh pipeline.db):
 python clean_dirs.py
 
-# Clean only logs (and pipeline.db):
+# Clean only logs (and recreate fresh pipeline.db):
 python clean_dirs.py --logs
 
-# Clean only data (all subdirectories, and pipeline.db):
+# Clean only data (all subdirectories, and recreate fresh pipeline.db):
 python clean_dirs.py --data
 
-# Clean only specific data subdirectories (e.g. inbound and output, and pipeline.db):
+# Clean only specific data subdirectories (e.g. inbound and output, and recreate fresh pipeline.db):
 python clean_dirs.py --data inbound output
 
-# Clean both logs and a subset of data subdirectories (and pipeline.db):
+# Clean both logs and a subset of data subdirectories (and recreate fresh pipeline.db):
 python clean_dirs.py --logs --data inbound output
 
-# Clean everything but keep pipeline.db:
+# Clean everything but keep pipeline.db unchanged:
 python clean_dirs.py --keep-db
 """
 import argparse
 import os
 import shutil
+import sys
 from pathlib import Path
+
+# Add the backend src directory to the path so we can import the database models
+sys.path.append(str(Path(__file__).parent / 'backend' / 'src'))
+
+try:
+    from models.pipeline_run import init_db
+    DB_AVAILABLE = True
+except ImportError as e:
+    print(f"Warning: Could not import database models: {e}")
+    DB_AVAILABLE = False
 
 DATA_DIR = Path('backend/data')
 LOGS_DIR = Path('backend/logs')
@@ -63,20 +74,37 @@ def clean_data(subdirs=None):
 def clean_logs():
     clean_dir(LOGS_DIR)
 
+def clean_database():
+    """Clean database by deleting it completely and recreating it with fresh structure"""
+    # Delete the database file if it exists
+    if DB_FILE.exists():
+        DB_FILE.unlink()
+        print(f"Deleted existing database {DB_FILE}")
+    
+    if not DB_AVAILABLE:
+        print("Database models not available, cannot recreate database")
+        return
+    
+    # Recreate the database with fresh structure using the same function as the backend
+    try:
+        print(f"Creating fresh database {DB_FILE}...")
+        SessionLocal = init_db(f'sqlite:///{DB_FILE}')
+        print(f"Successfully created fresh database {DB_FILE} with clean table structure")
+    except Exception as e:
+        print(f"Error creating fresh database: {e}")
+
 def main():
-    parser = argparse.ArgumentParser(description="Clean logs/ and backend/data/ subdirectories, and optionally pipeline.db.")
+    parser = argparse.ArgumentParser(description="Clean logs/ and backend/data/ subdirectories, and recreate fresh pipeline.db.")
     parser.add_argument('--logs', action='store_true', help='Clean only the logs directory')
     parser.add_argument('--data', nargs='*', help='Clean only the data directory or specific subdirectories (e.g. inbound output)')
-    parser.add_argument('--keep-db', action='store_true', help='Do not delete pipeline.db')
+    parser.add_argument('--keep-db', action='store_true', help='Do not touch pipeline.db')
     args = parser.parse_args()
 
-    if not args.keep_db and DB_FILE.exists():
-        DB_FILE.unlink()
-        print(f"Deleted {DB_FILE}")
-    elif not args.keep_db:
-        print(f"Database file {DB_FILE} does not exist.")
+    # Handle database cleaning (always recreate unless --keep-db is specified)
+    if not args.keep_db:
+        clean_database()
     else:
-        print(f"Keeping {DB_FILE}")
+        print(f"Keeping {DB_FILE} unchanged")
 
     if args.logs and args.data:
         # Clean both, but possibly only a subset of data subdirs

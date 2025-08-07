@@ -3,6 +3,7 @@
 
 import type { CsvProcessingEntry } from "@/types/csv-status";
 import {
+  Table,
   TableBody,
   TableCell,
   TableHead,
@@ -188,8 +189,8 @@ export function CsvStatusTable({ data, sortConfig, requestSort, now, onDownload,
 
   return (
     <>
-    <ScrollArea className="min-h-[400px] flex-grow rounded-md border shadow-sm">
-      <table className="min-w-full border-collapse relative">
+    <div className="relative flex-grow flex flex-col">
+      <Table>
         <TableHeader className="bg-muted sticky top-0 z-10">
           <TableRow>
             <TableHead className="w-[150px] text-center">
@@ -223,199 +224,202 @@ export function CsvStatusTable({ data, sortConfig, requestSort, now, onDownload,
             <TableHead className="text-right px-4 text-xs">Actions</TableHead>
           </TableRow>
         </TableHeader>
-        <TableBody>
-          {data.length === 0 ? (
-            <TableRow>
-              <TableCell colSpan={9} className="h-24 text-center text-muted-foreground">
-                No files found. Try uploading a new file or clearing your filters.
-              </TableCell>
-            </TableRow>
-          ) : (
-            data.map((entry) => {
-              const isFullyCompleted = 
-                entry.stage_stats?.classification?.status === 'ok' &&
-                (entry.stage_stats?.sampling?.status === 'ok' || entry.stage_stats?.sampling?.status === 'skipped') &&
-                (entry.stage_stats?.gemini_query?.status === 'ok' || entry.stage_stats?.gemini_query?.status === 'skipped') &&
-                entry.stage_stats?.normalization?.status === 'ok';
+      </Table>
+      <ScrollArea className="flex-grow">
+        <Table className="min-w-full border-collapse relative">
+          <TableBody>
+            {data.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={9} className="h-24 text-center text-muted-foreground">
+                  No files found. Try uploading a new file or clearing your filters.
+                </TableCell>
+              </TableRow>
+            ) : (
+              data.map((entry) => {
+                const isFullyCompleted = 
+                  entry.stage_stats?.classification?.status === 'ok' &&
+                  (entry.stage_stats?.sampling?.status === 'ok' || entry.stage_stats?.sampling?.status === 'skipped') &&
+                  (entry.stage_stats?.gemini_query?.status === 'ok' || entry.stage_stats?.gemini_query?.status === 'skipped') &&
+                  entry.stage_stats?.normalization?.status === 'ok';
 
-              const hasError = [
-                entry.stage_stats?.classification,
-                entry.stage_stats?.sampling,
-                entry.stage_stats?.gemini_query,
-                entry.stage_stats?.normalization
-              ].some(step => step && step.status === 'error');
+                const hasError = [
+                  entry.stage_stats?.classification,
+                  entry.stage_stats?.sampling,
+                  entry.stage_stats?.gemini_query,
+                  entry.stage_stats?.normalization
+                ].some(step => step && step.status === 'error');
 
-              return (
-                <TableRow key={entry.id} className="hover:bg-muted/20 transition-colors cursor-pointer" onClick={() => onRowClick(entry)}>
-                  <TableCell className={cn("w-[150px]", cellPaddingClass)}>
-                    <div className="flex justify-center items-center">
-                      <PriorityLabel priority={entry.priority} entryId={entry.id} onPriorityChange={onPriorityChange} />
-                    </div>
-                  </TableCell>
-                  <TableCell className={cn("font-medium whitespace-nowrap text-xs max-w-[260px] overflow-hidden text-ellipsis", cellPaddingClass)} title={entry.filename}>
+                return (
+                  <TableRow key={entry.id} className="hover:bg-muted/20 transition-colors cursor-pointer" onClick={() => onRowClick(entry)}>
+                    <TableCell className={cn("w-[150px]", cellPaddingClass)}>
+                      <div className="flex justify-center items-center">
+                        <PriorityLabel priority={entry.priority} entryId={entry.id} onPriorityChange={onPriorityChange} />
+                      </div>
+                    </TableCell>
+                    <TableCell className={cn("font-medium whitespace-nowrap text-xs max-w-[260px] overflow-hidden text-ellipsis", cellPaddingClass)} title={entry.filename}>
+                        <TooltipProvider delayDuration={100}>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <span className="block overflow-hidden text-ellipsis whitespace-nowrap max-w-[240px]">{entry.filename}</span>
+                            </TooltipTrigger>
+                            <TooltipContent>{entry.filename}</TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      </TableCell>
+                    <TableCell className={cellPaddingClass}>
+                      <StatusBadge 
+                        status={entry.status === 'enqueued' ? 'not_started' : entry.stage_stats?.classification?.status || 'not_started'}
+                        startTime={entry.stage_stats?.classification?.start_time ? new Date(entry.stage_stats.classification.start_time).getTime() : undefined}
+                        endTime={entry.stage_stats?.classification?.end_time ? new Date(entry.stage_stats.classification.end_time).getTime() : undefined}
+                        error_message={entry.stage_stats?.classification?.error_message}
+                        now={now} 
+                      />
+                    </TableCell>
+                      <TableCell className={cn("text-center text-xs", cellPaddingClass)}>
                       <TooltipProvider delayDuration={100}>
                         <Tooltip>
                           <TooltipTrigger asChild>
-                            <span className="block overflow-hidden text-ellipsis whitespace-nowrap max-w-[240px]">{entry.filename}</span>
+                             <span className={cn("font-medium", entry.stage_stats?.classification?.status === 'ok' ? 'text-white' : 'text-muted-foreground')}>
+                              {(() => {
+                                const step = entry.stage_stats?.classification;
+                                if (step?.status === 'ok') {
+                                  return 'Tabular'; // or other logic if you want to distinguish
+                                }
+                                return '—';
+                              })()}
+                            </span>
                           </TooltipTrigger>
-                          <TooltipContent>{entry.filename}</TooltipContent>
+                          <TooltipContent>
+                            <p className="capitalize">
+                             {(() => {
+                                const step = entry.stage_stats?.classification;
+                                if (step?.status === 'ok') {
+                                  return 'File type: Tabular';
+                                }
+                                return 'Status: Not Started';
+                              })()}
+                            </p>
+                          </TooltipContent>
                         </Tooltip>
                       </TooltipProvider>
                     </TableCell>
-                  <TableCell className={cellPaddingClass}>
-                    <StatusBadge 
-                      status={entry.status === 'enqueued' ? 'not_started' : entry.stage_stats?.classification?.status || 'not_started'}
-                      startTime={entry.stage_stats?.classification?.start_time ? new Date(entry.stage_stats.classification.start_time).getTime() : undefined}
-                      endTime={entry.stage_stats?.classification?.end_time ? new Date(entry.stage_stats.classification.end_time).getTime() : undefined}
-                      error_message={entry.stage_stats?.classification?.error_message}
-                      now={now} 
-                    />
-                  </TableCell>
-                    <TableCell className={cn("text-center text-xs", cellPaddingClass)}>
-                    <TooltipProvider delayDuration={100}>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                           <span className={cn("font-medium", entry.stage_stats?.classification?.status === 'ok' ? 'text-white' : 'text-muted-foreground')}>
-                            {(() => {
-                              const step = entry.stage_stats?.classification;
-                              if (step?.status === 'ok') {
-                                return 'Tabular'; // or other logic if you want to distinguish
-                              }
-                              return '—';
-                            })()}
+                    <TableCell className={cn("align-middle", cellPaddingClass)}>
+                      <div className="relative flex flex-col items-center justify-center" style={{ minHeight: 10 }}>
+                        <div className="flex items-center justify-center h-full">
+                          <StatusBadge
+                            status={entry.stage_stats?.sampling?.status || 'not_started'}
+                            startTime={entry.stage_stats?.sampling?.start_time ? new Date(entry.stage_stats.sampling.start_time).getTime() : undefined}
+                            endTime={entry.stage_stats?.sampling?.end_time ? new Date(entry.stage_stats.sampling.end_time).getTime() : undefined}
+                            error_message={entry.stage_stats?.sampling?.error_message}
+                            now={now}
+                          />
+                        </div>
+                        {entry.stage_stats?.sampling?.status === 'ok' && entry.gemini_sample_rows && entry.gemini_sample_rows.length > 0 && (
+                          <span
+                            className="underline text-blue-400 hover:text-blue-500 cursor-pointer text-xs mt-1"
+                            style={{ position: 'absolute', top: '100%', left: '50%', transform: 'translateX(-50%)', marginTop: 4 }}
+                            onClick={e => {
+                              e.stopPropagation();
+                              setSampleRowsDialogId(entry.id);
+                            }}
+                          >
+                            Inspect
                           </span>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p className="capitalize">
-                           {(() => {
-                              const step = entry.stage_stats?.classification;
-                              if (step?.status === 'ok') {
-                                return 'File type: Tabular';
-                              }
-                              return 'Status: Not Started';
-                            })()}
-                          </p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
-                  </TableCell>
-                  <TableCell className={cn("align-middle", cellPaddingClass)}>
-                    <div className="relative flex flex-col items-center justify-center" style={{ minHeight: 10 }}>
-                      <div className="flex items-center justify-center h-full">
-                        <StatusBadge
-                          status={entry.stage_stats?.sampling?.status || 'not_started'}
-                          startTime={entry.stage_stats?.sampling?.start_time ? new Date(entry.stage_stats.sampling.start_time).getTime() : undefined}
-                          endTime={entry.stage_stats?.sampling?.end_time ? new Date(entry.stage_stats.sampling.end_time).getTime() : undefined}
-                          error_message={entry.stage_stats?.sampling?.error_message}
-                          now={now}
-                        />
+                        )}
                       </div>
-                      {entry.stage_stats?.sampling?.status === 'ok' && entry.gemini_sample_rows && entry.gemini_sample_rows.length > 0 && (
+                    </TableCell>
+                    <TableCell className={cellPaddingClass}>
+                      <StatusBadge 
+                        status={entry.stage_stats?.gemini_query?.status || 'not_started'}
+                        startTime={entry.stage_stats?.gemini_query?.start_time ? new Date(entry.stage_stats.gemini_query.start_time).getTime() : undefined}
+                        endTime={entry.stage_stats?.gemini_query?.end_time ? new Date(entry.stage_stats.gemini_query.end_time).getTime() : undefined}
+                        error_message={entry.stage_stats?.gemini_query?.error_message}
+                        now={now}
+                      />
+                    </TableCell>
+                    <TableCell className={cn("text-sm text-muted-foreground", cellPaddingClass)} title={entry.extracted_fields ? entry.extracted_fields.join(", ") : "No fields extracted"}>
+                      {(() => {
+                        if (!entry.extracted_fields) {
+                          return <span className="text-muted-foreground"></span>;
+                        }
+                        const headers = entry.extracted_fields.slice(0, 4);
+                        const prioritized = headers.filter(h => CRITICAL_HEADERS.includes(h));
+                        const rest = headers.filter(h => !CRITICAL_HEADERS.includes(h));
+                        const sortedHeaders = [...prioritized, ...rest];
+
+                        return sortedHeaders.map((field, idx) => {
+                          let color: string | undefined = undefined;
+                          let fontWeight: string | undefined = undefined;
+                          if (CRITICAL_HEADERS.includes(field)) {
+                            color = 'white';
+                            fontWeight = 'bold';
+                          } else if (!(field in knownHeaders)) {
+                            color = 'orange';
+                          } else {
+                            color = 'white';
+                          }
+                          return (
+                            <Badge key={`${field}-${idx}`} variant="secondary" style={{ color, fontWeight }} className="mr-1 mb-1 px-1.5 py-0.5 text-xs">
+                              {field}
+                            </Badge>
+                          );
+                        });
+                      })()}
+                      {entry.stage_stats?.gemini_query?.status === 'ok' && !entry.stage_stats?.gemini_query?.error_message && (
                         <span
-                          className="underline text-blue-400 hover:text-blue-500 cursor-pointer text-xs mt-1"
-                          style={{ position: 'absolute', top: '100%', left: '50%', transform: 'translateX(-50%)', marginTop: 4 }}
+                          className="underline text-blue-400 hover:text-blue-500 cursor-pointer text-xs ml-1"
                           onClick={e => {
                             e.stopPropagation();
-                            setSampleRowsDialogId(entry.id);
+                            setMoreDialogEntryId(entry.id);
                           }}
                         >
-                          Inspect
+                          More
                         </span>
                       )}
-                    </div>
-                  </TableCell>
-                  <TableCell className={cellPaddingClass}>
-                    <StatusBadge 
-                      status={entry.stage_stats?.gemini_query?.status || 'not_started'}
-                      startTime={entry.stage_stats?.gemini_query?.start_time ? new Date(entry.stage_stats.gemini_query.start_time).getTime() : undefined}
-                      endTime={entry.stage_stats?.gemini_query?.end_time ? new Date(entry.stage_stats.gemini_query.end_time).getTime() : undefined}
-                      error_message={entry.stage_stats?.gemini_query?.error_message}
-                      now={now}
-                    />
-                  </TableCell>
-                  <TableCell className={cn("text-sm text-muted-foreground", cellPaddingClass)} title={entry.extracted_fields ? entry.extracted_fields.join(", ") : "No fields extracted"}>
-                    {(() => {
-                      if (!entry.extracted_fields) {
-                        return <span className="text-muted-foreground"></span>;
-                      }
-                      const headers = entry.extracted_fields.slice(0, 4);
-                      const prioritized = headers.filter(h => CRITICAL_HEADERS.includes(h));
-                      const rest = headers.filter(h => !CRITICAL_HEADERS.includes(h));
-                      const sortedHeaders = [...prioritized, ...rest];
-
-                      return sortedHeaders.map((field, idx) => {
-                        let color: string | undefined = undefined;
-                        let fontWeight: string | undefined = undefined;
-                        if (CRITICAL_HEADERS.includes(field)) {
-                          color = 'white';
-                          fontWeight = 'bold';
-                        } else if (!(field in knownHeaders)) {
-                          color = 'orange';
-                        } else {
-                          color = 'white';
-                        }
-                        return (
-                          <Badge key={`${field}-${idx}`} variant="secondary" style={{ color, fontWeight }} className="mr-1 mb-1 px-1.5 py-0.5 text-xs">
-                            {field}
-                          </Badge>
-                        );
-                      });
-                    })()}
-                    {entry.stage_stats?.gemini_query?.status === 'ok' && !entry.stage_stats?.gemini_query?.error_message && (
-                      <span
-                        className="underline text-blue-400 hover:text-blue-500 cursor-pointer text-xs ml-1"
-                        onClick={e => {
-                          e.stopPropagation();
-                          setMoreDialogEntryId(entry.id);
-                        }}
-                      >
-                        More
-                      </span>
-                    )}
-                  </TableCell>
-                  <TableCell className={cellPaddingClass}>
-                    <StatusBadge
-                      status={entry.stage_stats?.normalization?.status || 'not_started'}
-                      startTime={entry.stage_stats?.normalization?.start_time ? new Date(entry.stage_stats.normalization.start_time).getTime() : undefined}
-                      endTime={entry.stage_stats?.normalization?.end_time ? new Date(entry.stage_stats.normalization.end_time).getTime() : undefined}
-                      error_message={entry.stage_stats?.normalization?.error_message}
-                      now={now}
-                    />
-                  </TableCell>
-                  <TableCell className={cn("text-right", cellPaddingClass)}>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={(e) => e.stopPropagation()}>
-                          <MoreVertical className="h-4 w-4" />
-                          <span className="sr-only">More actions</span>
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end" onClick={(e) => e.stopPropagation()}>
-                        <DropdownMenuItem onSelect={() => onDownload(entry.filename)} disabled={!isFullyCompleted}>
-                          <Download className="mr-2 h-4 w-4" />
-                          <span>Download</span>
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onSelect={() => handleOpenLogDialog(entry)} disabled={entry.status === 'enqueued'}>
-                          <LogsIcon className="mr-2 h-4 w-4" />
-                          <span>Logs</span>
-                        </DropdownMenuItem>
-                         {hasError && entry.stage_stats?.gemini_query?.status === 'error' && (
-                          <DropdownMenuItem onSelect={() => onRetry(entry.id)}>
-                             <RefreshCcw className="mr-2 h-4 w-4" />
-                             <span>Retry</span>
+                    </TableCell>
+                    <TableCell className={cellPaddingClass}>
+                      <StatusBadge
+                        status={entry.stage_stats?.normalization?.status || 'not_started'}
+                        startTime={entry.stage_stats?.normalization?.start_time ? new Date(entry.stage_stats.normalization.start_time).getTime() : undefined}
+                        endTime={entry.stage_stats?.normalization?.end_time ? new Date(entry.stage_stats.normalization.end_time).getTime() : undefined}
+                        error_message={entry.stage_stats?.normalization?.error_message}
+                        now={now}
+                      />
+                    </TableCell>
+                    <TableCell className={cn("text-right", cellPaddingClass)}>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={(e) => e.stopPropagation()}>
+                            <MoreVertical className="h-4 w-4" />
+                            <span className="sr-only">More actions</span>
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" onClick={(e) => e.stopPropagation()}>
+                          <DropdownMenuItem onSelect={() => onDownload(entry.filename)} disabled={!isFullyCompleted}>
+                            <Download className="mr-2 h-4 w-4" />
+                            <span>Download</span>
                           </DropdownMenuItem>
-                         )}
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </TableCell>
-                </TableRow>
-              );
-            })
-          )}
-        </TableBody>
-      </table>
-      <ScrollBar orientation="horizontal" />
-    </ScrollArea>
+                          <DropdownMenuItem onSelect={() => handleOpenLogDialog(entry)} disabled={entry.status === 'enqueued'}>
+                            <LogsIcon className="mr-2 h-4 w-4" />
+                            <span>Logs</span>
+                          </DropdownMenuItem>
+                           {hasError && entry.stage_stats?.gemini_query?.status === 'error' && (
+                            <DropdownMenuItem onSelect={() => onRetry(entry.id)}>
+                               <RefreshCcw className="mr-2 h-4 w-4" />
+                               <span>Retry</span>
+                            </DropdownMenuItem>
+                           )}
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </TableCell>
+                  </TableRow>
+                );
+              })
+            )}
+          </TableBody>
+        </Table>
+      </ScrollArea>
+    </div>
       <Dialog open={logDialogOpen} onOpenChange={setLogDialogOpen}>
         <DialogContent className="w-[80vw] max-w-10xl max-h-[80vh] overflow-y-auto">
           <DialogHeader>

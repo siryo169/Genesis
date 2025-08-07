@@ -9,6 +9,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { ScrollArea } from "@/components/ui/scroll-area";
 import knownHeaders from "@/known_headers.json"; 
 import React, { useState } from "react";
+import { Calendar, Scaling, BrainCircuit } from 'lucide-react';
 
 interface FileDetailDialogProps {
   entry: CsvProcessingEntry | null;
@@ -20,6 +21,18 @@ const DetailRow = ({ label, value }: { label: string, value: React.ReactNode }) 
   <div className="grid grid-cols-2 gap-4 py-2 first:pt-0 last:pb-0">
     <dt className="text-sm font-medium text-muted-foreground">{label}</dt>
     <dd className="text-sm text-right font-mono">{value}</dd>
+  </div>
+);
+
+const DetailSection = ({ title, icon: Icon, children }: { title: string, icon: React.FC<any>, children: React.ReactNode }) => (
+  <div className="space-y-1">
+    <h4 className="flex items-center text-sm font-medium text-muted-foreground">
+      <Icon className="h-4 w-4 mr-2" />
+      {title}
+    </h4>
+    <dl className="divide-y divide-border/50 border-t border-border/50">
+      {children}
+    </dl>
   </div>
 );
 
@@ -103,38 +116,29 @@ export function FileDetailDialog({ entry, isOpen, onOpenChange }: FileDetailDial
             <div className="space-y-6">
               <h3 className="text-base font-semibold text-foreground">File Metadata</h3>
               
-              <div className="space-y-1">
-                <h4 className="text-sm font-medium text-muted-foreground">Timestamps</h4>
-                <dl className="divide-y divide-border/50 border-t border-border/50">
-                  <DetailRow label="Insertion Date" value={formatUTCDate(entry.insertion_date)} />
-                  <DetailRow label="Processing Start" value={formatUTCDate(entry.start_time)} />
-                  <DetailRow label="Processing End" value={formatUTCDate(entry.end_time)} />
-                  <DetailRow label="Total Duration" value={totalDuration} />
-                </dl>
-              </div>
+              <DetailSection title="Timestamps" icon={Calendar}>
+                <DetailRow label="Insertion Date" value={formatUTCDate(entry.insertion_date)} />
+                <DetailRow label="Processing Start" value={formatUTCDate(entry.start_time)} />
+                <DetailRow label="Processing End" value={formatUTCDate(entry.end_time)} />
+                <DetailRow label="Total Duration" value={totalDuration} />
+              </DetailSection>
 
-              <div className="space-y-1">
-                <h4 className="text-sm font-medium text-muted-foreground">File Metrics</h4>
-                 <dl className="divide-y divide-border/50 border-t border-border/50">
-                    <DetailRow label="Original File Size" value={formatFileSize(entry.original_file_size)} />
-                    <DetailRow label="Original Row Count" value={entry.original_row_count?.toLocaleString() ?? 'N/A'} />
-                    <DetailRow label="Final File Size" value={formatFileSize(entry.final_file_size)} />
-                    <DetailRow label="Final Row Count" value={entry.final_row_count?.toLocaleString() ?? 'N/A'} />
-                    <DetailRow label="Valid Row Percentage" value={entry.valid_row_percentage != null ? entry.valid_row_percentage.toFixed(2) + '%' : 'N/A'} />
-                    <DetailRow label="Invalid Lines" value={invalidLines} />
-                 </dl>
-              </div>
+              <DetailSection title="File Metrics" icon={Scaling}>
+                <DetailRow label="Original File Size" value={formatFileSize(entry.original_file_size)} />
+                <DetailRow label="Original Row Count" value={entry.original_row_count?.toLocaleString() ?? 'N/A'} />
+                <DetailRow label="Final File Size" value={formatFileSize(entry.final_file_size)} />
+                <DetailRow label="Final Row Count" value={entry.final_row_count?.toLocaleString() ?? 'N/A'} />
+                <DetailRow label="Valid Row Percentage" value={entry.valid_row_percentage != null ? entry.valid_row_percentage.toFixed(2) + '%' : 'N/A'} />
+                <DetailRow label="Invalid Lines" value={invalidLines} />
+              </DetailSection>
 
-              <div className="space-y-1">
-                <h4 className="text-sm font-medium text-muted-foreground">AI Usage</h4>
-                 <dl className="divide-y divide-border/50 border-t border-border/50">
-                    <DetailRow label="AI Model Used" value={entry.ai_model ?? 'N/A'} />
-                    <DetailRow label="Gemini Input Tokens" value={entry.gemini_input_tokens?.toLocaleString() ?? 'N/A'} />
-                    <DetailRow label="Gemini Output Tokens" value={entry.gemini_output_tokens?.toLocaleString() ?? 'N/A'} />
-                    <DetailRow label="Gemini Total Tokens" value={entry.gemini_total_tokens?.toLocaleString() ?? 'N/A'} />
-                    <DetailRow label="Estimated Cost" value={typeof entry.estimated_cost === 'number' ? `$${entry.estimated_cost.toFixed(6)}` : 'N/A'} />
-                 </dl>
-              </div>
+              <DetailSection title="AI Usage" icon={BrainCircuit}>
+                <DetailRow label="AI Model Used" value={entry.ai_model ?? 'N/A'} />
+                <DetailRow label="Gemini Input Tokens" value={entry.gemini_input_tokens?.toLocaleString() ?? 'N/A'} />
+                <DetailRow label="Gemini Output Tokens" value={entry.gemini_output_tokens?.toLocaleString() ?? 'N/A'} />
+                <DetailRow label="Gemini Total Tokens" value={entry.gemini_total_tokens?.toLocaleString() ?? 'N/A'} />
+                <DetailRow label="Estimated Cost" value={typeof entry.estimated_cost === 'number' ? `$${entry.estimated_cost.toFixed(6)}` : 'N/A'} />
+              </DetailSection>
 
             </div>
 

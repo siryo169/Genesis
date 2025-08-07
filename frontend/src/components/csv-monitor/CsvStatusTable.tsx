@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/table";
 import { StatusBadge } from "./StatusBadge";
 import { Button } from "@/components/ui/button";
-import { ArrowUpDown, Download, CheckCircle2, XCircle, Circle, RefreshCcw, LogsIcon, Wand2, MoreVertical, ArrowUp, ArrowRight, ArrowDown, ChevronsUp, ChevronsDown, Minus } from "lucide-react"; 
+import { ArrowUpDown, Download, CheckCircle2, XCircle, Circle, RefreshCcw, LogsIcon, Wand2, MoreVertical, ArrowUp, ArrowRight, ArrowDown, ChevronsUp, ChevronsDown, Minus, Loader } from "lucide-react"; 
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import React, { useState } from "react";
@@ -216,11 +216,11 @@ export function CsvStatusTable({ data, sortConfig, requestSort, now, onDownload,
             <TableHead>
               <span className="px-2 py-1 group text-xs">Gemini Query</span>
             </TableHead>
-            <TableHead>Extracted Fields</TableHead>
+            <TableHead className="text-xs">Extracted Fields</TableHead>
             <TableHead>
               <span className="px-2 py-1 group text-xs">Normalizer</span>
             </TableHead>
-            <TableHead className="text-right px-4">Actions</TableHead>
+            <TableHead className="text-right px-4 text-xs">Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -275,7 +275,7 @@ export function CsvStatusTable({ data, sortConfig, requestSort, now, onDownload,
                     <TooltipProvider delayDuration={100}>
                       <Tooltip>
                         <TooltipTrigger asChild>
-                          <span className="font-medium text-muted-foreground">
+                           <span className={cn("font-medium", entry.stage_stats?.classification?.status === 'ok' ? 'text-white' : 'text-muted-foreground')}>
                             {(() => {
                               const step = entry.stage_stats?.classification;
                               if (step?.status === 'ok') {
@@ -312,7 +312,7 @@ export function CsvStatusTable({ data, sortConfig, requestSort, now, onDownload,
                       </div>
                       {entry.stage_stats?.sampling?.status === 'ok' && entry.gemini_sample_rows && entry.gemini_sample_rows.length > 0 && (
                         <span
-                          className="underline text-blue-600 cursor-pointer text-xs mt-1"
+                          className="underline text-blue-400 hover:text-blue-500 cursor-pointer text-xs mt-1"
                           style={{ position: 'absolute', top: '100%', left: '50%', transform: 'translateX(-50%)', marginTop: 4 }}
                           onClick={e => {
                             e.stopPropagation();
@@ -347,10 +347,12 @@ export function CsvStatusTable({ data, sortConfig, requestSort, now, onDownload,
                         let color: string | undefined = undefined;
                         let fontWeight: string | undefined = undefined;
                         if (CRITICAL_HEADERS.includes(field)) {
-                          color = 'black';
+                          color = 'white';
                           fontWeight = 'bold';
                         } else if (!(field in knownHeaders)) {
                           color = 'orange';
+                        } else {
+                          color = 'white';
                         }
                         return (
                           <Badge key={`${field}-${idx}`} variant="secondary" style={{ color, fontWeight }} className="mr-1 mb-1 px-1.5 py-0.5 text-xs">
@@ -361,7 +363,7 @@ export function CsvStatusTable({ data, sortConfig, requestSort, now, onDownload,
                     })()}
                     {entry.stage_stats?.gemini_query?.status === 'ok' && !entry.stage_stats?.gemini_query?.error_message && (
                       <span
-                        className="underline text-blue-600 cursor-pointer text-xs ml-1"
+                        className="underline text-blue-400 hover:text-blue-500 cursor-pointer text-xs ml-1"
                         onClick={e => {
                           e.stopPropagation();
                           setMoreDialogEntryId(entry.id);
@@ -546,7 +548,5 @@ function getStatusColor(status: string): string {
       return 'bg-gray-500';
   }
 }
-
-    
 
     

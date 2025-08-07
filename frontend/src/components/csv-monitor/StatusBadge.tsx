@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { formatDuration } from "@/lib/utils";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { Circle, Loader2, CheckCircle2, XCircle } from "lucide-react";
+import { Circle, Loader, CheckCircle2, XCircle } from "lucide-react";
 
 interface StatusBadgeProps {
   status: ProcessingStatus | 'not_started' | 'skipped';
@@ -41,7 +41,7 @@ const StatusIcon = ({ status }: { status: ProcessingStatus | 'not_started' | 'sk
     case "ok":
       return <CheckCircle2 className={cn(iconClass, "text-green-500")} />;
     case "running":
-      return <Loader2 className={cn(iconClass, "animate-spin text-blue-500")} />;
+      return <Loader className={cn(iconClass, "animate-spin text-blue-500")} />;
     case "error":
       return <XCircle className={cn(iconClass, "text-destructive")} />;
     case "not_started":
@@ -92,7 +92,7 @@ export function StatusBadge({
     <Badge
       variant="outline"
       className={cn(
-        "px-2.5 text-sm font-medium rounded-full flex items-center justify-center w-32 h-[22px] whitespace-nowrap",
+        "px-2 text-sm font-medium rounded-full flex items-center justify-center w-32 h-[22px] whitespace-nowrap",
         getStatusClassNames(currentStatus),
         className
       )}
@@ -124,3 +124,5 @@ export function StatusBadge({
 
   return badgeElement;
 }
+
+    

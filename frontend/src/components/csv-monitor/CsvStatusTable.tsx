@@ -12,7 +12,7 @@ import {
 import { StatusBadge } from "./StatusBadge";
 import { NormalizerStatusCell } from "./NormalizerStatusCell";
 import { Button } from "@/components/ui/button";
-import { ArrowUpDown, Download, CheckCircle2, XCircle, Circle, RefreshCcw, LogsIcon, Wand2, MoreVertical, ArrowUpCircle, ArrowRightCircle, ArrowDownCircle } from "lucide-react"; 
+import { ArrowUpDown, Download, CheckCircle2, XCircle, Circle, RefreshCcw, LogsIcon, Wand2, MoreVertical, ArrowUpCircle, ArrowRightCircle, ArrowDownCircle, ChevronsUp, ArrowDown } from "lucide-react"; 
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import React, { useState } from "react";
@@ -26,6 +26,8 @@ import { Alert } from "@/components/ui/alert";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import type { LogAnalysisOutput } from '@/ai/flows/log-analyzer-flow';
 import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
+
 
 interface CsvStatusTableProps {
   data: CsvProcessingEntry[];
@@ -52,18 +54,29 @@ const CRITICAL_HEADERS = [
   "pdata_id_nid_number"
 ];
 
-const PriorityIcon = ({ priority }: { priority?: 'high' | 'normal' | 'low' }) => {
-  switch (priority) {
-    case 'high':
-      return <ArrowUpCircle className="h-5 w-5 text-red-500" />;
-    case 'normal':
-      return <ArrowRightCircle className="h-5 w-5 text-yellow-500" />;
-    case 'low':
-      return <ArrowDownCircle className="h-5 w-5 text-green-500" />;
-    default:
-      return <ArrowRightCircle className="h-5 w-5 text-muted-foreground" />;
-  }
+const PriorityLabel = ({ priority }: { priority?: 'high' | 'normal' | 'low' }) => {
+  const styles = {
+    high: "bg-red-500/10 text-red-500 border border-red-500/20",
+    normal: "bg-blue-500/10 text-blue-500 border border-blue-500/20",
+    low: "bg-gray-500/10 text-gray-500 border border-gray-500/20"
+  };
+
+  const icons = {
+    high: <ChevronsUp className="h-3 w-3" />,
+    normal: <ArrowRightCircle className="h-3 w-3" />,
+    low: <ArrowDown className="h-3 w-3" />
+  };
+
+  const currentPriority = priority || 'normal';
+  
+  return (
+    <Badge variant="outline" className={cn("flex items-center justify-center gap-1.5 w-20 capitalize", styles[currentPriority])}>
+      {icons[currentPriority]}
+      <span>{currentPriority}</span>
+    </Badge>
+  );
 };
+
 
 export function CsvStatusTable({ data, sortConfig, requestSort, now, onDownload, onRetry, onRowClick }: CsvStatusTableProps) {
   const getSortIndicator = (key: keyof CsvProcessingEntry) => {
@@ -161,9 +174,9 @@ export function CsvStatusTable({ data, sortConfig, requestSort, now, onDownload,
       <table className="min-w-full border-collapse relative">
         <TableHeader className="bg-muted sticky top-0 z-10">
           <TableRow>
-            <TableHead className="w-12">
+            <TableHead className="w-[100px] text-center">
               <Button variant="ghost" onClick={() => requestSort('priority')} className="px-2 py-1 group text-xs">
-                P {getSortIndicator('priority')}
+                Priority {getSortIndicator('priority')}
               </Button>
             </TableHead>
             <TableHead>
@@ -216,17 +229,8 @@ export function CsvStatusTable({ data, sortConfig, requestSort, now, onDownload,
 
               return (
                 <TableRow key={entry.id} className="hover:bg-muted/20 transition-colors cursor-pointer" onClick={() => onRowClick(entry)}>
-                  <TableCell>
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <div><PriorityIcon priority={entry.priority} /></div>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p>Priority: {entry.priority || 'normal'}</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
+                  <TableCell className="text-center">
+                     <PriorityLabel priority={entry.priority} />
                   </TableCell>
                   <TableCell className="font-medium py-3 px-4 whitespace-nowrap text-xs max-w-[260px] overflow-hidden text-ellipsis" title={entry.filename}>
                       <TooltipProvider delayDuration={100}>

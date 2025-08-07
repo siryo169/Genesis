@@ -60,13 +60,13 @@ type Priority = CsvProcessingEntry['priority'];
 const priorityConfig: Record<NonNullable<Priority>, { icon: React.FC<any>, color: string, label: string }> = {
   'urgent': { icon: ChevronsUp, color: 'bg-red-500 hover:bg-red-600', label: 'Urgent' },
   'high': { icon: ArrowUpCircle, color: 'bg-orange-500 hover:bg-orange-600', label: 'High' },
-  'normal': { icon: ArrowRightCircle, color: 'bg-yellow-500 hover:bg-yellow-600', label: 'Normal' },
+  'medium': { icon: ArrowRightCircle, color: 'bg-yellow-500 hover:bg-yellow-600', label: 'Medium' },
   'low': { icon: ArrowDownCircle, color: 'bg-blue-500 hover:bg-blue-600', label: 'Low' },
   'very-low': { icon: ChevronsDown, color: 'bg-gray-500 hover:bg-gray-600', label: 'Very Low' },
 };
 
 
-const PriorityLabel = ({ priority = 'normal', entryId, onPriorityChange }: { priority?: Priority, entryId: string, onPriorityChange: CsvStatusTableProps['onPriorityChange'] }) => {
+const PriorityLabel = ({ priority = 'medium', entryId, onPriorityChange }: { priority?: Priority, entryId: string, onPriorityChange: CsvStatusTableProps['onPriorityChange'] }) => {
   const config = priorityConfig[priority];
   const Icon = config.icon;
 

@@ -1345,10 +1345,10 @@ const priorityConfig = {
         color: 'bg-orange-500 hover:bg-orange-600',
         label: 'High'
     },
-    'normal': {
+    'medium': {
         icon: __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$circle$2d$arrow$2d$right$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__ArrowRightCircle$3e$__["ArrowRightCircle"],
         color: 'bg-yellow-500 hover:bg-yellow-600',
-        label: 'Normal'
+        label: 'Medium'
     },
     'low': {
         icon: __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$circle$2d$arrow$2d$down$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__ArrowDownCircle$3e$__["ArrowDownCircle"],
@@ -1361,7 +1361,7 @@ const priorityConfig = {
         label: 'Very Low'
     }
 };
-const PriorityLabel = ({ priority = 'normal', entryId, onPriorityChange })=>{
+const PriorityLabel = ({ priority = 'medium', entryId, onPriorityChange })=>{
     const config = priorityConfig[priority];
     const Icon = config.icon;
     const handlePrioritySelect = (newPriority)=>{
@@ -4380,7 +4380,7 @@ const mockCsvData = [
         id: "1",
         filename: "customer_data_2024.csv",
         status: "ok",
-        priority: "normal",
+        priority: "medium",
         insertion_date: new Date(nowStatic - min(30)).toISOString(),
         extracted_fields: [
             "name",
@@ -4482,7 +4482,7 @@ const mockCsvData = [
         id: "5",
         filename: "transaction_log.csv",
         status: "enqueued",
-        priority: "normal",
+        priority: "medium",
         insertion_date: new Date(nowStatic - min(5)).toISOString(),
         extracted_fields: [],
         rowCount: 45678,
@@ -4577,7 +4577,7 @@ const mockCsvData = [
         id: "9",
         filename: "malformed_data.csv",
         status: "error",
-        priority: "normal",
+        priority: "medium",
         insertion_date: new Date(nowStatic - min(50)).toISOString(),
         extracted_fields: [],
         rowCount: 100,
@@ -4595,7 +4595,7 @@ const mockCsvData = [
         id: "10",
         filename: "archive.zip",
         status: "error",
-        priority: "normal",
+        priority: "medium",
         insertion_date: new Date(nowStatic - min(55)).toISOString(),
         extracted_fields: [],
         rowCount: 1,
@@ -5935,12 +5935,12 @@ function CsvMonitorPage() {
                     const priorityOrder = {
                         urgent: 5,
                         high: 4,
-                        normal: 3,
+                        medium: 3,
                         low: 2,
                         'very-low': 1
                     };
-                    const priorityA = priorityOrder[a.priority || 'normal'] || 0;
-                    const priorityB = priorityOrder[b.priority || 'normal'] || 0;
+                    const priorityA = priorityOrder[a.priority || 'medium'] || 0;
+                    const priorityB = priorityOrder[b.priority || 'medium'] || 0;
                     if (priorityA !== priorityB) {
                         return priorityB - priorityA; // Descending (Urgent first)
                     }

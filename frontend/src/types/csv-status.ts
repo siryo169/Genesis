@@ -35,7 +35,7 @@ export interface CsvProcessingEntry {
   end_time?: string; // ISO string
   duration_ms?: number;
   status: 'enqueued' | 'running' | 'ok' | 'error';
-  priority?: 'urgent' | 'high' | 'normal' | 'low' | 'very-low';
+  priority?: 'urgent' | 'high' | 'medium' | 'low' | 'very-low';
   log_file_path?: string;
   extracted_fields: string[];
   extracted_fields_more?: boolean;

@@ -92,7 +92,7 @@ export function StatusBadge({
     <Badge
       variant="outline"
       className={cn(
-        "px-2.5 py-1 text-sm font-medium rounded-full flex items-center justify-center w-32",
+        "px-2.5 text-sm font-medium rounded-full flex items-center justify-center w-32 h-[22px] whitespace-nowrap",
         getStatusClassNames(currentStatus),
         className
       )}
@@ -105,8 +105,9 @@ export function StatusBadge({
 
   const tooltipContent = [
     error_message,
-    durationText && `Duration: ${durationText}`
+    status === 'ok' ? `Duration: ${durationText}` : null
   ].filter(Boolean).join('\n');
+
 
   if (tooltipContent) {
     return (

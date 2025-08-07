@@ -76,9 +76,9 @@ const PriorityLabel = ({ priority = 'medium', entryId, onPriorityChange }: { pri
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="outline" size="sm" className={cn("w-28 justify-start gap-2 border", config.className)} onClick={(e) => e.stopPropagation()}>
+        <Button variant="outline" size="icon" className={cn("rounded-full border", config.className)} onClick={(e) => e.stopPropagation()}>
            <Icon className={cn("h-4 w-4", config.iconClassName)} />
-           <span className="font-semibold">{config.label}</span>
+           <span className="sr-only">{config.label}</span>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="start" onClick={(e) => e.stopPropagation()}>
@@ -150,7 +150,7 @@ export function CsvStatusTable({ data, sortConfig, requestSort, now, onDownload,
   // Helper to highlight search matches in log lines
   function highlightMatches(line: string, search: string) {
     if (!search) return line;
-    const regex = new RegExp(`(${search.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+    const regex = new RegExp(`(${search.replace(/[.*+?^${}()|[\\]\\]/g, '\\$&')})`, 'gi');
     const parts = line.split(regex);
     return parts.map((part, i) =>
       regex.test(part)
@@ -543,5 +543,7 @@ function getStatusColor(status: string): string {
       return 'bg-gray-500';
   }
 }
+
+    
 
     

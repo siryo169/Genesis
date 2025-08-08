@@ -158,6 +158,12 @@ export class DataProvider {
     };
   }
 
+  private initializeForClient() {
+    this.clientInitialized = true;
+    // Reinitialize with client-side context
+    this.init();
+  }
+
   async getStats() {
     if (this.mode === 'mock') {
       const total = this.currentData.length;

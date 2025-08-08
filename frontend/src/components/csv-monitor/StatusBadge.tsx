@@ -6,34 +6,52 @@ import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { formatDuration } from "@/lib/utils";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Circle, Loader, CheckCircle2, XCircle } from "lucide-react";
 
 interface StatusBadgeProps {
-  status: ProcessingStatus;
+  status: ProcessingStatus | 'not_started' | 'skipped';
   startTime?: number;
   endTime?: number;
   now?: number | undefined; 
   className?: string;
   error_message?: string;
-  stepValue?: boolean; // For 'is_tabular' to show True/False or similar
-  isTabularStep?: boolean; // Flag to indicate this badge is for the 'is_tabular' step
+  stepValue?: boolean; 
+  isTabularStep?: boolean;
 }
 
-export function getStatusClassNames(status: ProcessingStatus | 'not_started'): string {
+export function getStatusClassNames(status: ProcessingStatus | 'not_started' | 'skipped'): string {
   switch (status) {
     case "ok":
-      return "bg-green-500 text-white hover:bg-green-600";
+      return "text-green-700 border-green-500/50 bg-green-500/10 dark:text-green-300";
     case "running":
-      return "bg-blue-500 text-white hover:bg-blue-600 animate-pulse";
+      return "text-blue-700 border-blue-500/50 bg-blue-500/10 dark:text-blue-300";
     case "error":
-      return "bg-red-500 text-white hover:bg-red-600";
-    case "enqueued":
-      return "bg-orange-500 text-white hover:bg-orange-600";
+      return "text-destructive border-destructive/50 bg-destructive/10";
     case "not_started":
-      return "bg-gray-300 text-gray-700";
+    case "enqueued":
+    case "skipped":
     default:
-      return "bg-gray-200 text-gray-800";
+      return "text-muted-foreground border-border bg-muted";
   }
 }
+
+const StatusIcon = ({ status }: { status: ProcessingStatus | 'not_started' | 'skipped' }) => {
+  const iconClass = "h-4 w-4 mr-2";
+  switch (status) {
+    case "ok":
+      return <CheckCircle2 className={cn(iconClass, "text-green-500")} />;
+    case "running":
+      return <Loader className={cn(iconClass, "animate-spin text-blue-500")} />;
+    case "error":
+      return <XCircle className={cn(iconClass, "text-destructive")} />;
+    case "not_started":
+    case "enqueued":
+    case "skipped":
+      return <Circle className={cn(iconClass, "text-muted-foreground")} />;
+    default:
+      return <Circle className={cn(iconClass, "text-gray-400")} />;
+  }
+};
 
 export function StatusBadge({ 
   status, 
@@ -42,79 +60,62 @@ export function StatusBadge({
   now, 
   className, 
   error_message,
-  stepValue,
-  isTabularStep 
 }: StatusBadgeProps) {
-  let mainText = "";
-  switch (status) {
-    case "ok":
-      mainText = "OK";
-      break;
-    case "running":
-      mainText = "Running";
-      break;
-    case "error":
-      mainText = "Error";
-      break;
-    case "enqueued":
-      mainText = "Enqueued";
-      break;
-    default:
-      mainText = status;
-  }
+  let mainText = "Not Started";
   let durationText = "";
+  
+  // Normalize status
+  let currentStatus = status;
+  if (status === 'enqueued') currentStatus = 'not_started';
+  if (status === 'skipped') mainText = "Skipped";
 
-  if (isTabularStep && status === 'ok') {
-    if (stepValue === true) {
-      mainText = "Tabular";
-    } else if (stepValue === false) {
-      mainText = "Non-Tabular";
+  if (currentStatus === 'ok') {
+    mainText = 'Completed';
+    if (typeof startTime === 'number' && typeof endTime === 'number') {
+      const duration = endTime - startTime;
+      durationText = formatDuration(duration);
     }
+  } else if (currentStatus === 'running') {
+    mainText = 'Running';
+    if (typeof startTime === 'number' && typeof now === 'number') {
+      const elapsed = now - startTime;
+      durationText = formatDuration(elapsed);
+    }
+  } else if (currentStatus === 'error') {
+    mainText = 'Error';
   }
 
-  if (status === 'running' && typeof startTime === 'number' && typeof now === 'number') {
-    const elapsed = now - startTime;
-     if (elapsed >= 0) {
-        durationText = ` (${formatDuration(elapsed)})`;
-    } else {
-        durationText = ` (0s)`; // Should not happen often
-    }
-  } else if (status === 'ok' && typeof startTime === 'number' && typeof endTime === 'number') {
-    const duration = endTime - startTime;
-    durationText = ` (${formatDuration(duration)})`;
-  } else if (status === 'error' && typeof startTime === 'number' && typeof endTime === 'number') {
-     if (endTime > startTime) {
-        const duration = endTime - startTime;
-        durationText = ` (${formatDuration(duration)})`;
-     }
-  } else if (status === 'running') {
-    durationText = ""; 
-  }
-
-  const badgeDisplayLabel = `${mainText}${durationText}`;
-  const ariaLabelContent = `Status: ${badgeDisplayLabel}${status === 'error' && error_message ? `. Error: ${error_message}` : ''}`;
+  const badgeDisplayLabel = `${mainText}`;
+  const ariaLabelContent = `Status: ${mainText}${currentStatus === 'ok' && durationText ? ` (took ${durationText})` : ''}${currentStatus === 'error' && error_message ? `. Error: ${error_message}` : ''}`;
 
   const badgeElement = (
     <Badge
       variant="outline"
       className={cn(
-        "border-transparent px-2.5 py-1 text-xs font-semibold", 
-        getStatusClassNames(status),
+        "px-2 text-sm font-medium rounded-full flex items-center justify-center w-32 h-[22px] whitespace-nowrap",
+        getStatusClassNames(currentStatus),
         className
       )}
       aria-label={ariaLabelContent}
     >
-      {badgeDisplayLabel}
+      <StatusIcon status={currentStatus} />
+      <span>{badgeDisplayLabel}</span>
     </Badge>
   );
 
-  if (status === 'error' && error_message) {
+  const tooltipContent = [
+    error_message,
+    status === 'ok' ? `Duration: ${durationText}` : null
+  ].filter(Boolean).join('\n');
+
+
+  if (tooltipContent) {
     return (
       <TooltipProvider delayDuration={100}>
         <Tooltip>
           <TooltipTrigger asChild>{badgeElement}</TooltipTrigger>
-          <TooltipContent>
-            <p>{error_message}</p>
+          <TooltipContent className="whitespace-pre-wrap">
+            <p>{tooltipContent}</p>
           </TooltipContent>
         </Tooltip>
       </TooltipProvider>
@@ -124,3 +125,4 @@ export function StatusBadge({
   return badgeElement;
 }
 
+    

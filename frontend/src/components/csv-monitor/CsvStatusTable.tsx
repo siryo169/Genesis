@@ -1,22 +1,24 @@
+
 "use client";
 
 import type { CsvProcessingEntry } from "@/types/csv-status";
 import {
+  Table,
   TableBody,
   TableCell,
   TableHead,
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { StatusBadge, getStatusClassNames } from "./StatusBadge";
-import { NormalizerStatusCell } from "./NormalizerStatusCell";
+import { StatusBadge } from "./StatusBadge";
 import { Button } from "@/components/ui/button";
-import { ArrowUpDown, Download, CheckCircle2, XCircle, Circle, RefreshCcw, LogsIcon, Wand2 } from "lucide-react"; 
+import { ArrowUpDown, Download, CheckCircle2, XCircle, Circle, RefreshCcw, LogsIcon, Wand2, MoreVertical, ArrowUp, ArrowRight, ArrowDown, ChevronsUp, ChevronsDown, Minus, Loader } from "lucide-react"; 
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import React, { useState } from "react";
 import knownHeaders from "@/known_headers.json"; 
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogClose } from '@/components/ui/dialog';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Input } from '@/components/ui/input';
 import { apiClient } from '@/lib/api-client';
 import { Loader2 } from "lucide-react";
@@ -24,6 +26,8 @@ import { Alert } from "@/components/ui/alert";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import type { LogAnalysisOutput } from '@/ai/flows/log-analyzer-flow';
 import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
+
 
 interface CsvStatusTableProps {
   data: CsvProcessingEntry[];
@@ -33,6 +37,8 @@ interface CsvStatusTableProps {
   onDownload: (filename: string) => void;
   onRetry: (id: string) => void;
   onRowClick: (entry: CsvProcessingEntry) => void;
+  onPriorityChange: (entryId: string, newPriority: CsvProcessingEntry['priority']) => void;
+  density?: 'comfort' | 'dense';
 }
 
 const truncateFields = (fields: string[], maxLength: number = 50) => {
@@ -50,7 +56,46 @@ const CRITICAL_HEADERS = [
   "pdata_id_nid_number"
 ];
 
-export function CsvStatusTable({ data, sortConfig, requestSort, now, onDownload, onRetry, onRowClick }: CsvStatusTableProps) {
+type Priority = CsvProcessingEntry['priority'];
+
+const priorityConfig: Record<NonNullable<Priority>, { icon: React.FC<any>, label: string, className: string, iconClassName: string }> = {
+  'urgent': { icon: ChevronsUp, label: 'Urgent', className: 'bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-300 border-red-200 dark:border-red-800/60', iconClassName: 'text-red-600 dark:text-red-400' },
+  'high': { icon: ArrowUp, label: 'High', className: 'bg-orange-100 dark:bg-orange-900/40 text-orange-700 dark:text-orange-300 border-orange-200 dark:border-orange-800/60', iconClassName: 'text-orange-600 dark:text-orange-400' },
+  'medium': { icon: ArrowRight, label: 'Medium', className: 'bg-yellow-100 dark:bg-yellow-900/40 text-yellow-700 dark:text-yellow-300 border-yellow-200 dark:border-yellow-800/60', iconClassName: 'text-yellow-600 dark:text-yellow-400' },
+  'low': { icon: ArrowDown, label: 'Low', className: 'bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-800/60', iconClassName: 'text-blue-600 dark:text-blue-400' },
+  'very-low': { icon: ChevronsDown, label: 'Very Low', className: 'bg-gray-100 dark:bg-gray-700/40 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-gray-600/60', iconClassName: 'text-gray-500 dark:text-gray-400' },
+};
+
+
+const PriorityLabel = ({ priority = 'medium', entryId, onPriorityChange }: { priority?: Priority, entryId: string, onPriorityChange: CsvStatusTableProps['onPriorityChange'] }) => {
+  const config = priorityConfig[priority];
+  const Icon = config.icon;
+
+  const handlePrioritySelect = (newPriority: Priority) => {
+    onPriorityChange(entryId, newPriority);
+  };
+  
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="outline" size="icon" className={cn("rounded-full border w-[22px] h-[22px]", config.className)} onClick={(e) => e.stopPropagation()}>
+           <Icon className={cn("h-4 w-4", config.iconClassName)} />
+           <span className="sr-only">{config.label}</span>
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="start" onClick={(e) => e.stopPropagation()}>
+        {Object.entries(priorityConfig).map(([key, value]) => (
+          <DropdownMenuItem key={key} onSelect={() => handlePrioritySelect(key as Priority)}>
+            <value.icon className={cn("mr-2 h-4 w-4", value.iconClassName)} />
+            <span>{value.label}</span>
+          </DropdownMenuItem>
+        ))}
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+};
+
+export function CsvStatusTable({ data, sortConfig, requestSort, now, onDownload, onRetry, onRowClick, onPriorityChange, density = 'comfort' }: CsvStatusTableProps) {
   const getSortIndicator = (key: keyof CsvProcessingEntry) => {
     if (sortConfig.key === key) {
       return sortConfig.direction === 'ascending' ? ' ▲' : ' ▼';
@@ -107,7 +152,7 @@ export function CsvStatusTable({ data, sortConfig, requestSort, now, onDownload,
   // Helper to highlight search matches in log lines
   function highlightMatches(line: string, search: string) {
     if (!search) return line;
-    const regex = new RegExp(`(${search.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+    const regex = new RegExp(`(${search.replace(/[.*+?^${}()|[\\]\\]/g, '\\$&')})`, 'gi');
     const parts = line.split(regex);
     return parts.map((part, i) =>
       regex.test(part)
@@ -140,261 +185,239 @@ export function CsvStatusTable({ data, sortConfig, requestSort, now, onDownload,
     return `${d.getUTCFullYear()}-${String(d.getUTCMonth()+1).padStart(2,'0')}-${String(d.getUTCDate()).padStart(2,'0')} ${String(d.getUTCHours()).padStart(2,'0')}:${String(d.getUTCMinutes()).padStart(2,'0')}:${String(d.getUTCSeconds()).padStart(2,'0')} UTC`;
   }
 
+  const cellPaddingClass = density === 'dense' ? 'py-1 px-4' : 'py-3 px-4';
+
   return (
     <>
-    <ScrollArea className="h-[500px] rounded-md border shadow-sm">
-      <table className="min-w-full border-collapse relative">
-        <TableHeader className="bg-muted sticky top-0 z-10">
-          <TableRow>
-            <TableHead>
-                <Button variant="ghost" onClick={() => requestSort('filename')} className="px-2 py-1 group text-xs">
-                Filename {getSortIndicator('filename')}
-              </Button>
-            </TableHead>
-            <TableHead>
-              <Button variant="ghost" onClick={() => requestSort('insertion_date')} className="px-2 py-1 group">
-                Insertion Date {getSortIndicator('insertion_date')}
-              </Button>
-            </TableHead>
-            <TableHead>
-               <span className="px-2 py-1 group text-xs">Classifier</span>
-            </TableHead>
-            <TableHead>
-                <Button variant="ghost" disabled className="px-2 py-1 group text-xs">
-                File Type
-              </Button>
-            </TableHead>
-            <TableHead>
-              <span className="px-2 py-1 group text-xs">Sampling</span>
-            </TableHead>
-            <TableHead>
-              <span className="px-2 py-1 group text-xs">Gemini Query</span>
-            </TableHead>
-            <TableHead>Extracted Fields</TableHead>
-            <TableHead>
-              <span className="px-2 py-1 group text-xs">Normalizer</span>
-            </TableHead>
-            <TableHead className="text-right px-4">Actions</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {data.length === 0 ? (
+    <div className="relative flex-grow flex flex-col">
+      <ScrollArea className="flex-grow">
+        <Table className="min-w-full border-collapse relative">
+          <TableHeader className="bg-muted sticky top-0 z-10">
             <TableRow>
-              <TableCell colSpan={9} className="h-24 text-center text-muted-foreground">
-                No files found. Try uploading a new file or clearing your filters.
-              </TableCell>
+              <TableHead className="w-[150px] text-center">
+                <Button variant="ghost" onClick={() => requestSort('priority')} className="px-2 py-1 group text-xs">
+                  Priority {getSortIndicator('priority')}
+                </Button>
+              </TableHead>
+              <TableHead>
+                  <Button variant="ghost" onClick={() => requestSort('filename')} className="px-2 py-1 group text-xs">
+                  Filename {getSortIndicator('filename')}
+                </Button>
+              </TableHead>
+              <TableHead>
+                 <span className="px-2 py-1 group text-xs">Classifier</span>
+              </TableHead>
+              <TableHead>
+                  <Button variant="ghost" disabled className="px-2 py-1 group text-xs">
+                  File Type
+                </Button>
+              </TableHead>
+              <TableHead>
+                <span className="px-2 py-1 group text-xs">Sampling</span>
+              </TableHead>
+              <TableHead>
+                <span className="px-2 py-1 group text-xs">Gemini Query</span>
+              </TableHead>
+              <TableHead className="text-xs">Extracted Fields</TableHead>
+              <TableHead>
+                <span className="px-2 py-1 group text-xs">Normalizer</span>
+              </TableHead>
+              <TableHead className="text-right px-4 text-xs">Actions</TableHead>
             </TableRow>
-          ) : (
-            data.map((entry) => {
-              const isFullyCompleted = 
-                entry.stage_stats?.classification?.status === 'ok' &&
-                entry.stage_stats?.sampling?.status === 'ok' &&
-                entry.stage_stats?.gemini_query?.status === 'ok' &&
-                entry.stage_stats?.normalization?.status === 'ok';
+          </TableHeader>
+          <TableBody>
+            {data.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={9} className="h-24 text-center text-muted-foreground">
+                  No files found. Try uploading a new file or clearing your filters.
+                </TableCell>
+              </TableRow>
+            ) : (
+              data.map((entry) => {
+                const isFullyCompleted = 
+                  entry.stage_stats?.classification?.status === 'ok' &&
+                  (entry.stage_stats?.sampling?.status === 'ok' || entry.stage_stats?.sampling?.status === 'skipped') &&
+                  (entry.stage_stats?.gemini_query?.status === 'ok' || entry.stage_stats?.gemini_query?.status === 'skipped') &&
+                  entry.stage_stats?.normalization?.status === 'ok';
 
-              const hasError = [
-                entry.stage_stats?.classification,
-                entry.stage_stats?.sampling,
-                entry.stage_stats?.gemini_query,
-                entry.stage_stats?.normalization
-              ].some(step => step && step.status === 'error');
+                const hasError = [
+                  entry.stage_stats?.classification,
+                  entry.stage_stats?.sampling,
+                  entry.stage_stats?.gemini_query,
+                  entry.stage_stats?.normalization
+                ].some(step => step && step.status === 'error');
 
-              return (
-                <TableRow key={entry.id} className="hover:bg-muted/20 transition-colors cursor-pointer" onClick={() => onRowClick(entry)}>
-                    <TableCell className="font-medium py-3 px-4 whitespace-nowrap text-xs max-w-[260px] overflow-hidden text-ellipsis" title={entry.filename}>
+                return (
+                  <TableRow key={entry.id} className="hover:bg-muted/20 transition-colors cursor-pointer" onClick={() => onRowClick(entry)}>
+                    <TableCell className={cn("w-[150px]", cellPaddingClass)}>
+                      <div className="flex justify-center items-center">
+                        <PriorityLabel priority={entry.priority} entryId={entry.id} onPriorityChange={onPriorityChange} />
+                      </div>
+                    </TableCell>
+                    <TableCell className={cn("font-medium whitespace-nowrap text-sm max-w-[260px] overflow-hidden text-ellipsis", cellPaddingClass)} title={entry.filename}>
+                        <TooltipProvider delayDuration={100}>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <span className="block overflow-hidden text-ellipsis whitespace-nowrap max-w-[240px]">{entry.filename}</span>
+                            </TooltipTrigger>
+                            <TooltipContent>{entry.filename}</TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      </TableCell>
+                    <TableCell className={cellPaddingClass}>
+                      <StatusBadge 
+                        status={entry.status === 'enqueued' ? 'not_started' : entry.stage_stats?.classification?.status || 'not_started'}
+                        startTime={entry.stage_stats?.classification?.start_time ? new Date(entry.stage_stats.classification.start_time).getTime() : undefined}
+                        endTime={entry.stage_stats?.classification?.end_time ? new Date(entry.stage_stats.classification.end_time).getTime() : undefined}
+                        error_message={entry.stage_stats?.classification?.error_message}
+                        now={now} 
+                      />
+                    </TableCell>
+                      <TableCell className={cn("text-center text-xs", cellPaddingClass)}>
                       <TooltipProvider delayDuration={100}>
                         <Tooltip>
                           <TooltipTrigger asChild>
-                            <span className="block overflow-hidden text-ellipsis whitespace-nowrap max-w-[240px]">{entry.filename}</span>
+                             <span className={cn("font-medium", entry.stage_stats?.classification?.status === 'ok' ? 'text-white' : 'text-muted-foreground')}>
+                              {(() => {
+                                const step = entry.stage_stats?.classification;
+                                if (step?.status === 'ok') {
+                                  return 'Tabular'; // or other logic if you want to distinguish
+                                }
+                                return '—';
+                              })()}
+                            </span>
                           </TooltipTrigger>
-                          <TooltipContent>{entry.filename}</TooltipContent>
+                          <TooltipContent>
+                            <p className="capitalize">
+                             {(() => {
+                                const step = entry.stage_stats?.classification;
+                                if (step?.status === 'ok') {
+                                  return 'File type: Tabular';
+                                }
+                                return 'Status: Not Started';
+                              })()}
+                            </p>
+                          </TooltipContent>
                         </Tooltip>
                       </TooltipProvider>
                     </TableCell>
-                    <TableCell className="py-3 px-4 text-sm text-muted-foreground text-nowrap">
-                      {formatUTCDate(entry.insertion_date)}
-                  </TableCell>
-                  <TableCell className="py-3 px-4">
-                    <StatusBadge 
-                      status={entry.status === 'enqueued' ? 'enqueued' : entry.stage_stats?.classification?.status} 
-                      startTime={entry.stage_stats?.classification?.start_time ? new Date(entry.stage_stats.classification.start_time).getTime() : undefined}
-                      endTime={entry.stage_stats?.classification?.end_time ? new Date(entry.stage_stats.classification.end_time).getTime() : undefined}
-                      error_message={entry.stage_stats?.classification?.error_message}
-                      now={now} 
-                    />
-                  </TableCell>
-                    <TableCell className="py-3 px-4 text-center text-xs">
-                    <TooltipProvider delayDuration={100}>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <span className="font-medium">
-                            {(() => {
-                              const step = entry.stage_stats?.classification;
-                              if (step?.status === 'ok') {
-                                return 'Tabular'; // or other logic if you want to distinguish
-                              }
-                              return '';
-                            })()}
+                    <TableCell className={cn("align-middle", cellPaddingClass)}>
+                      <div className="relative flex flex-col items-center justify-center" style={{ minHeight: 10 }}>
+                        <div className="flex items-center justify-center h-full">
+                          <StatusBadge
+                            status={entry.stage_stats?.sampling?.status || 'not_started'}
+                            startTime={entry.stage_stats?.sampling?.start_time ? new Date(entry.stage_stats.sampling.start_time).getTime() : undefined}
+                            endTime={entry.stage_stats?.sampling?.end_time ? new Date(entry.stage_stats.sampling.end_time).getTime() : undefined}
+                            error_message={entry.stage_stats?.sampling?.error_message}
+                            now={now}
+                          />
+                        </div>
+                        {entry.stage_stats?.sampling?.status === 'ok' && entry.gemini_sample_rows && entry.gemini_sample_rows.length > 0 && (
+                          <span
+                            className="underline text-blue-400 hover:text-blue-500 cursor-pointer text-xs mt-1"
+                            style={{ position: 'absolute', top: '100%', left: '50%', transform: 'translateX(-50%)', marginTop: 4 }}
+                            onClick={e => {
+                              e.stopPropagation();
+                              setSampleRowsDialogId(entry.id);
+                            }}
+                          >
+                            Inspect
                           </span>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p className="capitalize">
-                           {(() => {
-                              const step = entry.stage_stats?.classification;
-                              if (step?.status === 'ok') {
-                                return 'File type: Tabular';
-                              }
-                              return 'Status: Enqueued';
-                            })()}
-                          </p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
-                  </TableCell>
-                  <TableCell className="py-3 px-4 align-middle">
-                    <div className="relative flex flex-col items-center justify-center" style={{ minHeight: 10 }}>
-                      <div className="flex items-center justify-center h-full">
-                        <StatusBadge
-                          status={entry.stage_stats?.sampling?.status}
-                          startTime={entry.stage_stats?.sampling?.start_time ? new Date(entry.stage_stats.sampling.start_time).getTime() : undefined}
-                          endTime={entry.stage_stats?.sampling?.end_time ? new Date(entry.stage_stats.sampling.end_time).getTime() : undefined}
-                          error_message={entry.stage_stats?.sampling?.error_message}
-                          now={now}
-                        />
+                        )}
                       </div>
-                      {entry.stage_stats?.sampling?.status === 'ok' && entry.gemini_sample_rows && entry.gemini_sample_rows.length > 0 && (
+                    </TableCell>
+                    <TableCell className={cellPaddingClass}>
+                      <StatusBadge 
+                        status={entry.stage_stats?.gemini_query?.status || 'not_started'}
+                        startTime={entry.stage_stats?.gemini_query?.start_time ? new Date(entry.stage_stats.gemini_query.start_time).getTime() : undefined}
+                        endTime={entry.stage_stats?.gemini_query?.end_time ? new Date(entry.stage_stats.gemini_query.end_time).getTime() : undefined}
+                        error_message={entry.stage_stats?.gemini_query?.error_message}
+                        now={now}
+                      />
+                    </TableCell>
+                    <TableCell className={cn("text-sm text-muted-foreground", cellPaddingClass)} title={entry.extracted_fields ? entry.extracted_fields.join(", ") : "No fields extracted"}>
+                      {(() => {
+                        if (!entry.extracted_fields) {
+                          return <span className="text-muted-foreground"></span>;
+                        }
+                        const headers = entry.extracted_fields.slice(0, 4);
+                        const prioritized = headers.filter(h => CRITICAL_HEADERS.includes(h));
+                        const rest = headers.filter(h => !CRITICAL_HEADERS.includes(h));
+                        const sortedHeaders = [...prioritized, ...rest];
+
+                        return sortedHeaders.map((field, idx) => {
+                          let color: string | undefined = undefined;
+                          let fontWeight: string | undefined = undefined;
+                          if (CRITICAL_HEADERS.includes(field)) {
+                            color = 'white';
+                            fontWeight = 'bold';
+                          } else if (!(field in knownHeaders)) {
+                            color = 'orange';
+                          } else {
+                            color = 'white';
+                          }
+                          return (
+                            <Badge key={`${field}-${idx}`} variant="secondary" style={{ color, fontWeight }} className="mr-1 mb-1 px-1.5 py-0.5 text-xs">
+                              {field}
+                            </Badge>
+                          );
+                        });
+                      })()}
+                      {entry.stage_stats?.gemini_query?.status === 'ok' && !entry.stage_stats?.gemini_query?.error_message && (
                         <span
-                          className="underline text-blue-600 cursor-pointer text-xs mt-1"
-                          style={{ position: 'absolute', top: '100%', left: '50%', transform: 'translateX(-50%)', marginTop: 4 }}
+                          className="underline text-blue-400 hover:text-blue-500 cursor-pointer text-xs ml-1"
                           onClick={e => {
                             e.stopPropagation();
-                            setSampleRowsDialogId(entry.id);
+                            setMoreDialogEntryId(entry.id);
                           }}
                         >
-                          Inspect
+                          More
                         </span>
                       )}
-                    </div>
-                  </TableCell>
-                  <TableCell className="py-3 px-4">
-                    <StatusBadge 
-                      status={entry.stage_stats?.gemini_query?.status}
-                      startTime={entry.stage_stats?.gemini_query?.start_time ? new Date(entry.stage_stats.gemini_query.start_time).getTime() : undefined}
-                      endTime={entry.stage_stats?.gemini_query?.end_time ? new Date(entry.stage_stats.gemini_query.end_time).getTime() : undefined}
-                      error_message={entry.stage_stats?.gemini_query?.error_message}
-                      now={now}
-                    />
-                  </TableCell>
-                  <TableCell className="py-3 px-4 text-sm text-muted-foreground" title={entry.extracted_fields ? entry.extracted_fields.join(", ") : "No fields extracted"}>
-                    {(() => {
-                      if (!entry.extracted_fields) {
-                        return <span className="text-muted-foreground">No fields extracted</span>;
-                      }
-                      const headers = entry.extracted_fields.slice(0, 4);
-                      const prioritized = headers.filter(h => CRITICAL_HEADERS.includes(h));
-                      const rest = headers.filter(h => !CRITICAL_HEADERS.includes(h));
-                      const sortedHeaders = [...prioritized, ...rest];
-
-                      return sortedHeaders.map((field, idx) => {
-                        let color: string | undefined = undefined;
-                        let fontWeight: string | undefined = undefined;
-                        if (CRITICAL_HEADERS.includes(field)) {
-                          color = 'black';
-                          fontWeight = 'bold';
-                        } else if (!(field in knownHeaders)) {
-                          color = 'orange';
-                        }
-                        return (
-                          <Badge key={`${field}-${idx}`} variant="secondary" style={{ color, fontWeight }} className="mr-1 mb-1 px-1.5 py-0.5 text-xs">
-                            {field}
-                          </Badge>
-                        );
-                      });
-                    })()}
-                    {entry.stage_stats?.gemini_query?.status === 'ok' && !entry.stage_stats?.gemini_query?.error_message && (
-                      <span
-                        className="underline text-blue-600 cursor-pointer text-xs ml-1"
-                        onClick={e => {
-                          e.stopPropagation();
-                          setMoreDialogEntryId(entry.id);
-                        }}
-                      >
-                        More
-                      </span>
-                    )}
-                  </TableCell>
-                  <TableCell className="py-3 px-4">
-                    <StatusBadge
-                      status={entry.stage_stats?.normalization?.status}
-                      startTime={entry.stage_stats?.normalization?.start_time ? new Date(entry.stage_stats.normalization.start_time).getTime() : undefined}
-                      endTime={entry.stage_stats?.normalization?.end_time ? new Date(entry.stage_stats.normalization.end_time).getTime() : undefined}
-                      error_message={entry.stage_stats?.normalization?.error_message}
-                      now={now}
-                    />
-                  </TableCell>
-                  {/* Remove normalizer_checks substages columns */}
-                  <TableCell className="py-3 px-4 text-right">
-                    <div className="flex items-center justify-end space-x-2">
-                       {hasError && (
-                        <>
-                          {entry.stage_stats?.gemini_query?.status === 'error' && (
-                            <TooltipProvider delayDuration={100}>
-                              <Tooltip>
-                                <TooltipTrigger asChild>
-                                  <Button variant="outline" size="icon" onClick={(e) => { e.stopPropagation(); onRetry(entry.id); }}>
-                                    <RefreshCcw className="h-4 w-4" />
-                                  </Button>
-                                </TooltipTrigger>
-                                <TooltipContent>Retry</TooltipContent>
-                              </Tooltip>
-                            </TooltipProvider>
-                          )}
-                          <TooltipProvider delayDuration={100}>
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <Button variant="outline" size="icon" onClick={(e) => { e.stopPropagation(); handleOpenLogDialog(entry); }}>
-                                  <LogsIcon className="h-4 w-4" />
-                        </Button>
-                              </TooltipTrigger>
-                              <TooltipContent>Logs</TooltipContent>
-                            </Tooltip>
-                          </TooltipProvider>
-                        </>
-                      )}
-                      {isFullyCompleted && (
-                          <>
-                            <TooltipProvider delayDuration={100}>
-                              <Tooltip>
-                                <TooltipTrigger asChild>
-                        <Button variant="outline" size="sm" onClick={(e) => { e.stopPropagation(); onDownload(entry.filename); }}>
-                                    <Download className="mr-0 h-3.5 w-3.5" />
-                                  </Button>
-                                </TooltipTrigger>
-                                <TooltipContent>Download</TooltipContent>
-                              </Tooltip>
-                            </TooltipProvider>
-                            <TooltipProvider delayDuration={100}>
-                              <Tooltip>
-                                <TooltipTrigger asChild>
-                                  <Button variant="outline" size="sm" onClick={(e) => { e.stopPropagation(); handleOpenLogDialog(entry); }}>
-                                    <LogsIcon className="mr-0 h-3.5 w-3.5" />
-                        </Button>
-                                </TooltipTrigger>
-                                <TooltipContent>Logs</TooltipContent>
-                              </Tooltip>
-                            </TooltipProvider>
-                          </>
-                      )}
-                    </div>
-                  </TableCell>
-                </TableRow>
-              );
-            })
-          )}
-        </TableBody>
-      </table>
-      <ScrollBar orientation="horizontal" />
-    </ScrollArea>
+                    </TableCell>
+                    <TableCell className={cellPaddingClass}>
+                      <StatusBadge
+                        status={entry.stage_stats?.normalization?.status || 'not_started'}
+                        startTime={entry.stage_stats?.normalization?.start_time ? new Date(entry.stage_stats.normalization.start_time).getTime() : undefined}
+                        endTime={entry.stage_stats?.normalization?.end_time ? new Date(entry.stage_stats.normalization.end_time).getTime() : undefined}
+                        error_message={entry.stage_stats?.normalization?.error_message}
+                        now={now}
+                      />
+                    </TableCell>
+                    <TableCell className={cn("text-right", cellPaddingClass)}>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={(e) => e.stopPropagation()}>
+                            <MoreVertical className="h-4 w-4" />
+                            <span className="sr-only">More actions</span>
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" onClick={(e) => e.stopPropagation()}>
+                          <DropdownMenuItem onSelect={() => onDownload(entry.filename)} disabled={!isFullyCompleted}>
+                            <Download className="mr-2 h-4 w-4" />
+                            <span>Download</span>
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onSelect={() => handleOpenLogDialog(entry)} disabled={entry.status === 'enqueued'}>
+                            <LogsIcon className="mr-2 h-4 w-4" />
+                            <span>Logs</span>
+                          </DropdownMenuItem>
+                           {hasError && entry.stage_stats?.gemini_query?.status === 'error' && (
+                            <DropdownMenuItem onSelect={() => onRetry(entry.id)}>
+                               <RefreshCcw className="mr-2 h-4 w-4" />
+                               <span>Retry</span>
+                            </DropdownMenuItem>
+                           )}
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </TableCell>
+                  </TableRow>
+                );
+              })
+            )}
+          </TableBody>
+        </Table>
+      </ScrollArea>
+    </div>
       <Dialog open={logDialogOpen} onOpenChange={setLogDialogOpen}>
         <DialogContent className="w-[80vw] max-w-10xl max-h-[80vh] overflow-y-auto">
           <DialogHeader>
@@ -527,3 +550,7 @@ function getStatusColor(status: string): string {
       return 'bg-gray-500';
   }
 }
+
+    
+
+    

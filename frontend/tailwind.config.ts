@@ -6,12 +6,26 @@ export default {
     './src/pages/**/*.{js,ts,jsx,tsx,mdx}',
     './src/components/**/*.{js,ts,jsx,tsx,mdx}',
     './src/app/**/*.{js,ts,jsx,tsx,mdx}',
+    './src/core/**/*.{js,ts,jsx,tsx,mdx}',
+    './src/apps/**/*.{js,ts,jsx,tsx,mdx}',
+    './src/shared/**/*.{js,ts,jsx,tsx,mdx}',
   ],
   theme: {
     extend: {
+      boxShadow: {
+        'primary-glow': '0 0 8px 1px hsl(0 0% 100% / 0.7)',
+      },
+      spacing: {
+        '2': '8px',   // 8px grid
+        '3': '12px',
+        '4': '16px',  // 16px
+        '5': '20px',
+        '6': '24px',  // 24px
+        '8': '32px',  // 32px
+      },
       fontFamily: {
-        body: ['Inter', 'sans-serif'],
-        headline: ['Inter', 'sans-serif'],
+        body: ['Titillium Web', 'sans-serif'],
+        headline: ['Titillium Web', 'sans-serif'],
         code: ['monospace'],
       },
       colors: {
@@ -40,6 +54,7 @@ export default {
         accent: {
           DEFAULT: 'hsl(var(--accent))',
           foreground: 'hsl(var(--accent-foreground))',
+          hover: 'hsl(var(--accent-hover))',
         },
         destructive: {
           DEFAULT: 'hsl(var(--destructive))',
@@ -65,29 +80,11 @@ export default {
           border: 'hsl(var(--sidebar-border))',
           ring: 'hsl(var(--sidebar-ring))',
         },
-        status: {
-          completed: {
-            DEFAULT: 'hsl(var(--status-completed))',
-            foreground: 'hsl(var(--status-completed-foreground))',
-          },
-          running: {
-            DEFAULT: 'hsl(var(--status-running))',
-            foreground: 'hsl(var(--status-running-foreground))',
-          },
-          error: {
-            DEFAULT: 'hsl(var(--status-error))',
-            foreground: 'hsl(var(--status-error-foreground))',
-          },
-          'not-started': {
-            DEFAULT: 'hsl(var(--status-not-started))',
-            foreground: 'hsl(var(--status-not-started-foreground))',
-          },
-        },
       },
       borderRadius: {
         lg: 'var(--radius)',
-        md: 'calc(var(--radius) - 2px)',
-        sm: 'calc(var(--radius) - 4px)',
+        md: 'var(--radius)',
+        sm: 'calc(var(--radius) - 2px)',
       },
       keyframes: {
         'accordion-down': {
@@ -106,15 +103,15 @@ export default {
             height: '0',
           },
         },
-        spin: {
-          from: { transform: 'rotate(0deg)' },
-          to: { transform: 'rotate(360deg)' },
-        },
+        'pulse-dot': {
+          '0%, 100%': { opacity: '1', transform: 'scale(1)' },
+          '50%': { opacity: '0.5', transform: 'scale(1.2)' },
+        }
       },
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out',
-        spin: 'spin 1s linear infinite',
+        'pulse-dot': 'pulse-dot 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
       },
     },
   },

@@ -1,5 +1,5 @@
-import Image from 'next/image';
+import { Cpu } from 'lucide-react';
 
 export const Logo = () => (
-  <Image src="/GenesisLogo.png" alt="Application Logo" width={200} height={100} />
+  <Cpu className="h-full w-full text-primary" />
 );

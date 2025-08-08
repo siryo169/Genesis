@@ -1,3 +1,5 @@
+
+
 export type ProcessingStatus = 'enqueued' | 'running' | 'ok' | 'error';
 
 export type ProcessingStep = {
@@ -18,7 +20,7 @@ export interface NormalizerChecks {
 export interface StageStatsEntry {
   start_time?: string;
   end_time?: string;
-  status: ProcessingStatus;
+  status: ProcessingStatus | 'skipped';
   warnings?: string[];
   error_message?: string;
 }
@@ -33,6 +35,7 @@ export interface CsvProcessingEntry {
   end_time?: string; // ISO string
   duration_ms?: number;
   status: 'enqueued' | 'running' | 'ok' | 'error';
+  priority?: 'urgent' | 'high' | 'medium' | 'low' | 'very-low';
   log_file_path?: string;
   extracted_fields: string[];
   extracted_fields_more?: boolean;
@@ -70,3 +73,4 @@ export interface PipelineRun {
   processed_rows?: number;
 }
 
+    

@@ -2,10 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-body {
-  font-family: 'Inter', Arial, Helvetica, sans-serif;
-}
-
 @layer base {
   :root {
     --background: 0 0% 100%;
@@ -14,88 +10,53 @@ body {
     --card-foreground: 222.2 84% 4.9%;
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
-    --primary: 142.1 76.2% 41.2%;
+    --primary: 229 100% 68%;
     --primary-foreground: 210 40% 98%;
     --secondary: 210 40% 96.1%;
     --secondary-foreground: 222.2 47.4% 11.2%;
     --muted: 210 40% 96.1%;
     --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 217.2 91.2% 59.8%;
+    --accent: 230 46% 64%;
     --accent-foreground: 210 40% 98%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 0 0% 98%;
+    --destructive: 354 79% 63%; /* Updated to #ED5565 */
+    --destructive-foreground: 210 40% 98%;
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
-    --ring: 142.1 76.2% 41.2%;
-    --radius: 0.5rem;
-
-    --status-completed: 120 60% 45%;
-    --status-completed-foreground: 120 60% 95%;
-    --status-running: 220 90% 60%;
-    --status-running-foreground: 220 90% 98%;
-    --status-error: 0 84.2% 60.2%;
-    --status-error-foreground: 0 0% 98%;
-    --status-not-started: 210 40% 96.1%;
-    --status-not-started-foreground: 215.4 16.3% 46.9%;
-    --status-warning: 45 90% 55%;
-    --status-warning-foreground: 45 90% 15%;
-
-    --chart-1: 12 76% 61%;
-    --chart-2: 173 58% 39%;
-    --chart-3: 197 37% 24%;
-    --chart-4: 43 74% 66%;
-    --chart-5: 27 87% 67%;
-    
-    --sidebar-background: 0 0% 98%;
-    --sidebar-foreground: 240 5.3% 26.1%;
-    --sidebar-primary: 240 5.9% 10%;
-    --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 240 4.8% 95.9%;
-    --sidebar-accent-foreground: 240 5.9% 10%;
-    --sidebar-border: 220 13% 91%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --ring: 222.2 84% 4.9%;
+    --chart-1: 229 100% 68%; /* Primary */
+    --chart-2: 160 60% 45%; /* Greenish */
+    --chart-3: 30 80% 55%; /* Yellowish */
+    --chart-4: 0 93% 66%; /* Reddish */
+    --chart-5: 230 46% 64%; /* New Blue Accent #7986CB */
+    --radius: 0.3rem;
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-    --card: 222.2 84% 6.9%;
-    --card-foreground: 210 40% 98%;
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-    --primary: 142.1 76.2% 41.2%;
-    --primary-foreground: 142.1 76.2% 15%;
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-    --accent: 217.2 91.2% 59.8%;
-    --accent-foreground: 210 40% 98%;
-    --destructive: 0 62.8% 30.6%;
+    --background: 220 10% 11.6%; /* #1B1D22 */
+    --foreground: 0 0% 95%; /* #F1F3F6 */
+    --card: 220 10% 14%; /* Slightly lighter than background for cards */
+    --card-foreground: 0 0% 95%;
+    --popover: 220 10% 10%;
+    --popover-foreground: 0 0% 95%;
+    --primary: 229 100% 68%; /* #5D76FF */
+    --primary-foreground: 0 0% 98%; /* White text on primary buttons */
+    --secondary: 220 10% 20%;
+    --secondary-foreground: 0 0% 95%;
+    --muted: 220 10% 15%;
+    --muted-foreground: 0 0% 60%;
+    --accent: 230 46% 64%;
+    --accent-foreground: 0 0% 98%;
+    --accent-hover: 0 0% 100%; /* White for hover */
+    --destructive: 354 79% 63%; /* Updated to #ED5565 */
     --destructive-foreground: 0 0% 98%;
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 142.1 76.2% 41.2%;
-    
-    --status-completed: 120 50% 55%;
-    --status-completed-foreground: 120 50% 10%;
-    --status-running: 220 90% 60%;
-    --status-running-foreground: 220 90% 98%;
-    --status-error: 0 70% 50%;
-    --status-error-foreground: 0 0% 98%;
-    --status-not-started: 217.2 32.6% 17.5%;
-    --status-not-started-foreground: 215 20.2% 65.1%;
-    --status-warning: 45 90% 55%;
-    --status-warning-foreground: 45 90% 15%;
-
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --border: 220 10% 25%;
+    --input: 220 10% 20%;
+    --ring: 229 100% 68%; /* Primary color for rings */
+    --chart-1: 229 100% 68%;
+    --chart-2: 160 60% 45%;
+    --chart-3: 30 80% 55%;
+    --chart-4: 0 93% 66%;
+    --chart-5: 230 46% 64%; /* New Blue Accent #7986CB */
   }
 }
 
@@ -103,7 +64,46 @@ body {
   * {
     @apply border-border;
   }
+  html { /* For Firefox scrollbar styling */
+    scrollbar-width: thin;
+    scrollbar-color: hsl(var(--accent)) hsl(var(--muted));
+  }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground font-body;
+  }
+
+  /* Custom Scrollbars for Webkit */
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: hsl(var(--muted));
+    border-radius: var(--radius);
+  }
+  ::-webkit-scrollbar-thumb {
+    background-color: hsl(var(--accent));
+    border-radius: var(--radius);
+    border: 2px solid hsl(var(--muted)); /* Creates a padding effect */
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background-color: hsl(var(--primary));
+  }
+}
+
+@layer utilities {
+  .animate-pulse-dot {
+    animation: pulse-dot 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+}
+
+@keyframes pulse-dot {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.5;
+    transform: scale(1.2);
   }
 }

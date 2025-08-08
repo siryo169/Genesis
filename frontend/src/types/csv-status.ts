@@ -1,5 +1,3 @@
-
-
 export type ProcessingStatus = 'enqueued' | 'running' | 'ok' | 'error';
 
 export type ProcessingStep = {
@@ -72,5 +70,3 @@ export interface PipelineRun {
   row_count?: number;
   processed_rows?: number;
 }
-
-    

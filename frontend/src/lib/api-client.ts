@@ -64,6 +64,23 @@ class ApiClient {
   async retryGeminiQuery(runId: string): Promise<any> {
     return this.request(`/runs/${runId}/retry_gemini_query`, { method: 'POST' });
   }
+
+  async updatePriority(runId: string, priority: number): Promise<any> {
+    // Use FormData to avoid setting Content-Type manually
+
+    const formData = new FormData();
+    formData.append('priority', priority.toString());
+
+    const response = await fetch(`${this.baseUrl}/runs/${runId}/priority`, {
+      method: 'PATCH',
+      body: formData,  
+    });
+
+    if (!response.ok) {
+      console.log(`✅ Priority updated successfully: ${response}`);
+    }
+    return response.json();
+  }
 }
 
 export const apiClient = new ApiClient(); 

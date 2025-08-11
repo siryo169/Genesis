@@ -3,7 +3,6 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { PipelineRun } from '@/types/csv-status';
 import { MockDataService, MockFileInfo } from '@/lib/mock-data';
-import { dataProvider } from '@/lib/data-provider';
 
 interface DataContextType {
   // State

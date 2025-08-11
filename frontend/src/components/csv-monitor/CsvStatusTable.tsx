@@ -1,4 +1,3 @@
-
 "use client";
 
 import type { CsvProcessingEntry } from "@/types/csv-status";
@@ -37,7 +36,7 @@ interface CsvStatusTableProps {
   onDownload: (filename: string) => void;
   onRetry: (id: string) => void;
   onRowClick: (entry: CsvProcessingEntry) => void;
-  onPriorityChange: (entryId: string, newPriority: CsvProcessingEntry['priority']) => void;
+  onPriorityChange: (entryId: string, newPriority: number) => void;
   density?: 'comfort' | 'dense';
 }
 
@@ -56,22 +55,22 @@ const CRITICAL_HEADERS = [
   "pdata_id_nid_number"
 ];
 
-type Priority = CsvProcessingEntry['priority'];
+type Priority = 1 | 2 | 3 | 4 | 5;
 
-const priorityConfig: Record<NonNullable<Priority>, { icon: React.FC<any>, label: string, className: string, iconClassName: string }> = {
-  'urgent': { icon: ChevronsUp, label: 'Urgent', className: 'bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-300 border-red-200 dark:border-red-800/60', iconClassName: 'text-red-600 dark:text-red-400' },
-  'high': { icon: ArrowUp, label: 'High', className: 'bg-orange-100 dark:bg-orange-900/40 text-orange-700 dark:text-orange-300 border-orange-200 dark:border-orange-800/60', iconClassName: 'text-orange-600 dark:text-orange-400' },
-  'medium': { icon: ArrowRight, label: 'Medium', className: 'bg-yellow-100 dark:bg-yellow-900/40 text-yellow-700 dark:text-yellow-300 border-yellow-200 dark:border-yellow-800/60', iconClassName: 'text-yellow-600 dark:text-yellow-400' },
-  'low': { icon: ArrowDown, label: 'Low', className: 'bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-800/60', iconClassName: 'text-blue-600 dark:text-blue-400' },
-  'very-low': { icon: ChevronsDown, label: 'Very Low', className: 'bg-gray-100 dark:bg-gray-700/40 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-gray-600/60', iconClassName: 'text-gray-500 dark:text-gray-400' },
+const priorityConfig: Record<Priority, { icon: React.FC<any>, label: string, className: string, iconClassName: string }> = {
+  1: { icon: ChevronsUp, label: 'Urgent', className: 'bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-300 border-red-200 dark:border-red-800/60', iconClassName: 'text-red-600 dark:text-red-400' },
+  2: { icon: ArrowUp, label: 'High', className: 'bg-orange-100 dark:bg-orange-900/40 text-orange-700 dark:text-orange-300 border-orange-200 dark:border-orange-800/60', iconClassName: 'text-orange-600 dark:text-orange-400' },
+  3: { icon: ArrowRight, label: 'Medium', className: 'bg-yellow-100 dark:bg-yellow-900/40 text-yellow-700 dark:text-yellow-300 border-yellow-200 dark:border-yellow-800/60', iconClassName: 'text-yellow-600 dark:text-yellow-400' },
+  4: { icon: ArrowDown, label: 'Low', className: 'bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-800/60', iconClassName: 'text-blue-600 dark:text-blue-400' },
+  5: { icon: ChevronsDown, label: 'Very Low', className: 'bg-gray-100 dark:bg-gray-700/40 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-gray-600/60', iconClassName: 'text-gray-500 dark:text-gray-400' },
 };
 
 
-const PriorityLabel = ({ priority = 'medium', entryId, onPriorityChange }: { priority?: Priority, entryId: string, onPriorityChange: CsvStatusTableProps['onPriorityChange'] }) => {
+const PriorityLabel = ({ priority = 3, entryId, onPriorityChange }: { priority: Priority, entryId: string, onPriorityChange: CsvStatusTableProps['onPriorityChange'] }) => {
   const config = priorityConfig[priority];
   const Icon = config.icon;
 
-  const handlePrioritySelect = (newPriority: Priority) => {
+  const handlePrioritySelect = (newPriority: number) => {
     onPriorityChange(entryId, newPriority);
   };
   
@@ -85,7 +84,7 @@ const PriorityLabel = ({ priority = 'medium', entryId, onPriorityChange }: { pri
       </DropdownMenuTrigger>
       <DropdownMenuContent align="start" onClick={(e) => e.stopPropagation()}>
         {Object.entries(priorityConfig).map(([key, value]) => (
-          <DropdownMenuItem key={key} onSelect={() => handlePrioritySelect(key as Priority)}>
+          <DropdownMenuItem key={key} onSelect={() => handlePrioritySelect(Number(key))}>
             <value.icon className={cn("mr-2 h-4 w-4", value.iconClassName)} />
             <span>{value.label}</span>
           </DropdownMenuItem>
@@ -251,7 +250,7 @@ export function CsvStatusTable({ data, sortConfig, requestSort, now, onDownload,
                   <TableRow key={entry.id} className="hover:bg-muted/20 transition-colors cursor-pointer" onClick={() => onRowClick(entry)}>
                     <TableCell className={cn("w-[150px]", cellPaddingClass)}>
                       <div className="flex justify-center items-center">
-                        <PriorityLabel priority={entry.priority} entryId={entry.id} onPriorityChange={onPriorityChange} />
+                        <PriorityLabel priority={(entry.priority && entry.priority >=1 && entry.priority<=5 ? entry.priority : 3) as Priority} entryId={entry.id} onPriorityChange={onPriorityChange} />
                       </div>
                     </TableCell>
                     <TableCell className={cn("font-medium whitespace-nowrap text-sm max-w-[260px] overflow-hidden text-ellipsis", cellPaddingClass)} title={entry.filename}>
@@ -551,6 +550,5 @@ function getStatusColor(status: string): string {
   }
 }
 
-    
 
-    
+

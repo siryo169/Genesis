@@ -1573,7 +1573,7 @@ API_HOST=localhost
 API_PORT=8000
 
 # CORS settings (comma-separated origins)
-ALLOWED_ORIGINS=http://localhost:3000,http://localhost:9002
+ALLOWED_ORIGINS=http://localhost:3000
 ```
 
 #### Frontend Configuration

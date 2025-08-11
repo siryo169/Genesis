@@ -58,7 +58,7 @@ export default function CsvMonitorPage() {
   const [isInitialLoading, setIsInitialLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
-  const [sortConfig, setSortConfig] = useState<{ key: keyof CsvProcessingEntry | null; direction: 'ascending' | 'descending' }>({ key: 'insertion_date', direction: 'descending' });
+  const [sortConfig, setSortConfig] = useState<{ key: keyof CsvProcessingEntry | null; direction: 'ascending' | 'descending' }>({ key: 'priority', direction: 'ascending' });
   const [currentTime, setCurrentTime] = useState<number | undefined>(undefined);
   // Default: last 2 hours
   const defaultTo = new Date();
@@ -365,6 +365,29 @@ export default function CsvMonitorPage() {
     }
   }, [csvData, toast, fetchPipelineData]);
 
+  const handlePriorityChange = useCallback(async (entryId: string, newPriority: number) => {
+    try{
+      await apiClient.updatePriority(entryId, newPriority);
+      // Update the local state immediately
+      setCsvData(prevData => prevData.map(entry =>
+        entry.id === entryId ? { ...entry, priority: newPriority } : entry
+      ));
+
+      toast({
+        title: "Priority Updated",
+        description: `Priority for ${entryId} updated to ${newPriority}`,
+        variant: "default",
+      });
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to update priority';
+      toast({
+        title: "Priority Update Failed",
+        description: errorMessage,
+        variant: "destructive",
+      });
+    }
+  }, [csvData, toast]);
+
   const handleFileUpload = useCallback(async (files: File[], model: string = '', priority: boolean = false) => {
     try {
       for (const file of files) {
@@ -464,12 +487,40 @@ export default function CsvMonitorPage() {
 
     if (sortConfig.key !== null) {
       sortableItems.sort((a, b) => {
+        // Primary sort: by the selected column
         const valA = a[sortConfig.key!];
         const valB = b[sortConfig.key!];
         
         let comparison = 0;
-        if (sortConfig.key === 'insertion_date') {
-          // Handle insertion_date sorting
+        if (sortConfig.key === 'priority') {
+          // Ordenación personalizada para priority (modo por defecto)
+          
+          // 1. Nivel principal: running siempre arriba
+          const isRunningA = a.status === 'running' ? 1 : 0;
+          const isRunningB = b.status === 'running' ? 1 : 0;
+          comparison = isRunningB - isRunningA; // running primero
+          
+          // 2. Nivel secundario: priority (1-5, solo si no hay running o ambos son running)
+          if (comparison === 0) {
+            comparison = (a.priority || 3) - (b.priority || 3);
+          }
+          
+          // 3. Nivel terciario: fecha (más nuevos primero)
+          if (comparison === 0) {
+            const dateA = a.insertion_date ? new Date(a.insertion_date).getTime() : 0;
+            const dateB = b.insertion_date ? new Date(b.insertion_date).getTime() : 0;
+            comparison = dateB - dateA; // más nuevos primero
+          }
+          
+          // 4. Nivel cuaternario: status secundario (enqueued → ok → error)
+          if (comparison === 0) {
+            const statusOrder = { 'enqueued': 1, 'ok': 2, 'error': 3, 'running': 0 };
+            const statusA = statusOrder[a.status] || 999;
+            const statusB = statusOrder[b.status] || 999;
+            comparison = statusA - statusB;
+          }
+          
+        } else if (sortConfig.key === 'insertion_date') {
           const dateA = valA ? new Date(valA as string).getTime() : 0;
           const dateB = valB ? new Date(valB as string).getTime() : 0;
           comparison = dateA - dateB;
@@ -1183,6 +1234,7 @@ export default function CsvMonitorPage() {
                   onDownload={handleDownload}
                   onRowClick={handleShowFileDetails}
                   onRetry={handleRetry}
+                  onPriorityChange={handlePriorityChange}
                 />
               )}
             </CardContent>

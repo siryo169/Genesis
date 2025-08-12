@@ -1,4 +1,5 @@
 
+
 "use client";
 
 import React, { useState, useEffect, useMemo, useCallback, useRef } from "react";
@@ -37,6 +38,7 @@ import { Separator } from "@/components/ui/separator";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import Link from "next/link";
 import { MultiSelectFilter } from "@/components/csv-monitor/MultiSelectFilter";
+import { StatusBadge } from "@/components/csv-monitor/StatusBadge";
 
 
 // Mock logs for analysis
@@ -752,6 +754,13 @@ export default function CsvMonitorPage() {
     [csvData, selectedFileId]
   );
   
+  const statusOptions = [
+    { value: "ok", label: "Completed", node: <StatusBadge status="ok" /> },
+    { value: "running", label: "Running", node: <StatusBadge status="running" /> },
+    { value: "error", label: "Error", node: <StatusBadge status="error" /> },
+    { value: "enqueued", label: "Enqueued", node: <StatusBadge status="enqueued" /> },
+  ];
+  
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col">
        <header className="sticky top-0 z-50 flex h-14 items-center justify-between border-b bg-background/80 px-4 backdrop-blur-sm sm:px-6">
@@ -962,12 +971,7 @@ export default function CsvMonitorPage() {
                 </div>
                 <MultiSelectFilter
                   label="Status"
-                  options={[
-                    { value: "ok", label: "Completed" },
-                    { value: "running", label: "Running" },
-                    { value: "error", label: "Error" },
-                    { value: "enqueued", label: "Enqueued" },
-                  ]}
+                  options={statusOptions}
                   selectedValues={statusFilter}
                   onSelectionChange={setStatusFilter}
                   className="w-auto"
@@ -1171,3 +1175,4 @@ export default function CsvMonitorPage() {
     </div>
   );
 }
+

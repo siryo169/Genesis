@@ -14,9 +14,15 @@ import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { ChevronDown } from "lucide-react";
 
+interface Option {
+  value: string | number;
+  label: string;
+  node?: React.ReactNode;
+}
+
 interface MultiSelectFilterProps {
   label: string;
-  options: { value: string | number; label: string }[];
+  options: Option[];
   selectedValues: (string | number)[];
   onSelectionChange: (selected: (string | number)[]) => void;
   className?: string;
@@ -70,7 +76,7 @@ export function MultiSelectFilter({
               handleSelect(option.value);
             }}
           >
-            {option.label}
+            {option.node || option.label}
           </DropdownMenuCheckboxItem>
         ))}
       </DropdownMenuContent>

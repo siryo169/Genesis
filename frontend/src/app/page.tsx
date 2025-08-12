@@ -77,6 +77,10 @@ export default function CsvMonitorPage() {
   const [timeFrom, setTimeFrom] = useState<string>(defaultFrom.toTimeString().slice(0,5));
   const [timeTo, setTimeTo] = useState<string>(defaultTo.toTimeString().slice(0,5));
   const [statusFilter, setStatusFilter] = useState("all");
+  const [priorityFilter, setPriorityFilter] = useState("all");
+  const [fileTypeFilter, setFileTypeFilter] = useState("all");
+  const [modelFilter, setModelFilter] = useState("all");
+  const [fieldsFilter, setFieldsFilter] = useState("");
   const [selectedFileId, setSelectedFileId] = useState<string | null>(null);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   const [isAnalysisModalOpen, setIsAnalysisModalOpen] = useState(false);
@@ -450,20 +454,62 @@ export default function CsvMonitorPage() {
   const handleClearFilters = useCallback(() => {
     setFilterText("");
     setStatusFilter("all");
+    setPriorityFilter("all");
+    setFileTypeFilter("all");
+    setModelFilter("all");
+    setFieldsFilter("");
+    setDate({ from: undefined, to: undefined });
   }, []);
 
   const filteredData = useMemo(() => {
     let sortableItems = [...csvData];
     
+    // Status filter
     if (statusFilter !== 'all') {
       sortableItems = sortableItems.filter(entry => getOverallStatus(entry) === statusFilter);
     }
     
+    // Filename filter
     if (filterText) {
       sortableItems = sortableItems.filter((entry) =>
         entry.filename.toLowerCase().includes(filterText.toLowerCase())
       );
     }
+
+    // Priority filter
+    if (priorityFilter !== 'all') {
+      sortableItems = sortableItems.filter(entry => (entry.priority || 3) === parseInt(priorityFilter));
+    }
+
+    // File type filter
+    if (fileTypeFilter !== 'all') {
+      sortableItems = sortableItems.filter(entry => entry.filename.toLowerCase().endsWith(fileTypeFilter));
+    }
+
+    // AI Model filter
+    if (modelFilter !== 'all') {
+      sortableItems = sortableItems.filter(entry => entry.ai_model === modelFilter);
+    }
+
+    // Extracted Fields filter
+    if (fieldsFilter) {
+      sortableItems = sortableItems.filter(entry => 
+        entry.extracted_fields && entry.extracted_fields.some(field => field.toLowerCase().includes(fieldsFilter.toLowerCase()))
+      );
+    }
+    
+    // Date Range filter
+    if (date?.from) {
+      sortableItems = sortableItems.filter(entry => 
+        entry.insertion_date && new Date(entry.insertion_date) >= date.from!
+      );
+    }
+    if (date?.to) {
+      sortableItems = sortableItems.filter(entry => 
+        entry.insertion_date && new Date(entry.insertion_date) <= date.to!
+      );
+    }
+
 
     if (sortConfig.key !== null) {
       sortableItems.sort((a, b) => {
@@ -512,7 +558,7 @@ export default function CsvMonitorPage() {
       });
     }
     return sortableItems;
-  }, [csvData, filterText, sortConfig, statusFilter, getOverallStatus]);
+  }, [csvData, filterText, statusFilter, priorityFilter, fileTypeFilter, modelFilter, fieldsFilter, date, sortConfig, getOverallStatus]);
 
   const paginatedData = useMemo(() => {
     const start = pageIndex * pageSize;
@@ -1192,23 +1238,24 @@ export default function CsvMonitorPage() {
             </div>
             
             <div className="flex flex-col flex-grow min-h-0 pt-6">
-              <div className="flex items-center justify-between gap-4 my-4">
+              <div className="flex items-center justify-between gap-4 mb-4">
                 <h2 className="text-2xl font-bold tracking-tight">Processing Status</h2>
-                <div className="flex items-center gap-2">
-                   <div className="relative w-full sm:w-auto sm:flex-grow">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                    <Input
-                      type="text"
-                      placeholder="Filter by filename..."
-                      value={filterText}
-                      onChange={(e) => setFilterText(e.target.value)}
-                      className="pl-10 w-full"
-                      aria-label="Filter by filename"
-                    />
+              </div>
+              <div className="flex flex-wrap items-center gap-2 mb-4">
+                  <div className="relative">
+                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        type="text"
+                        placeholder="Filter by filename..."
+                        value={filterText}
+                        onChange={(e) => setFilterText(e.target.value)}
+                        className="pl-10 w-48"
+                        aria-label="Filter by filename"
+                      />
                   </div>
                   <Select value={statusFilter} onValueChange={setStatusFilter}>
-                      <SelectTrigger className="w-full sm:w-[180px]">
-                        <SelectValue placeholder="Filter by status" />
+                      <SelectTrigger className="w-[150px]">
+                        <SelectValue placeholder="Status" />
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="all">All Statuses</SelectItem>
@@ -1218,19 +1265,106 @@ export default function CsvMonitorPage() {
                         <SelectItem value="enqueued">Enqueued</SelectItem>
                       </SelectContent>
                   </Select>
-                  <Separator orientation="vertical" className="h-6 mx-2 hidden sm:block" />
-                  <Button variant="ghost" onClick={handleClearFilters} className="w-full sm:w-auto">
-                      <X className="mr-2 h-4 w-4" /> Clear
+                  <Select value={priorityFilter} onValueChange={setPriorityFilter}>
+                      <SelectTrigger className="w-[150px]">
+                        <SelectValue placeholder="Priority" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">All Priorities</SelectItem>
+                        <SelectItem value="1">Urgent</SelectItem>
+                        <SelectItem value="2">High</SelectItem>
+                        <SelectItem value="3">Medium</SelectItem>
+                        <SelectItem value="4">Low</SelectItem>
+                        <SelectItem value="5">Very Low</SelectItem>
+                      </SelectContent>
+                  </Select>
+                  <Select value={fileTypeFilter} onValueChange={setFileTypeFilter}>
+                      <SelectTrigger className="w-[150px]">
+                        <SelectValue placeholder="File Type" />
+                      </SelectTrigger>
+                      <SelectContent>
+                          <SelectItem value="all">All File Types</SelectItem>
+                          <SelectItem value=".csv">CSV</SelectItem>
+                          <SelectItem value=".xlsx">XLSX</SelectItem>
+                          <SelectItem value=".xls">XLS</SelectItem>
+                          <SelectItem value=".zip">ZIP</SelectItem>
+                          <SelectItem value=".rar">RAR</SelectItem>
+                          <SelectItem value=".7z">7Z</SelectItem>
+                          <SelectItem value=".gz">GZ</SelectItem>
+                          <SelectItem value=".tar">TAR</SelectItem>
+                      </SelectContent>
+                  </Select>
+                  <Select value={modelFilter} onValueChange={setModelFilter}>
+                      <SelectTrigger className="w-[180px]">
+                        <SelectValue placeholder="AI Model" />
+                      </SelectTrigger>
+                      <SelectContent>
+                          <SelectItem value="all">All AI Models</SelectItem>
+                          {availableModels.map(m => <SelectItem key={m} value={m}>{m}</SelectItem>)}
+                      </SelectContent>
+                  </Select>
+                  <div className="relative">
+                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        type="text"
+                        placeholder="Filter by fields..."
+                        value={fieldsFilter}
+                        onChange={(e) => setFieldsFilter(e.target.value)}
+                        className="pl-10 w-48"
+                        aria-label="Filter by extracted fields"
+                      />
+                  </div>
+                  <div className="relative">
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button
+                          id="date"
+                          variant={"outline"}
+                          className={cn(
+                            "w-[300px] justify-start text-left font-normal",
+                            !date && "text-muted-foreground"
+                          )}
+                        >
+                          <CalendarIcon className="mr-2 h-4 w-4" />
+                          {date?.from ? (
+                            date.to ? (
+                              <>
+                                {formatDate(date.from, "LLL dd, y")} -{" "}
+                                {formatDate(date.to, "LLL dd, y")}
+                              </>
+                            ) : (
+                              formatDate(date.from, "LLL dd, y")
+                            )
+                          ) : (
+                            <span>Pick a date</span>
+                          )}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar
+                          initialFocus
+                          mode="range"
+                          defaultMonth={date?.from}
+                          selected={date}
+                          onSelect={setDate}
+                          numberOfMonths={2}
+                        />
+                      </PopoverContent>
+                    </Popover>
+                  </div>
+                  <Button variant="ghost" onClick={handleClearFilters}>
+                      <X className="mr-2 h-4 w-4" /> Clear All
                   </Button>
-                   <Button
+                  <div className="flex-grow"></div>
+                  <Button
                     onClick={() => setIsUploadDialogOpen(true)}
                     className="h-10 w-10 p-0"
                     aria-label="Upload files"
                   >
                     <Plus className="h-6 w-6" />
                   </Button>
-                </div>
               </div>
+
               <Card className="shadow-xl flex flex-col flex-grow relative">
                 <CardContent className="flex flex-col flex-grow p-0">
                   {isInitialLoading ? (
@@ -1263,7 +1397,7 @@ export default function CsvMonitorPage() {
                   )}
                 </CardContent>
               </Card>
-              <div className="p-4 border-t-0 border rounded-b-lg">
+              <div className="pt-4">
                 <DataTablePagination
                   pageIndex={pageIndex}
                   pageCount={pageCount}

@@ -344,7 +344,7 @@ export default function CsvMonitorPage() {
 
     if (priorityFilter !== 'all') {
       const priorityNum = parseInt(priorityFilter, 10);
-      sortableItems = sortableItems.filter(entry => (entry.priority || 3) === priorityNum);
+      sortableItems = sortableItems.filter(entry => entry.priority === priorityNum);
     }
 
     if (fileTypeFilter !== 'all') {
@@ -380,27 +380,26 @@ export default function CsvMonitorPage() {
         
         let comparison = 0;
         if (sortConfig.key === 'priority') {
-          const isRunningA = a.status === 'running' ? 1 : 0;
-          const isRunningB = b.status === 'running' ? 1 : 0;
-          comparison = isRunningB - isRunningA;
-          
-          if (comparison === 0) {
-            comparison = (a.priority || 3) - (b.priority || 3);
-          }
-          
-          if (comparison === 0) {
-            const dateA = a.insertion_date ? new Date(a.insertion_date).getTime() : 0;
-            const dateB = b.insertion_date ? new Date(b.insertion_date).getTime() : 0;
-            comparison = dateB - dateA;
-          }
-          
-          if (comparison === 0) {
-            const statusOrder = { 'enqueued': 1, 'ok': 2, 'error': 3, 'running': 0 };
-            const statusA = statusOrder[a.status] || 999;
-            const statusB = statusOrder[b.status] || 999;
-            comparison = statusA - statusB;
-          }
-          
+            // If a priority filter is active, sort by that first
+            if (priorityFilter !== 'all') {
+                comparison = (a.priority || 3) - (b.priority || 3);
+            }
+            // If priorities are equal or no filter is active, sort by running status
+            if (comparison === 0) {
+                const isRunningA = a.status === 'running' ? 1 : 0;
+                const isRunningB = b.status === 'running' ? 1 : 0;
+                comparison = isRunningB - isRunningA;
+            }
+             // If still equal, sort by priority
+            if (comparison === 0) {
+                comparison = (a.priority || 3) - (b.priority || 3);
+            }
+            // Finally, sort by insertion date
+            if (comparison === 0) {
+                const dateA = a.insertion_date ? new Date(a.insertion_date).getTime() : 0;
+                const dateB = b.insertion_date ? new Date(b.insertion_date).getTime() : 0;
+                comparison = dateB - dateA; // Most recent first
+            }
         } else if (sortConfig.key === 'insertion_date') {
           const dateA = valA ? new Date(valA as string).getTime() : 0;
           const dateB = valB ? new Date(valB as string).getTime() : 0;

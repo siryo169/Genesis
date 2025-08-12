@@ -33,8 +33,8 @@ import config from "@/lib/config";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { DataTablePagination } from "@/components/ui/data-table-pagination";
 import { Separator } from "@/components/ui/separator";
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import Link from "next/link";
 
 
 // Mock logs for analysis
@@ -85,115 +85,24 @@ export default function CsvMonitorPage() {
   const [fieldsFilter, setFieldsFilter] = useState("");
   const [selectedFileId, setSelectedFileId] = useState<string | null>(null);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
-  const [isAnalysisModalOpen, setIsAnalysisModalOpen] = useState(false);
-
-  // Settings State
-  const [showSuccessToast, setShowSuccessToast] = useState(true);
   
   // Add ref for Processing Status table
   const processingStatusRef = useRef<HTMLDivElement>(null);
 
-  const [modelInfoDialog, setModelInfoDialog] = useState<{ open: boolean, model: string | null }>({ open: false, model: null });
-  const [keyDialog, setKeyDialog] = useState<{ open: boolean, model: string | null }>({ open: false, model: null });
-  
-  // Mock mode toggle state - initialize with default value, update from dataProvider in useEffect
-  const [isMockMode, setIsMockMode] = useState(true);
-  
-  const [showFullKey, setShowFullKey] = useState<{ [model: string]: boolean }>({});
-  const [modelKeys, setModelKeys] = useState<{ [model: string]: string }>({
-    'Gemini 2.5 Pro': 'AIzaSyA1234567890XyZ',
-    'Gemini 2.5 Flash': 'AIzaSyB1234567890AbC',
-    'Gemini 2.0 Flash': 'AIzaSyC1234567890Def',
-    'o3': 'o3sk-1234567890xyz',
-    'GPT-4.1 mini': 'sk-1234567890abcd',
-    'Claude 3.7 Sonnet': 'claude-1234567890efg',
-  });
-  const [editKey, setEditKey] = useState<string>('');
-
-  const [selectedFields, setSelectedFields] = useState<string[]>([
-    'Email', 'Password', 'SSN', 'NID', 'Credit Card', 'Bank Account'
-  ]);
-  const [notifyLogic, setNotifyLogic] = useState<'AND' | 'OR'>('OR');
-  const [multiSelectOpen, setMultiSelectOpen] = useState(false);
   const [pageIndex, setPageIndex] = React.useState(0);
   const [pageSize, setPageSize] = React.useState(10);
-
-  const aiModels = [
-    {
-      name: 'Gemini 2.5 Pro',
-      pricing: '$7 per 1M input tokens, $21 per 1M output tokens',
-      release: '2024-06',
-      url: 'https://cloud.google.com/vertex-ai/docs/generative-ai/model-reference/gemini',
-      details: 'Best for high-accuracy, complex tasks. Supports long context.'
-    },
-    {
-      name: 'Gemini 2.5 Flash',
-      pricing: '$0.35 per 1M input tokens, $1.05 per 1M output tokens',
-      release: '2024-06',
-      url: 'https://cloud.google.com/vertex-ai/docs/generative-ai/model-reference/gemini',
-      details: 'Optimized for speed and cost, good for chat and summarization.'
-    },
-    {
-      name: 'Gemini 2.0 Flash',
-      pricing: '$0.35 per 1M input tokens, $1.05 per 1M output tokens',
-      release: '2024-03',
-      url: 'https://cloud.google.com/vertex-ai/docs/generative-ai/model-reference/gemini',
-      details: 'Previous fast Gemini model.'
-    },
-    {
-      name: 'o3',
-      pricing: 'TBD',
-      release: '2024-06',
-      url: 'https://openrouter.ai/models/open-orca-3',
-      details: 'Open source, high-context, multi-modal.'
-    },
-    {
-      name: 'GPT-4.1 mini',
-      pricing: '$5 per 1M input tokens, $15 per 1M output tokens',
-      release: '2024-05',
-      url: 'https://platform.openai.com/docs/models/gpt-4',
-      details: 'OpenAI, smaller context, fast.'
-    },
-    {
-      name: 'Claude 3.7 Sonnet',
-      pricing: '$3 per 1M input tokens, $15 per 1M output tokens',
-      release: '2024-06',
-      url: 'https://www.anthropic.com/news/claude-3-7',
-      details: 'Anthropic, strong at reasoning, long context.'
-    },
-  ];
-
-  const [activeModel, setActiveModel] = useState<string>('Gemini 2.5 Flash');
-  const [uploadPriority, setUploadPriority] = useState<'Normal' | 'High'>('Normal');
-  const [uploadSelectedModel, setUploadSelectedModel] = useState<string>('Gemini 2.5 Flash');
-  const availableModels = aiModels.map(m => m.name);
-
-  // SENSITIVE_FIELDS declaration moved here to fix linter error
-  const SENSITIVE_FIELDS: string[] = [
-    'Email', 'Password', 'SSN', 'NID', 'Address', 'Credit Card', 'Phone', 'Bank Account', 'DOB', 'Passport', 'Driver License'
-  ];
   
   const [isUploadDialogOpen, setIsUploadDialogOpen] = useState(false);
 
-  function censorKey(key: string) {
-    if (key.length <= 8) return '*'.repeat(key.length);
-    return key.slice(0, 4) + '*'.repeat(key.length - 8) + key.slice(-4);
-  }
-
-  function handleCopyKey(model: string) {
-    navigator.clipboard.writeText(modelKeys[model]);
-    toast({ title: 'Key copied to clipboard.' });
-  }
-
-  function handleEditKey(model: string) {
-    setEditKey(modelKeys[model]);
-  }
-
-  function handleSaveKey(model: string) {
-    setModelKeys(prev => ({ ...prev, [model]: editKey }));
-    setKeyDialog({ open: false, model: null });
-    toast({ title: 'Key updated.' });
-  }
+  // AI Model data, can be moved to a separate config file later
+  const aiModels = [
+    { name: 'Gemini 2.5 Flash' },
+    { name: 'Gemini 2.5 Pro' },
+    { name: 'Gemini 2.0 Flash' },
+  ];
+  const availableModels = aiModels.map(m => m.name);
+  const [uploadPriority, setUploadPriority] = useState<'Normal' | 'High'>('Normal');
+  const [uploadSelectedModel, setUploadSelectedModel] = useState<string>('Gemini 2.5 Flash');
 
   const getOverallStatus = useCallback((entry: CsvProcessingEntry): ProcessingStatus => {
     const stageKeys = ['classification', 'sampling', 'gemini_query', 'normalization'];
@@ -218,13 +127,6 @@ export default function CsvMonitorPage() {
       const data = await apiClient.getPipelineStatus();
       setCsvData(data);
       
-      if (!isSilent && showSuccessToast) {
-        toast({
-          title: "Data Refreshed",
-          description: "Processing statuses have been updated.",
-          variant: "default", 
-        });
-      }
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to fetch pipeline data';
       setError(errorMessage);
@@ -240,19 +142,13 @@ export default function CsvMonitorPage() {
       if (!isSilent) setIsLoading(false);
       setIsInitialLoading(false);
     }
-  }, [toast, showSuccessToast]);
+  }, [toast]);
 
   const handleRefresh = useCallback(async (isSilent = false) => {
     if (!isSilent) setIsLoading(true);
     try {
       await dataProvider.forceRefresh();
-      if (!isSilent && showSuccessToast) {
-        toast({
-          title: "Data Refreshed",
-          description: "Processing statuses have been updated.",
-          variant: "default", 
-        });
-      }
+      
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to refresh data';
       setError(errorMessage);
@@ -266,7 +162,7 @@ export default function CsvMonitorPage() {
     } finally {
       if (!isSilent) setIsLoading(false);
     }
-  }, [toast, showSuccessToast]);
+  }, [toast]);
   
   useEffect(() => {
     const unsubscribe = dataProvider.subscribe(
@@ -283,20 +179,15 @@ export default function CsvMonitorPage() {
       }
     );
     
-    // Sync toggle state with dataProvider mode on client
-    setIsMockMode(dataProvider.getCurrentMode() === 'mock');
-    
     setCurrentTime(Date.now());
     const timerId = setInterval(() => setCurrentTime(Date.now()), 1000);
     return () => {
       clearInterval(timerId);
       unsubscribe();
-      // Don't call dataProvider.cleanup() here since it's a singleton
     };
   }, []);
 
   const handleDownload = useCallback(async (filename: string) => {
-    // Find the entry by filename
     const entry = csvData.find(e => e.filename === filename);
     if (!entry) {
       toast({
@@ -318,13 +209,6 @@ export default function CsvMonitorPage() {
       window.URL.revokeObjectURL(url);
       document.body.removeChild(a);
       
-      if (showSuccessToast) {
-        toast({
-          title: "Download Started",
-          description: `Downloading ${entry.filename}...`,
-          variant: "default",
-        });
-      }
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Download failed';
       toast({
@@ -333,12 +217,11 @@ export default function CsvMonitorPage() {
         variant: "destructive",
       });
     }
-  }, [csvData, toast, showSuccessToast]);
+  }, [csvData, toast]);
 
   const handleRetry = useCallback(async (id: string) => {
     const entryToRetry = csvData.find(entry => entry.id === id);
     if (!entryToRetry) return;
-    // Only allow retry for gemini_query stage errors
     if (entryToRetry.stage_stats?.gemini_query?.status === 'error' && entryToRetry.status === 'error') {
       try {
         toast({
@@ -373,7 +256,6 @@ export default function CsvMonitorPage() {
   const handlePriorityChange = useCallback(async (entryId: string, newPriority: number) => {
     try{
       await apiClient.updatePriority(entryId, newPriority);
-      // Update the local state immediately
       setCsvData(prevData => prevData.map(entry =>
         entry.id === entryId ? { ...entry, priority: newPriority } : entry
       ));
@@ -431,23 +313,6 @@ export default function CsvMonitorPage() {
     }
   }, [toast, fetchPipelineData]);
 
-  const handleDownloadRange = useCallback(() => {
-    if (!date?.from || !date.to) {
-        toast({
-            title: "Please select a date range",
-            description: "You must select a start and end date to download files.",
-            variant: "destructive",
-        });
-        return;
-    }
-
-    toast({
-      title: "Bulk Download",
-      description: "Bulk download functionality will be implemented in a future update.",
-      variant: "default",
-    });
-  }, [date, toast]);
-
   const handleShowFileDetails = useCallback((entry: CsvProcessingEntry) => {
     setSelectedFileId(entry.id);
     setIsDetailModalOpen(true);
@@ -466,41 +331,34 @@ export default function CsvMonitorPage() {
   const filteredData = useMemo(() => {
     let sortableItems = [...csvData];
     
-    // Status filter
     if (statusFilter !== 'all') {
       sortableItems = sortableItems.filter(entry => getOverallStatus(entry) === statusFilter);
     }
     
-    // Filename filter
     if (filterText) {
       sortableItems = sortableItems.filter((entry) =>
         entry.filename.toLowerCase().includes(filterText.toLowerCase())
       );
     }
 
-    // Priority filter
     if (priorityFilter !== 'all') {
       sortableItems = sortableItems.filter(entry => (entry.priority || 3) === parseInt(priorityFilter));
     }
 
-    // File type filter
     if (fileTypeFilter !== 'all') {
       sortableItems = sortableItems.filter(entry => entry.filename.toLowerCase().endsWith(fileTypeFilter));
     }
 
-    // AI Model filter
     if (modelFilter !== 'all') {
       sortableItems = sortableItems.filter(entry => entry.ai_model === modelFilter);
     }
 
-    // Extracted Fields filter
     if (fieldsFilter) {
       sortableItems = sortableItems.filter(entry => 
         entry.extracted_fields && entry.extracted_fields.some(field => field.toLowerCase().includes(fieldsFilter.toLowerCase()))
       );
     }
     
-    // Date Range filter
     if (date?.from) {
       sortableItems = sortableItems.filter(entry => 
         entry.insertion_date && new Date(entry.insertion_date) >= date.from!
@@ -515,32 +373,25 @@ export default function CsvMonitorPage() {
 
     if (sortConfig.key !== null) {
       sortableItems.sort((a, b) => {
-        // Primary sort: by the selected column
         const valA = a[sortConfig.key!];
         const valB = b[sortConfig.key!];
         
         let comparison = 0;
         if (sortConfig.key === 'priority') {
-          // Custom sorting for priority (default mode)
-          
-          // 1. Primary level: 'running' always on top
           const isRunningA = a.status === 'running' ? 1 : 0;
           const isRunningB = b.status === 'running' ? 1 : 0;
           comparison = isRunningB - isRunningA;
           
-          // 2. Secondary level: priority (1-5, only if not running or both are running)
           if (comparison === 0) {
             comparison = (a.priority || 3) - (b.priority || 3);
           }
           
-          // 3. Tertiary level: date (newest first)
           if (comparison === 0) {
             const dateA = a.insertion_date ? new Date(a.insertion_date).getTime() : 0;
             const dateB = b.insertion_date ? new Date(b.insertion_date).getTime() : 0;
             comparison = dateB - dateA;
           }
           
-          // 4. Quaternary level: secondary status (enqueued -> ok -> error)
           if (comparison === 0) {
             const statusOrder = { 'enqueued': 1, 'ok': 2, 'error': 3, 'running': 0 };
             const statusA = statusOrder[a.status] || 999;
@@ -600,7 +451,6 @@ export default function CsvMonitorPage() {
       if (isFullyCompleted) {
         finalStepTime = entry.stage_stats?.normalization?.end_time ? new Date(entry.stage_stats.normalization.end_time).getTime() : undefined;
       } else {
-        // Find the last error or halt time among the stages
         const stages = ['classification', 'sampling', 'gemini_query', 'normalization'];
         for (const stage of stages) {
           const stat = entry.stage_stats?.[stage];
@@ -633,7 +483,6 @@ export default function CsvMonitorPage() {
       if (isFullySuccessful) {
         finalTime = entry.stage_stats?.normalization?.end_time ? new Date(entry.stage_stats.normalization.end_time).getTime() : undefined;
       } else {
-        // Find the last error or halt time among the stages
         const stages = ['classification', 'sampling', 'gemini_query', 'normalization'];
         for (const stage of stages) {
           const stat = entry.stage_stats?.[stage];
@@ -730,14 +579,12 @@ export default function CsvMonitorPage() {
   }, [csvData, currentTime, date, getOverallStatus]);
 
   const errorAnalysisData = useMemo(() => {
-    // Group errors by stage and reason
     const errorCounts: Record<string, number> = {};
     csvData.forEach(entry => {
       const stages = ['classification', 'sampling', 'gemini_query', 'normalization'];
       for (const stage of stages) {
         const stat = entry.stage_stats?.[stage];
         if (stat?.status === 'error' && stat.error_message) {
-          // Parse error_message as '<stage>: <reason>'
           let stageName = stage;
           let reason = stat.error_message;
           const match = /^([a-zA-Z_]+):\s*(.*)$/.exec(stat.error_message);
@@ -760,7 +607,6 @@ export default function CsvMonitorPage() {
     return chartData;
   }, [csvData]);
 
-  // Palette for error chart sectors - more reddish
   const errorPalette = [
     '#ED5565', // Destructive Red
     '#DA4453', // Darker Red
@@ -783,38 +629,10 @@ export default function CsvMonitorPage() {
     );
   }, [errorAnalysisData]);
 
-  function toggleField(field: string) {
-    setSelectedFields(prev => prev.includes(field) ? prev.filter(f => f !== field) : [...prev, field]);
-  }
 
-  // Handle data source mode toggle
-  const handleModeToggle = (checked: boolean) => {
-    const newMode = checked ? 'mock' : 'real';
-    setIsMockMode(checked);
-    dataProvider.switchMode(newMode);
-    
-    // Show toast notification
-    toast({
-      title: "Data Source Changed",
-      description: `Switched to ${checked ? 'Mock Data' : 'Live API'} mode`,
-      variant: "default",
-    });
-    
-    // Refresh page to see changes
-    window.location.reload();
-  };
-
-  useEffect(() => {
-    if (keyDialog.open) {
-      setEditKey('');
-    }
-  }, [keyDialog.open]);
-
-  // Add state for token/cost graph
   const [tokenMetricType, setTokenMetricType] = useState<'total' | 'input' | 'output'>('total');
   const [metricsData, setMetricsData] = useState<any>(null);
 
-  // Helper to combine date and time
   function combineDateTime(date: Date | undefined, time: string): Date | undefined {
     if (!date) return undefined;
     const [h, m] = time.split(":").map(Number);
@@ -823,7 +641,6 @@ export default function CsvMonitorPage() {
     return d;
   }
 
-  // Fetch metrics data
   const fetchMetricsData = useCallback(async () => {
     let range = 'auto';
     let bucketParam = 'auto';
@@ -838,7 +655,6 @@ export default function CsvMonitorPage() {
       else if (ms <= 24 * oneHour) bucketParam = 'hour';
       else if (days <= 7) bucketParam = 'day';
       else bucketParam = 'week';
-      // Use ISO strings for custom range
       range = `${from.toISOString()},${to.toISOString()}`;
     }
     try {
@@ -847,7 +663,6 @@ export default function CsvMonitorPage() {
       const data = await res.json();
       setMetricsData(data);
     } catch (err) {
-      // Suppress error logging and set metrics data to null if backend is unreachable
       setMetricsData(null);
     }
   }, [date, timeFrom, timeTo]);
@@ -858,7 +673,6 @@ export default function CsvMonitorPage() {
     return () => clearInterval(interval);
   }, [fetchMetricsData]);
 
-  // Prepare chart data for tokens and cost with dynamic bucketing
   function getDynamicBuckets(buckets: string[]) {
     if (!buckets || buckets.length === 0) return { bucketLabels: [], bucketIndices: [] };
     const times = buckets.map(b => new Date(b).getTime());
@@ -870,7 +684,7 @@ export default function CsvMonitorPage() {
     const thirtyMin = 30 * oneMin;
     const oneHour = 60 * oneMin;
     const oneDay = 24 * oneHour;
-    let bucketSizeMs = oneDay; // default: 1 day
+    let bucketSizeMs = oneDay;
     let labelFormat = (d: Date) => d.toLocaleDateString('en-US', { timeZone: 'UTC' });
     if (totalMs <= 2 * oneHour) {
       bucketSizeMs = fifteenMin;
@@ -891,7 +705,6 @@ export default function CsvMonitorPage() {
       bucketSizeMs = oneDay;
       labelFormat = (d: Date) => d.toLocaleDateString('en-US', { timeZone: 'UTC' });
     }
-    // Build new buckets
     const bucketLabels: string[] = [];
     const bucketIndices: number[][] = [];
     let bucketStart = minTime;
@@ -938,135 +751,21 @@ export default function CsvMonitorPage() {
     [csvData, selectedFileId]
   );
   
-  const [activeTab, setActiveTab] = useState('dashboard');
-
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col">
        <header className="sticky top-0 z-50 flex h-14 items-center justify-between border-b bg-background/80 px-4 backdrop-blur-sm sm:px-6">
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-4">
           <Logo />
-          <h1 className="text-xl font-semibold tracking-tight">Genesis</h1>
+          <h1 className="text-xl font-bold tracking-tight text-foreground">Genesis</h1>
         </div>
         
         <div className="flex items-center gap-2">
-          <Badge 
-            variant={isMockMode ? "secondary" : "default"} 
-            className="flex items-center gap-1"
-          >
-            {isMockMode ? (
-              <>
-                <Database className="h-3 w-3" />
-                Mock Data
-              </>
-            ) : (
-              <>
-                <Cloud className="h-3 w-3" />
-                Live API
-              </>
-            )}
-          </Badge>
-          <Sheet>
-            <SheetTrigger asChild>
-              <Button variant="ghost" size="icon">
-                <Settings className="h-5 w-5" />
-                <span className="sr-only">Settings</span>
-              </Button>
-            </SheetTrigger>
-            <SheetContent>
-                <SheetHeader>
-                  <SheetTitle>Settings</SheetTitle>
-                </SheetHeader>
-                <div className="space-y-8 mt-4">
-                {/* Data Source Section */}
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2 text-base">
-                      <Settings2 className="h-5 w-5" />
-                      Data Source
-                    </CardTitle>
-                    <CardDescription className="text-xs">
-                      Switch between mock data and live API.
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="flex items-center justify-between p-3 border rounded-lg">
-                      <div className="space-y-1">
-                        <Label htmlFor="mock-mode-toggle" className="text-sm font-medium">
-                          {isMockMode ? 'Mock Data Mode' : 'Live API Mode'}
-                        </Label>
-                      </div>
-                      <Switch 
-                        id="mock-mode-toggle"
-                        checked={isMockMode}
-                        onCheckedChange={handleModeToggle}
-                      />
-                    </div>
-                  </CardContent>
-                </Card>
-
-                {/* Notifications Section */}
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-base">Notifications</CardTitle>
-                    <CardDescription className="text-xs">Configure how and when you receive notifications.</CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="flex items-center gap-4">
-                      <Label htmlFor="notif-email" className="text-sm">Email</Label>
-                      <Switch id="notif-email" />
-                    </div>
-                     <div className="flex items-center gap-4">
-                      <Label htmlFor="notif-telegram" className="text-sm">Telegram</Label>
-                      <Switch id="notif-telegram" />
-                    </div>
-                  </CardContent>
-                </Card>
-                 {/* AI Models Table Section */}
-                <Card>
-                  <CardHeader>
-                    <CardTitle  className="text-base">AI Models & API Keys</CardTitle>
-                    <CardDescription className="text-xs">Manage your API keys and view model details.</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <table className="w-full border-collapse text-sm">
-                      <thead>
-                        <tr>
-                          <th className="text-left p-2 font-medium text-muted-foreground">Model</th>
-                          <th className="text-right p-2 font-medium text-muted-foreground">Actions</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {aiModels.map(model => (
-                          <tr key={model.name} className={`border-t ${activeModel === model.name ? 'bg-primary/10' : ''}`}>
-                            <td className="p-2 font-medium">{model.name}</td>
-                            <td className="p-2 text-right">
-                              <div className="flex items-center justify-end gap-1">
-                                <Button
-                                  variant={activeModel === model.name ? 'secondary' : 'ghost'}
-                                  size="icon"
-                                  onClick={() => setActiveModel(model.name)}
-                                  aria-label={activeModel === model.name ? 'Active model' : 'Activate model'}
-                                  className="h-7 w-7"
-                                >
-                                  <Check className={`h-4 w-4 ${activeModel === model.name ? 'text-primary' : ''}`} />
-                                </Button>
-                                <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setModelInfoDialog({ open: true, model: model.name })}>
-                                  <Info className="h-4 w-4" />
-                                </Button>
-                                <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setKeyDialog({ open: true, model: model.name })}>
-                                  <Key className="h-4 w-4" />
-                                </Button>
-                              </div>
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </CardContent>
-                </Card>
-              </div>
-            </SheetContent>
-          </Sheet>
+          <Link href="/settings">
+            <Button variant="ghost" size="icon">
+              <Settings className="h-5 w-5" />
+              <span className="sr-only">Settings</span>
+            </Button>
+          </Link>
         </div>
       </header>
       
@@ -1111,8 +810,8 @@ export default function CsvMonitorPage() {
                                 content={<ChartTooltipContent indicator="dot" />}
                               />
                               <RechartsLegend verticalAlign="top" height={36} />
-                              <Line type="monotone" dataKey="successfully" stroke="var(--color-successfully, #4ade80)" strokeWidth={2} activeDot={{ r: 8 }} dot={{ r: 4, stroke: 'var(--color-successfully, #4ade80)', strokeWidth: 2, fill: 'white' }} connectNulls={true} />
-                              <Line type="monotone" dataKey="processed" stroke="var(--color-processed, #60a5fa)" strokeWidth={2} activeDot={{ r: 8 }} dot={{ r: 4, stroke: 'var(--color-processed, #60a5fa)', strokeWidth: 2, fill: 'white' }} connectNulls={true} />
+                              <Line type="monotone" dataKey="successfully" stroke="var(--color-chart-2, #4ade80)" strokeWidth={2} activeDot={{ r: 8 }} dot={{ r: 4, stroke: 'var(--color-successfully, #4ade80)', strokeWidth: 2, fill: 'white' }} connectNulls={true} />
+                              <Line type="monotone" dataKey="processed" stroke="var(--color-chart-1, #60a5fa)" strokeWidth={2} activeDot={{ r: 8 }} dot={{ r: 4, stroke: 'var(--color-processed, #60a5fa)', strokeWidth: 2, fill: 'white' }} connectNulls={true} />
                             </LineChart>
                           </ResponsiveContainer>
                         </ChartContainer>
@@ -1468,53 +1167,6 @@ export default function CsvMonitorPage() {
             </div>
           </div>
           <FileUpload onFileUpload={files => handleFileUpload(files, uploadSelectedModel, uploadPriority === 'High')} />
-        </DialogContent>
-      </Dialog>
-      
-      {/* Info Dialog rendered outside the table for correct overlay behavior */}
-      <Dialog open={modelInfoDialog.open} onOpenChange={open => setModelInfoDialog({ open, model: open ? modelInfoDialog.model : null })}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>{modelInfoDialog.model} Info</DialogTitle>
-          </DialogHeader>
-          {aiModels.filter(m => m.name === modelInfoDialog.model).map(model => (
-            <div key={model.name} className="space-y-2">
-              <div><b>Pricing:</b> {model.pricing}</div>
-              <div><b>Release Date:</b> {model.release}</div>
-              <div><b>Details:</b> {model.details}</div>
-              <div><b>More Info:</b> <a href={model.url} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">{model.url}</a></div>
-            </div>
-          ))}
-        </DialogContent>
-      </Dialog>
-      {/* Key Dialog rendered outside the table for correct overlay behavior */}
-      <Dialog open={keyDialog.open} onOpenChange={open => setKeyDialog({ open, model: open ? keyDialog.model : null })}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>{keyDialog.model} API Key</DialogTitle>
-          </DialogHeader>
-          {aiModels.filter(m => m.name === keyDialog.model).map(model => (
-            <div key={model.name}>
-              <div className="flex items-center gap-2 mb-2">
-                <span className="font-mono bg-muted px-2 py-1 rounded">
-                  {showFullKey[model.name] ? modelKeys[model.name] : censorKey(modelKeys[model.name] || '')}
-                </span>
-                <Button variant="ghost" size="icon" onClick={() => setShowFullKey(prev => ({ ...prev, [model.name]: !prev[model.name] }))}>
-                  {showFullKey[model.name] ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                </Button>
-                <Button variant="ghost" size="icon" onClick={() => handleCopyKey(model.name)}>
-                  <Copy className="h-4 w-4" />
-                </Button>
-                <Button variant="ghost" size="icon" onClick={() => handleEditKey(model.name)}>
-                  <Pencil className="h-4 w-4" />
-                </Button>
-              </div>
-              <div className="flex gap-2 items-center">
-                <Input value={editKey} onChange={e => setEditKey(e.target.value)} className="w-full" />
-                <Button onClick={() => handleSaveKey(model.name)} variant="secondary">Save</Button>
-              </div>
-            </div>
-          ))}
         </DialogContent>
       </Dialog>
     </div>

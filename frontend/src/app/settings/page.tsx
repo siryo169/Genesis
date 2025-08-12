@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useState, useEffect, useCallback } from "react";
@@ -122,22 +123,17 @@ export default function SettingsPage() {
 
     return (
         <div className="min-h-screen bg-background text-foreground flex flex-col">
-            <header className="sticky top-0 z-50 flex h-14 items-center justify-between border-b bg-background/80 px-4 backdrop-blur-sm sm:px-6">
-                <div className="flex items-center gap-4">
-                    <Link href="/">
-                        <Button variant="ghost" size="icon">
-                            <ArrowLeft className="h-5 w-5" />
-                        </Button>
-                    </Link>
-                    <div className="flex items-center gap-2">
-                      <Logo />
-                      <h1 className="text-xl font-bold tracking-tight text-foreground">Genesis Settings</h1>
-                    </div>
-                </div>
+            <header className="sticky top-0 z-50 flex h-14 items-center border-b bg-background/80 px-4 backdrop-blur-sm sm:px-6">
+                <Link href="/">
+                    <Button variant="ghost" size="icon">
+                        <ArrowLeft className="h-5 w-5" />
+                    </Button>
+                </Link>
             </header>
             <main className="flex-grow p-4 md:p-8">
                 <div className="mx-auto max-w-3xl space-y-8">
-                    {/* Data Source Section */}
+                    <h1 className="text-2xl font-bold tracking-tight text-foreground">Settings</h1>
+
                     <Card>
                         <CardHeader>
                             <CardTitle className="flex items-center gap-2 text-base">

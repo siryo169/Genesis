@@ -148,18 +148,16 @@ export default function SettingsPage() {
                                 Switch between mock data and live API.
                             </CardDescription>
                         </CardHeader>
-                        <CardContent className="space-y-4">
-                            <div className="flex items-center justify-between p-3 border rounded-lg">
-                                <div className="space-y-1">
-                                    <Label htmlFor="mock-mode-toggle" className="text-sm font-medium">
-                                        {isMockMode ? 'Mock Data Mode' : 'Live API Mode'}
-                                    </Label>
-                                </div>
+                        <CardContent>
+                            <div className="flex items-center gap-3">
                                 <Switch
                                     id="mock-mode-toggle"
                                     checked={isMockMode}
                                     onCheckedChange={handleModeToggle}
                                 />
+                                <Label htmlFor="mock-mode-toggle" className="text-sm font-medium">
+                                    {isMockMode ? 'Mock Data Mode' : 'Live API Mode'}
+                                </Label>
                             </div>
                         </CardContent>
                     </Card>

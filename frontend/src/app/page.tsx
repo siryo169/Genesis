@@ -9,7 +9,7 @@ import { FileUpload } from "@/components/csv-monitor/FileUpload";
 import { FileDetailDialog } from "@/components/csv-monitor/FileDetailDialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { RefreshCw, Search, Loader2, Activity, CheckCircle2, Files, X, Download, Calendar as CalendarIcon, FileQuestion, Wand2, Settings, AlertTriangle, Info, Key, Eye, EyeOff, Copy, Pencil, ChevronDown, Check, Plus, ArrowUp, Database, Cloud, Settings2, Upload } from "lucide-react";
+import { RefreshCw, Search, Loader2, Activity, CheckCircle2, Files, X, Download, Calendar as CalendarIcon, FileQuestion, Wand2, Settings, AlertTriangle, Info, Key, Eye, EyeOff, Copy, Pencil, ChevronDown, Check, Plus, ArrowUp, Database, Cloud, Settings2, Upload, AreaChart } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { AlertDialog, AlertDialogAction, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
@@ -34,6 +34,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { DataTablePagination } from "@/components/ui/data-table-pagination";
 import { Separator } from "@/components/ui/separator";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+
 
 // Mock logs for analysis
 const mockLogs = `
@@ -939,10 +941,11 @@ export default function CsvMonitorPage() {
   const [activeTab, setActiveTab] = useState('dashboard');
 
   return (
-    <div className="min-h-screen bg-background text-foreground p-4 md:p-8 flex flex-col">
-       <header className="sticky top-0 z-50 flex h-14 items-center justify-between border-b bg-background/80 px-4 backdrop-blur-sm sm:px-8 -mx-4 -mt-4">
-        <div className="flex items-center space-x-4">
-          <span className="h-10 w-10 text-primary"><Logo /></span>
+    <div className="min-h-screen bg-background text-foreground flex flex-col">
+       <header className="sticky top-0 z-50 flex h-14 items-center justify-between border-b bg-background/80 px-4 backdrop-blur-sm sm:px-6">
+        <div className="flex items-center gap-2">
+          <Logo />
+          <h1 className="text-xl font-semibold tracking-tight">Genesis</h1>
         </div>
         
         <div className="flex items-center gap-2">
@@ -1067,7 +1070,7 @@ export default function CsvMonitorPage() {
         </div>
       </header>
       
-      <main className="flex-grow pt-8">
+      <main className="flex-grow p-4 md:p-8">
         <div className="space-y-6">
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
             <StatCard title="Processed Today" value={todayStats.processedToday} Icon={Activity} description="Files reaching a terminal state today." />
@@ -1075,159 +1078,171 @@ export default function CsvMonitorPage() {
             <StatCard title="Files In Progress" value={todayStats.inProgress} Icon={Loader2} description="Currently running pipelines." />
             <StatCard title="Total Files" value={csvData.length} Icon={Files} description="Tracked in the system." />
           </div>
-          
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <Card className="shadow-lg">
-              <CardHeader>
-                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
-                  <div>
-                    <CardTitle>Throughput</CardTitle>
-                    <CardDescription>Files processed and successful over time.</CardDescription>
-                  </div>
+
+          <Accordion type="single" collapsible className="w-full" defaultValue="item-1">
+            <AccordionItem value="item-1">
+              <AccordionTrigger>
+                <div className="flex items-center gap-2 text-lg font-semibold">
+                    <AreaChart className="h-5 w-5" />
+                    <span>Analytics Dashboard</span>
                 </div>
-              </CardHeader>
-              <CardContent className="pl-2">
-                {throughputChartData.length > 0 ? (
-                  <ChartContainer config={{}} className="h-[250px] w-full">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <LineChart data={throughputChartData} margin={{ top: 5, right: 30, left: 0, bottom: 5 }}>
-                        <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                        <XAxis dataKey="day" tickLine={false} axisLine={false} tickMargin={8} stroke="hsl(var(--muted-foreground))" fontSize={12} />
-                        <YAxis allowDecimals={false} tickLine={false} axisLine={false} tickMargin={8} stroke="hsl(var(--muted-foreground))" fontSize={12} />
-                        <RechartsTooltip
-                          cursor={{strokeDasharray: '3 3'}}
-                          content={<ChartTooltipContent indicator="dot" />}
-                        />
-                        <RechartsLegend verticalAlign="top" height={36} />
-                        <Line type="monotone" dataKey="successfully" stroke="var(--color-successfully, #4ade80)" strokeWidth={2} activeDot={{ r: 8 }} dot={{ r: 4, stroke: 'var(--color-successfully, #4ade80)', strokeWidth: 2, fill: 'white' }} connectNulls={true} />
-                        <Line type="monotone" dataKey="processed" stroke="var(--color-processed, #60a5fa)" strokeWidth={2} activeDot={{ r: 8 }} dot={{ r: 4, stroke: 'var(--color-processed, #60a5fa)', strokeWidth: 2, fill: 'white' }} connectNulls={true} />
-                      </LineChart>
-                    </ResponsiveContainer>
-                  </ChartContainer>
-                ) : (
-                  <div className="flex flex-col items-center justify-center h-[250px] text-center text-muted-foreground">
-                      <FileQuestion className="w-12 h-12 mb-4" />
-                      <h3 className="text-lg font-semibold">No Data Available</h3>
-                      <p className="text-sm">There are no processed files in the selected date range.</p>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
+              </AccordionTrigger>
+              <AccordionContent>
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 pt-4">
+                  <Card className="shadow-lg">
+                    <CardHeader>
+                      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+                        <div>
+                          <CardTitle>Throughput</CardTitle>
+                          <CardDescription>Files processed and successful over time.</CardDescription>
+                        </div>
+                      </div>
+                    </CardHeader>
+                    <CardContent className="pl-2">
+                      {throughputChartData.length > 0 ? (
+                        <ChartContainer config={{}} className="h-[250px] w-full">
+                          <ResponsiveContainer width="100%" height="100%">
+                            <LineChart data={throughputChartData} margin={{ top: 5, right: 30, left: 0, bottom: 5 }}>
+                              <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                              <XAxis dataKey="day" tickLine={false} axisLine={false} tickMargin={8} stroke="hsl(var(--muted-foreground))" fontSize={12} />
+                              <YAxis allowDecimals={false} tickLine={false} axisLine={false} tickMargin={8} stroke="hsl(var(--muted-foreground))" fontSize={12} />
+                              <RechartsTooltip
+                                cursor={{strokeDasharray: '3 3'}}
+                                content={<ChartTooltipContent indicator="dot" />}
+                              />
+                              <RechartsLegend verticalAlign="top" height={36} />
+                              <Line type="monotone" dataKey="successfully" stroke="var(--color-successfully, #4ade80)" strokeWidth={2} activeDot={{ r: 8 }} dot={{ r: 4, stroke: 'var(--color-successfully, #4ade80)', strokeWidth: 2, fill: 'white' }} connectNulls={true} />
+                              <Line type="monotone" dataKey="processed" stroke="var(--color-processed, #60a5fa)" strokeWidth={2} activeDot={{ r: 8 }} dot={{ r: 4, stroke: 'var(--color-processed, #60a5fa)', strokeWidth: 2, fill: 'white' }} connectNulls={true} />
+                            </LineChart>
+                          </ResponsiveContainer>
+                        </ChartContainer>
+                      ) : (
+                        <div className="flex flex-col items-center justify-center h-[250px] text-center text-muted-foreground">
+                            <FileQuestion className="w-12 h-12 mb-4" />
+                            <h3 className="text-lg font-semibold">No Data Available</h3>
+                            <p className="text-sm">There are no processed files in the selected date range.</p>
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
 
-            <Card className="shadow-lg">
-              <CardHeader>
-                <CardTitle>Error Analysis</CardTitle>
-                <CardDescription>Breakdown of common failure points.</CardDescription>
-              </CardHeader>
-              <CardContent className="h-[250px] flex items-center justify-center">
-                {errorAnalysisData.length > 0 ? (
-                  <ChartContainer config={errorChartConfig} className="w-full h-full">
-                    <ResponsiveContainer>
-                      <PieChart>
-                        <RechartsTooltip
-                          cursor={{ strokeDasharray: "3 3" }}
-                          content={<ChartTooltipContent hideLabel />}
-                        />
-                        <Pie
-                          data={errorAnalysisData}
-                          dataKey="value"
-                          nameKey="name"
-                          innerRadius={60}
-                          strokeWidth={5}
-                        >
-                          {errorAnalysisData.map((entry, index) => (
-                            <Cell
-                              key={`cell-${index}`}
-                              fill={errorPalette[index % errorPalette.length]}
-                            />
-                          ))}
-                        </Pie>
-                      </PieChart>
-                    </ResponsiveContainer>
-                  </ChartContainer>
-                ) : (
-                  <div className="flex flex-col items-center justify-center h-full text-center text-muted-foreground">
-                    <CheckCircle2 className="w-12 h-12 mb-4 text-green-500" />
-                    <h3 className="text-lg font-semibold">No Errors Found</h3>
-                    <p className="text-sm">Everything is running smoothly!</p>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-            <Card className="shadow-lg">
-              <CardHeader>
-                 <div className="flex justify-between items-center">
-                  <div>
-                      <CardTitle>Token Consumption</CardTitle>
-                      <CardDescription>Total tokens used by AI models.</CardDescription>
-                  </div>
-                  <RadioGroup value={tokenMetricType} onValueChange={(v) => setTokenMetricType(v as 'total' | 'input' | 'output')} className="flex">
-                      <div className="flex items-center space-x-1">
-                      <RadioGroupItem value="total" id="total" />
-                      <Label htmlFor="total" className="text-xs">Total</Label>
+                  <Card className="shadow-lg">
+                    <CardHeader>
+                      <CardTitle>Error Analysis</CardTitle>
+                      <CardDescription>Breakdown of common failure points.</CardDescription>
+                    </CardHeader>
+                    <CardContent className="h-[250px] flex items-center justify-center">
+                      {errorAnalysisData.length > 0 ? (
+                        <ChartContainer config={errorChartConfig} className="w-full h-full">
+                          <ResponsiveContainer>
+                            <PieChart>
+                              <RechartsTooltip
+                                cursor={{ strokeDasharray: "3 3" }}
+                                content={<ChartTooltipContent hideLabel />}
+                              />
+                              <Pie
+                                data={errorAnalysisData}
+                                dataKey="value"
+                                nameKey="name"
+                                innerRadius={60}
+                                strokeWidth={5}
+                              >
+                                {errorAnalysisData.map((entry, index) => (
+                                  <Cell
+                                    key={`cell-${index}`}
+                                    fill={errorPalette[index % errorPalette.length]}
+                                  />
+                                ))}
+                              </Pie>
+                            </PieChart>
+                          </ResponsiveContainer>
+                        </ChartContainer>
+                      ) : (
+                        <div className="flex flex-col items-center justify-center h-full text-center text-muted-foreground">
+                          <CheckCircle2 className="w-12 h-12 mb-4 text-green-500" />
+                          <h3 className="text-lg font-semibold">No Errors Found</h3>
+                          <p className="text-sm">Everything is running smoothly!</p>
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+                  <Card className="shadow-lg">
+                    <CardHeader>
+                      <div className="flex justify-between items-center">
+                        <div>
+                            <CardTitle>Token Consumption</CardTitle>
+                            <CardDescription>Total tokens used by AI models.</CardDescription>
+                        </div>
+                        <RadioGroup value={tokenMetricType} onValueChange={(v) => setTokenMetricType(v as 'total' | 'input' | 'output')} className="flex">
+                            <div className="flex items-center space-x-1">
+                            <RadioGroupItem value="total" id="total" />
+                            <Label htmlFor="total" className="text-xs">Total</Label>
+                            </div>
+                            <div className="flex items-center space-x-1">
+                            <RadioGroupItem value="input" id="input" />
+                            <Label htmlFor="input" className="text-xs">Input</Label>
+                            </div>
+                            <div className="flex items-center space-x-1">
+                            <RadioGroupItem value="output" id="output" />
+                            <Label htmlFor="output" className="text-xs">Output</Label>
+                            </div>
+                        </RadioGroup>
                       </div>
-                      <div className="flex items-center space-x-1">
-                      <RadioGroupItem value="input" id="input" />
-                      <Label htmlFor="input" className="text-xs">Input</Label>
-                      </div>
-                      <div className="flex items-center space-x-1">
-                      <RadioGroupItem value="output" id="output" />
-                      <Label htmlFor="output" className="text-xs">Output</Label>
-                      </div>
-                  </RadioGroup>
-                 </div>
-              </CardHeader>
-              <CardContent className="pl-2">
-                {tokenChartData.length > 0 ? (
-                  <ChartContainer config={{}} className="h-[250px] w-full">
-                      <ResponsiveContainer>
-                      <LineChart data={tokenChartData} margin={{ top: 5, right: 30, left: 0, bottom: 5 }}>
-                          <CartesianGrid strokeDasharray="3 3" vertical={false}/>
-                          <XAxis dataKey="time" tickLine={false} axisLine={false} tickMargin={8} stroke="hsl(var(--muted-foreground))" fontSize={12} />
-                          <YAxis tickLine={false} axisLine={false} tickMargin={8} stroke="hsl(var(--muted-foreground))" fontSize={12} />
-                          <RechartsTooltip content={<ChartTooltipContent />} />
-                          <Line dataKey="value" type="monotone" strokeWidth={2} stroke="var(--color-chart-1)" />
-                      </LineChart>
-                      </ResponsiveContainer>
-                  </ChartContainer>
-                ) : (
-                  <div className="flex flex-col items-center justify-center h-[250px] text-center text-muted-foreground">
-                      <FileQuestion className="w-12 h-12 mb-4" />
-                      <h3 className="text-lg font-semibold">No Token Data</h3>
-                      <p className="text-sm">No token usage data available for this period.</p>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
+                    </CardHeader>
+                    <CardContent className="pl-2">
+                      {tokenChartData.length > 0 ? (
+                        <ChartContainer config={{}} className="h-[250px] w-full">
+                            <ResponsiveContainer>
+                            <LineChart data={tokenChartData} margin={{ top: 5, right: 30, left: 0, bottom: 5 }}>
+                                <CartesianGrid strokeDasharray="3 3" vertical={false}/>
+                                <XAxis dataKey="time" tickLine={false} axisLine={false} tickMargin={8} stroke="hsl(var(--muted-foreground))" fontSize={12} />
+                                <YAxis tickLine={false} axisLine={false} tickMargin={8} stroke="hsl(var(--muted-foreground))" fontSize={12} />
+                                <RechartsTooltip content={<ChartTooltipContent />} />
+                                <Line dataKey="value" type="monotone" strokeWidth={2} stroke="var(--color-chart-1)" />
+                            </LineChart>
+                            </ResponsiveContainer>
+                        </ChartContainer>
+                      ) : (
+                        <div className="flex flex-col items-center justify-center h-[250px] text-center text-muted-foreground">
+                            <FileQuestion className="w-12 h-12 mb-4" />
+                            <h3 className="text-lg font-semibold">No Token Data</h3>
+                            <p className="text-sm">No token usage data available for this period.</p>
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
 
-            <Card className="shadow-lg">
-              <CardHeader>
-                <CardTitle>Estimated Cost</CardTitle>
-                <CardDescription>Total estimated cost of AI model usage.</CardDescription>
-              </CardHeader>
-              <CardContent className="pl-2">
-                {costChartData.length > 0 ? (
-                  <ChartContainer config={{}} className="h-[250px] w-full">
-                      <ResponsiveContainer>
-                      <LineChart data={costChartData} margin={{ top: 5, right: 30, left: 0, bottom: 5 }}>
-                          <CartesianGrid strokeDasharray="3 3" vertical={false}/>
-                          <XAxis dataKey="time" tickLine={false} axisLine={false} tickMargin={8} stroke="hsl(var(--muted-foreground))" fontSize={12} />
-                          <YAxis tickLine={false} axisLine={false} tickMargin={8} stroke="hsl(var(--muted-foreground))" fontSize={12} dataKey="value" tickFormatter={(v) => `$${v.toFixed(3)}`} />
-                          <RechartsTooltip content={<ChartTooltipContent formatter={(v) => `$${Number(v).toFixed(4)}`} />} />
-                          <Line dataKey="value" type="monotone" strokeWidth={2} stroke="var(--color-chart-2)" />
-                      </LineChart>
-                      </ResponsiveContainer>
-                  </ChartContainer>
-                ) : (
-                   <div className="flex flex-col items-center justify-center h-[250px] text-center text-muted-foreground">
-                      <FileQuestion className="w-12 h-12 mb-4" />
-                      <h3 className="text-lg font-semibold">No Cost Data</h3>
-                      <p className="text-sm">No cost data available for this period.</p>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          </div>
+                  <Card className="shadow-lg">
+                    <CardHeader>
+                      <CardTitle>Estimated Cost</CardTitle>
+                      <CardDescription>Total estimated cost of AI model usage.</CardDescription>
+                    </CardHeader>
+                    <CardContent className="pl-2">
+                      {costChartData.length > 0 ? (
+                        <ChartContainer config={{}} className="h-[250px] w-full">
+                            <ResponsiveContainer>
+                            <LineChart data={costChartData} margin={{ top: 5, right: 30, left: 0, bottom: 5 }}>
+                                <CartesianGrid strokeDasharray="3 3" vertical={false}/>
+                                <XAxis dataKey="time" tickLine={false} axisLine={false} tickMargin={8} stroke="hsl(var(--muted-foreground))" fontSize={12} />
+                                <YAxis tickLine={false} axisLine={false} tickMargin={8} stroke="hsl(var(--muted-foreground))" fontSize={12} dataKey="value" tickFormatter={(v) => `$${v.toFixed(3)}`} />
+                                <RechartsTooltip content={<ChartTooltipContent formatter={(v) => `$${Number(v).toFixed(4)}`} />} />
+                                <Line dataKey="value" type="monotone" strokeWidth={2} stroke="var(--color-chart-2)" />
+                            </LineChart>
+                            </ResponsiveContainer>
+                        </ChartContainer>
+                      ) : (
+                        <div className="flex flex-col items-center justify-center h-[250px] text-center text-muted-foreground">
+                            <FileQuestion className="w-12 h-12 mb-4" />
+                            <h3 className="text-lg font-semibold">No Cost Data</h3>
+                            <p className="text-sm">No cost data available for this period.</p>
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+                </div>
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
           
           <div className="flex flex-col flex-grow min-h-0 pt-6">
             <div className="flex items-center justify-between gap-4 mb-4">

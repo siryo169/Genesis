@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useMemo, useCallback, useRef } from "react";
-import type { CsvProcessingEntry, ProcessingStatus, ProcessingStep, NormalizerChecks } from "@/types/csv-status";
+import type { CsvProcessingEntry, ProcessingStatus } from "@/types/csv-status";
 import { analyzeLogs, type LogAnalysisOutput } from "@/ai/flows/log-analyzer-flow";
 import { CsvStatusTable } from "@/components/csv-monitor/CsvStatusTable";
 import { StatCard } from "@/components/csv-monitor/StatCard";
@@ -9,17 +9,17 @@ import { FileUpload } from "@/components/csv-monitor/FileUpload";
 import { FileDetailDialog } from "@/components/csv-monitor/FileDetailDialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { RefreshCw, Search, Loader2, Activity, CheckCircle2, Loader, Files, X, Download, Calendar as CalendarIcon, FileQuestion, Wand2, Settings, AlertTriangle, Info, Key, Eye, EyeOff, Copy, Pencil, ChevronDown, Check, Plus, ArrowUp, Database, Cloud, Settings2 } from "lucide-react";
+import { RefreshCw, Search, Loader2, Activity, CheckCircle2, Files, X, Download, Calendar as CalendarIcon, FileQuestion, Wand2, Settings, AlertTriangle, Info, Key, Eye, EyeOff, Copy, Pencil, ChevronDown, Check, Plus, ArrowUp, Database, Cloud, Settings2, Upload } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { AlertDialog, AlertDialogAction, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
-import { formatDuration, cn } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, Legend as RechartsLegend, PieChart, Pie, Cell } from "recharts";
-import { ChartContainer, ChartTooltipContent, type ChartConfig } from "@/components/ui/chart";
+import { ChartContainer, ChartTooltipContent } from "@/components/ui/chart";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { format as formatDate, differenceInDays, subDays, addMinutes, setHours, setMinutes } from "date-fns";
+import { format as formatDate, differenceInDays } from "date-fns";
 import type { DateRange } from "react-day-picker";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
@@ -30,9 +30,10 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { apiClient } from "@/lib/api-client";
 import { dataProvider } from "@/lib/data-provider";
 import config from "@/lib/config";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { DataTablePagination } from "@/components/ui/data-table-pagination";
 import { Separator } from "@/components/ui/separator";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 
 // Mock logs for analysis
 const mockLogs = `
@@ -78,17 +79,11 @@ export default function CsvMonitorPage() {
   const [statusFilter, setStatusFilter] = useState("all");
   const [selectedFileId, setSelectedFileId] = useState<string | null>(null);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
-  const [isAnalyzingLogs, setIsAnalyzingLogs] = useState(false);
-  const [analysisResult, setAnalysisResult] = useState<LogAnalysisOutput | null>(null);
   const [isAnalysisModalOpen, setIsAnalysisModalOpen] = useState(false);
 
   // Settings State
   const [showSuccessToast, setShowSuccessToast] = useState(true);
-  const [selectedModel, setSelectedModel] = useState("gemini-2.0-flash");
-
-  // Add state for active tab
-  const [activeTab, setActiveTab] = useState('dashboard');
-
+  
   // Add ref for Processing Status table
   const processingStatusRef = useRef<HTMLDivElement>(null);
 
@@ -163,16 +158,16 @@ export default function CsvMonitorPage() {
   ];
 
   const [activeModel, setActiveModel] = useState<string>('Gemini 2.5 Flash');
-
   const [uploadPriority, setUploadPriority] = useState<'Normal' | 'High'>('Normal');
   const [uploadSelectedModel, setUploadSelectedModel] = useState<string>('Gemini 2.5 Flash');
-  const [aiPopoverOpen, setAiPopoverOpen] = useState(false);
   const availableModels = aiModels.map(m => m.name);
 
   // SENSITIVE_FIELDS declaration moved here to fix linter error
   const SENSITIVE_FIELDS: string[] = [
     'Email', 'Password', 'SSN', 'NID', 'Address', 'Credit Card', 'Phone', 'Bank Account', 'DOB', 'Passport', 'Driver License'
   ];
+  
+  const [isUploadDialogOpen, setIsUploadDialogOpen] = useState(false);
 
   function censorKey(key: string) {
     if (key.length <= 8) return '*'.repeat(key.length);
@@ -413,7 +408,7 @@ export default function CsvMonitorPage() {
         variant: "default",
       });
       fetchPipelineData();
-      setActiveTab('dashboard');
+      setIsUploadDialogOpen(false);
       setSortConfig({ key: 'insertion_date', direction: 'descending' });
       setTimeout(() => {
         if (processingStatusRef.current) {
@@ -451,25 +446,6 @@ export default function CsvMonitorPage() {
     setSelectedFileId(entry.id);
     setIsDetailModalOpen(true);
   }, []);
-  
-  const handleAnalyzeLogs = useCallback(async () => {
-    setIsAnalyzingLogs(true);
-    try {
-        const result = await analyzeLogs({ logs: mockLogs });
-        setAnalysisResult(result);
-        setIsAnalysisModalOpen(true);
-    } catch(e) {
-        console.error(e);
-        toast({
-            title: "Analysis Failed",
-            description: "Could not analyze logs. Please try again.",
-            variant: "destructive"
-        });
-    } finally {
-        setIsAnalyzingLogs(false);
-    }
-  }, [toast]);
-
 
   const handleClearFilters = useCallback(() => {
     setFilterText("");
@@ -497,26 +473,26 @@ export default function CsvMonitorPage() {
         
         let comparison = 0;
         if (sortConfig.key === 'priority') {
-          // Ordenación personalizada para priority (modo por defecto)
+          // Custom sorting for priority (default mode)
           
-          // 1. Nivel principal: running siempre arriba
+          // 1. Primary level: 'running' always on top
           const isRunningA = a.status === 'running' ? 1 : 0;
           const isRunningB = b.status === 'running' ? 1 : 0;
-          comparison = isRunningB - isRunningA; // running primero
+          comparison = isRunningB - isRunningA;
           
-          // 2. Nivel secundario: priority (1-5, solo si no hay running o ambos son running)
+          // 2. Secondary level: priority (1-5, only if not running or both are running)
           if (comparison === 0) {
             comparison = (a.priority || 3) - (b.priority || 3);
           }
           
-          // 3. Nivel terciario: fecha (más nuevos primero)
+          // 3. Tertiary level: date (newest first)
           if (comparison === 0) {
             const dateA = a.insertion_date ? new Date(a.insertion_date).getTime() : 0;
             const dateB = b.insertion_date ? new Date(b.insertion_date).getTime() : 0;
-            comparison = dateB - dateA; // más nuevos primero
+            comparison = dateB - dateA;
           }
           
-          // 4. Nivel cuaternario: status secundario (enqueued → ok → error)
+          // 4. Quaternary level: secondary status (enqueued -> ok -> error)
           if (comparison === 0) {
             const statusOrder = { 'enqueued': 1, 'ok': 2, 'error': 3, 'running': 0 };
             const statusA = statusOrder[a.status] || 999;
@@ -776,10 +752,6 @@ export default function CsvMonitorPage() {
     setSelectedFields(prev => prev.includes(field) ? prev.filter(f => f !== field) : [...prev, field]);
   }
 
-  function toggleUploadModel(model: string) {
-    setUploadSelectedModel(model);
-  }
-
   // Handle data source mode toggle
   const handleModeToggle = (checked: boolean) => {
     const newMode = checked ? 'mock' : 'real';
@@ -930,109 +902,152 @@ export default function CsvMonitorPage() {
     () => csvData.find(e => e.id === selectedFileId) || null,
     [csvData, selectedFileId]
   );
+  
+  const [activeTab, setActiveTab] = useState('dashboard');
 
   return (
     <div className="min-h-screen bg-background text-foreground p-4 md:p-8 flex flex-col">
-      <header className="mb-8 sticky top-0 z-50 bg-background/80 backdrop-blur-sm -mx-8 px-8 pt-4 pb-4 border-b">
+       <header className="mb-8 sticky top-0 z-50 bg-background/80 backdrop-blur-sm -mx-4 -mt-4 px-4 pt-4 pb-4 border-b sm:-mx-8 sm:px-8">
         <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-3">
+          <div className="flex items-center space-x-4">
             <span className="h-10 w-10 text-primary"><Logo /></span>
-            {/* <h1 className="text-4xl font-headline font-bold tracking-tight">
-              Genesis
-            </h1> */}
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="hidden md:block">
+              <TabsList>
+                <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
+              </TabsList>
+            </Tabs>
           </div>
           
-          {/* Data Source Indicator */}
-          <Badge 
-            variant={isMockMode ? "secondary" : "default"} 
-            className="flex items-center gap-1"
-          >
-            {isMockMode ? (
-              <>
-                <Database className="h-3 w-3" />
-                Mock Data
-              </>
-            ) : (
-              <>
-                <Cloud className="h-3 w-3" />
-                Live API
-              </>
-            )}
-          </Badge>
+          <div className="flex items-center gap-2">
+            <Badge 
+              variant={isMockMode ? "secondary" : "default"} 
+              className="flex items-center gap-1"
+            >
+              {isMockMode ? (
+                <>
+                  <Database className="h-3 w-3" />
+                  Mock Data
+                </>
+              ) : (
+                <>
+                  <Cloud className="h-3 w-3" />
+                  Live API
+                </>
+              )}
+            </Badge>
+            <Sheet>
+              <SheetTrigger asChild>
+                <Button variant="ghost" size="icon">
+                  <Settings className="h-5 w-5" />
+                  <span className="sr-only">Settings</span>
+                </Button>
+              </SheetTrigger>
+              <SheetContent>
+                  <SheetHeader>
+                    <SheetTitle>Settings</SheetTitle>
+                  </SheetHeader>
+                  <div className="space-y-8 mt-4">
+                  {/* Data Source Section */}
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2 text-base">
+                        <Settings2 className="h-5 w-5" />
+                        Data Source
+                      </CardTitle>
+                      <CardDescription className="text-xs">
+                        Switch between mock data and live API.
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <div className="flex items-center justify-between p-3 border rounded-lg">
+                        <div className="space-y-1">
+                          <Label htmlFor="mock-mode-toggle" className="text-sm font-medium">
+                            {isMockMode ? 'Mock Data Mode' : 'Live API Mode'}
+                          </Label>
+                        </div>
+                        <Switch 
+                          id="mock-mode-toggle"
+                          checked={isMockMode}
+                          onCheckedChange={handleModeToggle}
+                        />
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  {/* Notifications Section */}
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="text-base">Notifications</CardTitle>
+                      <CardDescription className="text-xs">Configure how and when you receive notifications.</CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <div className="flex items-center gap-4">
+                        <Label htmlFor="notif-email" className="text-sm">Email</Label>
+                        <Switch id="notif-email" />
+                      </div>
+                       <div className="flex items-center gap-4">
+                        <Label htmlFor="notif-telegram" className="text-sm">Telegram</Label>
+                        <Switch id="notif-telegram" />
+                      </div>
+                    </CardContent>
+                  </Card>
+                   {/* AI Models Table Section */}
+                  <Card>
+                    <CardHeader>
+                      <CardTitle  className="text-base">AI Models & API Keys</CardTitle>
+                      <CardDescription className="text-xs">Manage your API keys and view model details.</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <table className="w-full border-collapse text-sm">
+                        <thead>
+                          <tr>
+                            <th className="text-left p-2 font-medium text-muted-foreground">Model</th>
+                            <th className="text-right p-2 font-medium text-muted-foreground">Actions</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {aiModels.map(model => (
+                            <tr key={model.name} className={`border-t ${activeModel === model.name ? 'bg-primary/10' : ''}`}>
+                              <td className="p-2 font-medium">{model.name}</td>
+                              <td className="p-2 text-right">
+                                <div className="flex items-center justify-end gap-1">
+                                  <Button
+                                    variant={activeModel === model.name ? 'secondary' : 'ghost'}
+                                    size="icon"
+                                    onClick={() => setActiveModel(model.name)}
+                                    aria-label={activeModel === model.name ? 'Active model' : 'Activate model'}
+                                    className="h-7 w-7"
+                                  >
+                                    <Check className={`h-4 w-4 ${activeModel === model.name ? 'text-primary' : ''}`} />
+                                  </Button>
+                                  <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setModelInfoDialog({ open: true, model: model.name })}>
+                                    <Info className="h-4 w-4" />
+                                  </Button>
+                                  <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setKeyDialog({ open: true, model: model.name })}>
+                                    <Key className="h-4 w-4" />
+                                  </Button>
+                                </div>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </CardContent>
+                  </Card>
+                </div>
+              </SheetContent>
+            </Sheet>
+          </div>
         </div>
-        <p className="text-muted-foreground mt-1">
-          Dashboard for data processing pipeline status.
-        </p>
       </header>
       
       <main className="flex-grow">
-        <Tabs value={activeTab} onValueChange={setActiveTab} defaultValue="dashboard">
-          <TabsList className="grid w-full grid-cols-3 md:w-[400px]">
-            <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
-            <TabsTrigger value="upload">Upload</TabsTrigger>
-            <TabsTrigger value="settings">Settings</TabsTrigger>
-          </TabsList>
+        <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsContent value="dashboard" className="mt-6 space-y-6">
-            {/* Remove old always-visible calendar and time pickers here */}
-            {/* Place the new date pickers above the throughput chart */}
-            <div className="flex flex-col md:flex-row gap-4 items-center mb-4">
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    id="date"
-                    variant={"outline"}
-                    className={cn(
-                      "w-full sm:w-[260px] justify-start text-left font-normal",
-                      !date && "text-muted-foreground"
-                    )}
-                  >
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {date?.from ? (
-                      date.to ? (
-                        <>
-                          {formatDate(date.from, "LLL dd, y")} -{" "}
-                          {formatDate(date.to, "LLL dd, y")}
-                        </>
-                      ) : (
-                        formatDate(date.from, "LLL dd, y")
-                      )
-                    ) : (
-                      <span>Pick a date</span>
-                    )}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="end">
-                  <Calendar
-                    initialFocus
-                    mode="range"
-                    defaultMonth={date?.from}
-                    selected={date}
-                    onSelect={setDate}
-                    numberOfMonths={2}
-                    toDate={new Date()}
-                  />
-                </PopoverContent>
-              </Popover>
-              <div className="flex items-center gap-2">
-                <Label>From (UTC):</Label>
-                <Input type="time" value={timeFrom} onChange={e => setTimeFrom(e.target.value)} />
-                <Label>To (UTC):</Label>
-                <Input type="time" value={timeTo} onChange={e => setTimeTo(e.target.value)} />
-              </div>
-              <Button onClick={() => {
-                // Snap date range to selected times
-                if (date?.from && date?.to) {
-                  setDate({
-                    from: combineDateTime(date.from, timeFrom),
-                    to: combineDateTime(date.to, timeTo),
-                  });
-                }
-              }}>Apply</Button>
-            </div>
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
               <StatCard title="Processed Today" value={todayStats.processedToday} Icon={Activity} description="Files reaching a terminal state today." />
               <StatCard title="Success Rate Today" value={todayStats.successRateToday} Icon={CheckCircle2} description="Of files processed today." />
-              <StatCard title="Files In Progress" value={todayStats.inProgress} Icon={Loader} description="Currently running pipelines." />
+              <StatCard title="Files In Progress" value={todayStats.inProgress} Icon={Loader2} description="Currently running pipelines." />
               <StatCard title="Total Files" value={csvData.length} Icon={Files} description="Tracked in the system." />
             </div>
             
@@ -1044,7 +1059,6 @@ export default function CsvMonitorPage() {
                       <CardTitle>Throughput</CardTitle>
                       <CardDescription>Files processed and successful over time.</CardDescription>
                     </div>
-                    {/* No date picker or download button here */}
                   </div>
                 </CardHeader>
                 <CardContent className="pl-2">
@@ -1075,154 +1089,87 @@ export default function CsvMonitorPage() {
                 </CardContent>
               </Card>
 
-              <Card className="shadow-lg">
-                  <CardHeader>
-                      <CardTitle>Error Analysis</CardTitle>
-                      <CardDescription>Breakdown of common failure points.</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                      {errorAnalysisData.length > 0 ? (
-                          <ChartContainer config={errorChartConfig}>
-                              <ResponsiveContainer width="100%" height="100%">
-                                  <PieChart>
-                                      <RechartsTooltip
-                                          cursor={{strokeDasharray: '3 3'}}
-                                          content={<ChartTooltipContent nameKey="name" hideLabel />}
-                                      />
-                                      <Pie data={errorAnalysisData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={100} labelLine={false} label={({ cx, cy, midAngle, innerRadius, outerRadius, percent }) => {
-                                          const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
-                                          const x = cx + radius * Math.cos(-midAngle * (Math.PI / 180));
-                                          const y = cy + radius * Math.sin(-midAngle * (Math.PI / 180));
-                                          return (percent > 0.05) ? <text x={x} y={y} fill="white" textAnchor="middle" dominantBaseline="central">
-                                              {`${(percent * 100).toFixed(0)}%`}
-                                          </text> : null;
-                                      }}>
-                                          {(errorAnalysisData || []).map((entry: any, idx: number) => (
-                                              <Cell key={`cell-${entry.key}`} fill={errorColors[idx % errorColors.length]} />
-                                          ))}
-                                      </Pie>
-                                      <RechartsLegend verticalAlign="bottom" height={36} iconSize={10} />
-                                  </PieChart>
-                              </ResponsiveContainer>
-                          </ChartContainer>
-                      ) : (
-                          <div className="flex flex-col items-center justify-center h-[250px] text-center text-muted-foreground">
-                              <CheckCircle2 className="w-12 h-12 mb-4 text-green-500" />
-                              <h3 className="text-lg font-semibold">No Errors Found</h3>
-                              <p className="text-sm">Everything is running smoothly!</p>
-                          </div>
-                      )}
-                  </CardContent>
-              </Card>
-            </div>
-
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {/* Token Consumption Graph */}
-              <Card className="shadow-lg">
+               <Card className="shadow-lg">
                 <CardHeader>
-                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
-                    <div>
-                      <CardTitle>Token Consumption</CardTitle>
-                      <CardDescription>Cumulative tokens used per {metricsData && metricsData.buckets.length > 0 && metricsData.buckets[0].length > 13 ? 'hour' : 'day'}.</CardDescription>
-                    </div>
-                    <div className="flex gap-2 mt-2 sm:mt-0">
-                      <Button size="sm" variant={tokenMetricType === 'total' ? 'default' : 'outline'} onClick={() => setTokenMetricType('total')}>Total</Button>
-                      <Button size="sm" variant={tokenMetricType === 'input' ? 'default' : 'outline'} onClick={() => setTokenMetricType('input')}>Input</Button>
-                      <Button size="sm" variant={tokenMetricType === 'output' ? 'default' : 'outline'} onClick={() => setTokenMetricType('output')}>Output</Button>
-                    </div>
-                  </div>
+                  <CardTitle>Error Analysis</CardTitle>
+                  <CardDescription>Breakdown of common failure points.</CardDescription>
                 </CardHeader>
-                <CardContent>
-                  {tokenChartData.length > 0 ? (
-                    <ChartContainer config={{ token: { label: tokenMetricType.charAt(0).toUpperCase() + tokenMetricType.slice(1) + ' Tokens', color: 'hsl(var(--chart-1))' } }} className="h-[250px] w-full">
-                      <ResponsiveContainer width="100%" height="100%">
-                        <LineChart data={tokenChartData} margin={{ top: 5, right: 30, left: 0, bottom: 5 }}>
-                          <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                          <XAxis dataKey="time" tickLine={false} axisLine={false} tickMargin={8} stroke="hsl(var(--muted-foreground))" fontSize={12} />
-                          <YAxis allowDecimals={false} tickLine={false} axisLine={false} tickMargin={8} stroke="hsl(var(--muted-foreground))" fontSize={12} />
-                          <RechartsTooltip cursor={{strokeDasharray: '3 3'}} formatter={v => v.toLocaleString()} />
-                          <RechartsLegend verticalAlign="top" height={36} />
-                          <Line type="monotone" dataKey="value" stroke="var(--color-token)" strokeWidth={2} activeDot={{ r: 8 }} name={tokenMetricType.charAt(0).toUpperCase() + tokenMetricType.slice(1) + ' Tokens'} />
-                        </LineChart>
+                <CardContent className="h-[250px] flex items-center justify-center">
+                  {errorAnalysisData.length > 0 ? (
+                    <ChartContainer config={errorChartConfig} className="w-full h-full">
+                      <ResponsiveContainer>
+                        <PieChart>
+                          <RechartsTooltip
+                            cursor={{ strokeDasharray: "3 3" }}
+                            content={<ChartTooltipContent hideLabel />}
+                          />
+                          <Pie
+                            data={errorAnalysisData}
+                            dataKey="value"
+                            nameKey="name"
+                            innerRadius={60}
+                            strokeWidth={5}
+                          >
+                            {errorAnalysisData.map((entry, index) => (
+                              <Cell
+                                key={`cell-${index}`}
+                                fill={errorPalette[index % errorPalette.length]}
+                              />
+                            ))}
+                          </Pie>
+                        </PieChart>
                       </ResponsiveContainer>
                     </ChartContainer>
                   ) : (
-                    <div className="flex flex-col items-center justify-center h-[250px] text-center text-muted-foreground">
-                      <FileQuestion className="w-12 h-12 mb-4" />
-                      <h3 className="text-lg font-semibold">No Data Available</h3>
-                      <p className="text-sm">No token data in the selected date range.</p>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-              {/* Cost Estimation Graph */}
-              <Card className="shadow-lg">
-                <CardHeader>
-                  <CardTitle>Cost Estimation</CardTitle>
-                  <CardDescription>Cumulative estimated cost per {metricsData && metricsData.buckets.length > 0 && metricsData.buckets[0].length > 13 ? 'hour' : 'day'}.</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  {costChartData.length > 0 ? (
-                    <ChartContainer config={{ cost: { label: 'Estimated Cost ($)', color: 'hsl(var(--chart-2))' } }} className="h-[250px] w-full">
-                      <ResponsiveContainer width="100%" height="100%">
-                        <LineChart data={costChartData} margin={{ top: 5, right: 30, left: 0, bottom: 5 }}>
-                          <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                          <XAxis dataKey="time" tickLine={false} axisLine={false} tickMargin={8} stroke="hsl(var(--muted-foreground))" fontSize={12} />
-                          <YAxis allowDecimals={true} tickLine={false} axisLine={false} tickMargin={8} stroke="hsl(var(--muted-foreground))" fontSize={12} />
-                          <RechartsTooltip cursor={{strokeDasharray: '3 3'}} formatter={v => typeof v === 'number' ? `$${v.toFixed(4)}` : v} />
-                          <RechartsLegend verticalAlign="top" height={36} />
-                          <Line type="monotone" dataKey="value" stroke="var(--color-cost)" strokeWidth={2} activeDot={{ r: 8 }} name="Estimated Cost ($)" />
-                        </LineChart>
-                      </ResponsiveContainer>
-                    </ChartContainer>
-                  ) : (
-                    <div className="flex flex-col items-center justify-center h-[250px] text-center text-muted-foreground">
-                      <FileQuestion className="w-12 h-12 mb-4" />
-                      <h3 className="text-lg font-semibold">No Data Available</h3>
-                      <p className="text-sm">No cost data in the selected date range.</p>
+                    <div className="flex flex-col items-center justify-center h-full text-center text-muted-foreground">
+                      <CheckCircle2 className="w-12 h-12 mb-4 text-green-500" />
+                      <h3 className="text-lg font-semibold">No Errors Found</h3>
+                      <p className="text-sm">Everything is running smoothly!</p>
                     </div>
                   )}
                 </CardContent>
               </Card>
             </div>
             
-            <div className="flex flex-col flex-grow min-h-0" ref={processingStatusRef}>
-              <Card className="shadow-xl flex flex-col flex-grow">
-                <CardHeader>
-                  <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                    <CardTitle className="text-2xl">Processing Status</CardTitle>
-                    <div className="flex flex-col sm:flex-row items-center gap-2 w-full md:w-auto flex-wrap">
-                      <div className="relative w-full sm:w-auto sm:flex-grow">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                        <Input
-                          type="text"
-                          placeholder="Filter by filename..."
-                          value={filterText}
-                          onChange={(e) => setFilterText(e.target.value)}
-                          className="pl-10 w-full"
-                          aria-label="Filter by filename"
-                        />
-                      </div>
-                      <Select value={statusFilter} onValueChange={setStatusFilter}>
-                          <SelectTrigger className="w-full sm:w-[180px]">
-                            <SelectValue placeholder="Filter by status" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="all">All Statuses</SelectItem>
-                            <SelectItem value="ok">Completed</SelectItem>
-                            <SelectItem value="running">Running</SelectItem>
-                            <SelectItem value="error">Error</SelectItem>
-                            <SelectItem value="enqueued">Enqueued</SelectItem>
-                          </SelectContent>
-                      </Select>
-                      <Separator orientation="vertical" className="h-6 mx-2 hidden sm:block" />
-                      <Button variant="ghost" onClick={handleClearFilters} className="w-full sm:w-auto">
-                          <X className="mr-2 h-4 w-4" /> Clear
-                      </Button>
+            <div className="flex flex-col flex-grow min-h-0 pt-6">
+               <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-4">
+                  <h2 className="text-2xl font-bold tracking-tight">Processing Status</h2>
+                  <div className="flex flex-col sm:flex-row items-center gap-2 w-full md:w-auto flex-wrap">
+                    <div className="relative w-full sm:w-auto sm:flex-grow">
+                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        type="text"
+                        placeholder="Filter by filename..."
+                        value={filterText}
+                        onChange={(e) => setFilterText(e.target.value)}
+                        className="pl-10 w-full"
+                        aria-label="Filter by filename"
+                      />
                     </div>
+                    <Select value={statusFilter} onValueChange={setStatusFilter}>
+                        <SelectTrigger className="w-full sm:w-[180px]">
+                          <SelectValue placeholder="Filter by status" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">All Statuses</SelectItem>
+                          <SelectItem value="ok">Completed</SelectItem>
+                          <SelectItem value="running">Running</SelectItem>
+                          <SelectItem value="error">Error</SelectItem>
+                          <SelectItem value="enqueued">Enqueued</SelectItem>
+                        </SelectContent>
+                    </Select>
+                     <Button variant="outline" onClick={() => setIsUploadDialogOpen(true)}>
+                      <Upload className="mr-2 h-4 w-4" />
+                      Upload Files
+                    </Button>
+                    <Separator orientation="vertical" className="h-6 mx-2 hidden sm:block" />
+                    <Button variant="ghost" onClick={handleClearFilters} className="w-full sm:w-auto">
+                        <X className="mr-2 h-4 w-4" /> Clear
+                    </Button>
                   </div>
-                </CardHeader>
-                <CardContent className="flex flex-col flex-grow">
+                </div>
+              <Card className="shadow-xl flex flex-col flex-grow">
+                <CardContent className="flex flex-col flex-grow p-0">
                   {isInitialLoading ? (
                     <div className="flex flex-col items-center justify-center h-[500px] text-center text-muted-foreground">
                       <Loader2 className="w-12 h-12 mb-4 animate-spin" />
@@ -1252,285 +1199,18 @@ export default function CsvMonitorPage() {
                     />
                   )}
                 </CardContent>
-                <div className="p-4 border-t">
-                    <DataTablePagination
-                      pageIndex={pageIndex}
-                      pageCount={pageCount}
-                      pageSize={pageSize}
-                      setPageIndex={setPageIndex}
-                      setPageSize={setPageSize}
-                      canPreviousPage={pageIndex > 0}
-                      canNextPage={pageIndex < pageCount - 1}
-                    />
-                  </div>
               </Card>
-            </div>
-          </TabsContent>
-          <TabsContent value="upload" className="mt-6">
-              <Card>
-                  <CardHeader>
-                      <CardTitle>Upload Files</CardTitle>
-                      <CardDescription>Drag and drop files here or click to select files to add them to the processing queue.</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                      <div className="flex flex-col gap-4 mb-4">
-                        <div className="flex items-center gap-4">
-                          <Label className="text-base">AI Model Override</Label>
-                          <Select value={uploadSelectedModel} onValueChange={setUploadSelectedModel}>
-                            <SelectTrigger className="w-[220px]">
-                              <SelectValue placeholder="Select model..." />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {availableModels.map(model => (
-                                <SelectItem key={model} value={model}>{model}</SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        </div>
-                        <div className="flex items-center gap-4">
-                          <Label className="text-base">Priority</Label>
-                          <Popover>
-                            <PopoverTrigger asChild>
-                              <Button variant="outline" size="sm" className="flex items-center gap-2">
-                                {uploadPriority}
-                                <ChevronDown className="h-4 w-4" />
-                              </Button>
-                            </PopoverTrigger>
-                            <PopoverContent className="min-w-[120px]">
-                              {['Normal', 'High'].map(option => (
-                                <div key={option} className="flex items-center gap-2 cursor-pointer hover:bg-muted px-2 py-1 rounded" onClick={() => setUploadPriority(option as 'Normal' | 'High')}>
-                                  <span className="inline-block w-4">{uploadPriority === option && <Check className="h-4 w-4 text-primary" />}</span>
-                                  <span>{option}</span>
-                                </div>
-                              ))}
-                            </PopoverContent>
-                          </Popover>
-                        </div>
-                      </div>
-                      <FileUpload onFileUpload={files => handleFileUpload(files, uploadSelectedModel, uploadPriority === 'High')} />
-                  </CardContent>
-              </Card>
-          </TabsContent>
-          <TabsContent value="settings" className="mt-6">
-            <div className="space-y-8">
-              {/* Data Source Section */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Settings2 className="h-5 w-5" />
-                    Data Source
-                  </CardTitle>
-                  <CardDescription>
-                    Configure how the application loads data. Switch between mock data for development and live API for production.
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                  <div className="flex items-center justify-between p-4 border rounded-lg">
-                    <div className="space-y-1">
-                      <div className="flex items-center gap-2">
-                        {isMockMode ? (
-                          <Database className="h-4 w-4 text-blue-500" />
-                        ) : (
-                          <Cloud className="h-4 w-4 text-green-500" />
-                        )}
-                        <Label htmlFor="mock-mode-toggle" className="text-base font-medium">
-                          {isMockMode ? 'Mock Data Mode' : 'Live API Mode'}
-                        </Label>
-                      </div>
-                      <p className="text-sm text-muted-foreground">
-                        {isMockMode 
-                          ? 'Using simulated data for development and testing'
-                          : 'Connected to live backend API for real data'
-                        }
-                      </p>
-                    </div>
-                    <Switch 
-                      id="mock-mode-toggle"
-                      checked={isMockMode}
-                      onCheckedChange={handleModeToggle}
-                    />
-                  </div>
-                  
-                  {/* Status Information */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2 border-t">
-                    <div className="space-y-1">
-                      <p className="text-sm font-medium">Current Mode</p>
-                      <p className="text-sm text-muted-foreground">
-                        {isMockMode ? 'Development (Mock Data)' : 'Production (Live API)'}
-                      </p>
-                    </div>
-                    <div className="space-y-1">
-                      <p className="text-sm font-medium">Data Updates</p>
-                      <p className="text-sm text-muted-foreground">
-                        {isMockMode ? 'Simulated real-time changes' : 'WebSocket & polling from backend'}
-                      </p>
-                    </div>
-                  </div>
-                  
-                  {/* Action Buttons */}
-                  <div className="flex gap-2 pt-2 border-t">
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      className="flex items-center gap-2"
-                      onClick={() => {
-                        // TODO: Implement refresh logic
-                        console.log('Refresh clicked - mode:', isMockMode ? 'mock' : 'live');
-                      }}
-                    >
-                      <RefreshCw className="h-4 w-4" />
-                      Refresh Data
-                    </Button>
-                    
-                    {isMockMode && (
-                      <Button 
-                        variant="outline" 
-                        size="sm"
-                        className="flex items-center gap-2"
-                        onClick={() => {
-                          // TODO: Implement reset logic
-                          console.log('Reset mock data clicked');
-                        }}
-                      >
-                        <Settings2 className="h-4 w-4" />
-                        Reset Mock Data
-                      </Button>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Notifications Section */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>Notifications</CardTitle>
-                  <CardDescription>Configure how and when you receive notifications.</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="flex flex-col gap-4">
-                    <div className="flex items-center gap-4">
-                      <Label htmlFor="notif-email" className="text-base">Email Notifications</Label>
-                      <Switch id="notif-email" />
-                      <Input type="email" placeholder="your@email.com" className="w-64" />
-                    </div>
-                    <div className="flex items-center gap-4">
-                      <Label htmlFor="notif-telegram" className="text-base">Telegram Notifications</Label>
-                      <Switch id="notif-telegram" />
-                      <Input type="text" placeholder="@yourhandle or chat id" className="w-64" />
-                    </div>
-                    <div className="border-t my-2" />
-                    <div className="flex flex-col gap-2">
-                      <Label className="text-base">Advanced Options</Label>
-                      <div className="flex items-center gap-2 mb-2">
-                        <span className="text-base">Notify on pipeline failure</span>
-                        <Switch id="notif-failure" />
-                      </div>
-                      <div className="flex flex-col gap-2">
-                        <div className="flex flex-wrap gap-2 items-center min-h-[40px]">
-                          {selectedFields.map(field => (
-                            <div
-                              key={field}
-                              className="relative group bg-muted px-3 py-1 rounded-full flex items-center text-sm font-medium cursor-pointer hover:bg-primary/10 transition-colors"
-                            >
-                              {field}
-                              <button
-                                className="absolute -top-2 -right-2 bg-white rounded-full p-0.5 opacity-0 group-hover:opacity-100 transition-opacity border shadow"
-                                style={{ fontSize: 10 }}
-                                onClick={e => { e.stopPropagation(); setSelectedFields(prev => prev.filter(f => f !== field)); }}
-                                tabIndex={-1}
-                                aria-label={`Remove ${field}`}
-                              >
-                                <X className="h-3 w-3 text-red-500" />
-                              </button>
-                            </div>
-                          ))}
-                          <div className="relative">
-                            <button
-                              className="bg-muted px-2 py-1 rounded-full flex items-center text-sm font-medium hover:bg-primary/10 transition-colors border"
-                              onClick={() => setMultiSelectOpen(v => !v)}
-                              aria-label="Add field"
-                              type="button"
-                            >
-                              <Plus className="h-4 w-4" />
-                            </button>
-                            {multiSelectOpen && (
-                              <div className="absolute z-10 mt-2 bg-white border rounded shadow-lg p-2 min-w-[160px] max-h-48 overflow-auto">
-                                {SENSITIVE_FIELDS.filter((f: string) => !selectedFields.includes(f)).map((field: string) => (
-                                  <div key={field} className="flex items-center gap-2 cursor-pointer hover:bg-muted px-2 py-1 rounded" onClick={() => { setSelectedFields(prev => [...prev, field]); setMultiSelectOpen(false); }}>
-                                    <span>{field}</span>
-                                  </div>
-                                ))}
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-2 mt-2">
-                          <Button
-                            variant={notifyLogic === 'AND' ? 'default' : 'outline'}
-                            size="sm"
-                            onClick={() => setNotifyLogic('AND')}
-                            className={notifyLogic === 'AND' ? 'font-bold' : ''}
-                          >
-                            AND
-                          </Button>
-                          <Button
-                            variant={notifyLogic === 'OR' ? 'default' : 'outline'}
-                            size="sm"
-                            onClick={() => setNotifyLogic('OR')}
-                            className={notifyLogic === 'OR' ? 'font-bold' : ''}
-                          >
-                            OR
-                          </Button>
-                          <span className="text-xs text-muted-foreground ml-2">Send notification if <b>{notifyLogic}</b> of the selected fields are present in a CSV</span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-              {/* AI Models Table Section */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>AI Models & API Keys</CardTitle>
-                  <CardDescription>Manage your API keys and view model details.</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <table className="min-w-full border-collapse">
-                    <thead>
-                      <tr>
-                        <th className="text-left p-2">Model</th>
-                        <th className="text-right p-2">Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {aiModels.map(model => (
-                        <tr key={model.name} className={`border-t ${activeModel === model.name ? 'bg-primary/10' : ''}`}>
-                          <td className="p-2 font-medium">{model.name}</td>
-                          <td className="p-2 text-right">
-                            <div className="flex items-center justify-end gap-2">
-                              <Button
-                                variant={activeModel === model.name ? 'default' : 'outline'}
-                                size="icon"
-                                onClick={() => setActiveModel(model.name)}
-                                aria-label={activeModel === model.name ? 'Active model' : 'Activate model'}
-                                className={activeModel === model.name ? 'font-bold' : ''}
-                              >
-                                <Check className={`h-4 w-4 ${activeModel === model.name ? 'font-bold' : ''}`} />
-                              </Button>
-                              <Button variant="ghost" size="icon" onClick={() => setModelInfoDialog({ open: true, model: model.name })}>
-                                <Info className="h-4 w-4" />
-                              </Button>
-                              <Button variant="ghost" size="icon" onClick={() => setKeyDialog({ open: true, model: model.name })}>
-                                <Key className="h-4 w-4" />
-                              </Button>
-                            </div>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </CardContent>
-              </Card>
+               <div className="p-4 border-t-0 border rounded-b-lg">
+                  <DataTablePagination
+                    pageIndex={pageIndex}
+                    pageCount={pageCount}
+                    pageSize={pageSize}
+                    setPageIndex={setPageIndex}
+                    setPageSize={setPageSize}
+                    canPreviousPage={pageIndex > 0}
+                    canNextPage={pageIndex < pageCount - 1}
+                  />
+                </div>
             </div>
           </TabsContent>
         </Tabs>
@@ -1539,26 +1219,55 @@ export default function CsvMonitorPage() {
       <footer className="mt-12 text-center text-sm text-muted-foreground">
         <p>&copy; {new Date().getFullYear()} Genesis. All rights reserved.</p>
       </footer>
+
       <FileDetailDialog entry={selectedFile} isOpen={isDetailModalOpen} onOpenChange={setIsDetailModalOpen} />
-      <AlertDialog open={isAnalysisModalOpen} onOpenChange={setIsAnalysisModalOpen}>
-        <AlertDialogContent>
-            <AlertDialogHeader>
-                <AlertDialogTitle>Log Analysis Summary</AlertDialogTitle>
-                <AlertDialogDescription>
-                    {analysisResult?.summary}
-                </AlertDialogDescription>
-            </AlertDialogHeader>
-            <div className="text-sm space-y-2">
-                <p><strong>Errors Found:</strong> {analysisResult?.errorCount}</p>
-                <p><strong>Warnings Found:</strong> {analysisResult?.warningCount}</p>
-                {analysisResult?.criticalError && <p><strong>Critical Error:</strong> {analysisResult.criticalError}</p>}
-                {analysisResult?.recommendation && <p><strong>Recommendation:</strong> {analysisResult.recommendation}</p>}
+      
+       <Dialog open={isUploadDialogOpen} onOpenChange={setIsUploadDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Upload Files</DialogTitle>
+            <DialogDescription>
+              Drag and drop files or click to select them. Configure AI model and priority for the upload.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex flex-col gap-4 py-4">
+            <div className="flex items-center gap-4">
+              <Label className="text-base">AI Model Override</Label>
+              <Select value={uploadSelectedModel} onValueChange={setUploadSelectedModel}>
+                <SelectTrigger className="w-[220px]">
+                  <SelectValue placeholder="Select model..." />
+                </SelectTrigger>
+                <SelectContent>
+                  {availableModels.map(model => (
+                    <SelectItem key={model} value={model}>{model}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
-            <AlertDialogFooter>
-                <AlertDialogAction onClick={() => setIsAnalysisModalOpen(false)}>Close</AlertDialogAction>
-            </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+            <div className="flex items-center gap-4">
+              <Label className="text-base">Priority</Label>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button variant="outline" size="sm" className="flex items-center gap-2">
+                    {uploadPriority}
+                    <ChevronDown className="h-4 w-4" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="min-w-[120px]">
+                  {['Normal', 'High'].map(option => (
+                    <div key={option} className="flex items-center gap-2 cursor-pointer hover:bg-muted px-2 py-1 rounded" onClick={() => setUploadPriority(option as 'Normal' | 'High')}>
+                      <span className="inline-block w-4">{uploadPriority === option && <Check className="h-4 w-4 text-primary" />}</span>
+                      <span>{option}</span>
+                    </div>
+                  ))}
+                </PopoverContent>
+              </Popover>
+            </div>
+          </div>
+          <FileUpload onFileUpload={files => handleFileUpload(files, uploadSelectedModel, uploadPriority === 'High')} />
+        </DialogContent>
+      </Dialog>
+      
       {/* Info Dialog rendered outside the table for correct overlay behavior */}
       <Dialog open={modelInfoDialog.open} onOpenChange={open => setModelInfoDialog({ open, model: open ? modelInfoDialog.model : null })}>
         <DialogContent>

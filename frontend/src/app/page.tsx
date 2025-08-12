@@ -712,18 +712,18 @@ export default function CsvMonitorPage() {
     return chartData;
   }, [csvData]);
 
-  // Palette for error chart sectors
+  // Palette for error chart sectors - more reddish
   const errorPalette = [
-    "hsl(var(--chart-1))",
-    "hsl(var(--chart-2))",
-    "hsl(var(--chart-3))",
-    "hsl(var(--chart-4))",
-    "hsl(var(--chart-5))",
-    "hsl(var(--chart-6, #8884d8))",
-    "hsl(var(--chart-7, #82ca9d))",
-    "hsl(var(--chart-8, #ffc658))",
-    "hsl(var(--chart-9, #ff8042))",
-    "hsl(var(--chart-10, #a4de6c))",
+    '#ED5565', // Destructive Red
+    '#DA4453', // Darker Red
+    '#FC6E51', // Orange-Red
+    '#FFCE54', // Yellow
+    '#A0D468', // Light Green (for less critical)
+    '#48CFAD', // Mint Green
+    '#4FC1E9', // Light Blue
+    '#5D76FF', // Primary Blue
+    '#AC92EC', // Lavender
+    '#EC87C0', // Pink
   ];
 
   const errorChartConfig = useMemo(() => {
@@ -734,19 +734,6 @@ export default function CsvMonitorPage() {
       ])
     );
   }, [errorAnalysisData]);
-
-  // Define a color palette for error types
-  const errorColors = [
-    '#EF4444', // red
-    '#F59E42', // orange
-    '#FBBF24', // yellow
-    '#10B981', // green
-    '#3B82F6', // blue
-    '#6366F1', // indigo
-    '#8B5CF6', // violet
-    '#EC4899', // pink
-    '#6B7280', // gray
-  ];
 
   function toggleField(field: string) {
     setSelectedFields(prev => prev.includes(field) ? prev.filter(f => f !== field) : [...prev, field]);
@@ -1158,17 +1145,20 @@ export default function CsvMonitorPage() {
                           <SelectItem value="enqueued">Enqueued</SelectItem>
                         </SelectContent>
                     </Select>
-                     <Button variant="outline" onClick={() => setIsUploadDialogOpen(true)}>
-                      <Upload className="mr-2 h-4 w-4" />
-                      Upload Files
-                    </Button>
                     <Separator orientation="vertical" className="h-6 mx-2 hidden sm:block" />
                     <Button variant="ghost" onClick={handleClearFilters} className="w-full sm:w-auto">
                         <X className="mr-2 h-4 w-4" /> Clear
                     </Button>
                   </div>
                 </div>
-              <Card className="shadow-xl flex flex-col flex-grow">
+              <Card className="shadow-xl flex flex-col flex-grow relative">
+                 <Button
+                    onClick={() => setIsUploadDialogOpen(true)}
+                    className="absolute top-4 right-4 z-10 rounded-full h-12 w-12"
+                    aria-label="Upload files"
+                  >
+                    <Plus className="h-6 w-6" />
+                  </Button>
                 <CardContent className="flex flex-col flex-grow p-0">
                   {isInitialLoading ? (
                     <div className="flex flex-col items-center justify-center h-[500px] text-center text-muted-foreground">

@@ -6,7 +6,8 @@
             "адрескомпании", "компанияадрес", "公司地址", "企业地址", "địachỉcôngty", "côngtyđịachỉ"
         ],
         "conflictive": false,
-        "normalize": false
+        "normalize": false,
+        "group": "company"
     },
     "company_company": {
         "description": "Company",
@@ -15,7 +16,8 @@
             "компания", "корпорация", "предприятие", "公司", "企业", "机构", "côngty", "doanhnghiệp", "tổchức"
         ],
         "conflictive": false,
-        "normalize": false
+        "normalize": false,
+        "group": "company"
     },
     "company_department": {
         "description": "Company department",
@@ -24,7 +26,8 @@
             "отдел", "департамент", "подразделение", "部门", "科室", "部", "phòngban", "bộphận", "khu vực"
         ],
         "conflictive": false,
-        "normalize": false
+        "normalize": false,
+        "group": "company"
     },
     "company_income": {
         "description": "Company income",
@@ -33,7 +36,8 @@
             "доход", "зарплата", "заработок", "收入", "工资", "薪水", "薪资", "thunhập", "lương", "tiềncông"
         ],
         "conflictive": false,
-        "normalize": true
+        "normalize": true,
+        "group": "company"
     },
     "company_office": {
         "description": "Company office",
@@ -42,7 +46,8 @@
             "офис", "рабочееместо", "办公室", "工作地点", "办公地", "vănphòng", "nơilàmviệc", "chỗlàm"
         ],
         "conflictive": false,
-        "normalize": false
+        "normalize": false,
+        "group": "company"
     },
     "company_position": {
         "description": "Company position",
@@ -51,7 +56,8 @@
             "должность", "позиция", "звание", "职位", "职务", "岗位", "vịtrí", "chứcvụ", "cấpbậc"
         ],
         "conflictive": false,
-        "normalize": false
+        "normalize": false,
+        "group": "company"
     },
     "company_ein_number": {
         "description": "Employer Identification Number - Number",
@@ -60,7 +66,8 @@
             "номерработодателя", "税务编号", "雇主编号", "sốngườisửdụnglao động"
         ],
         "conflictive": false,
-        "normalize":true
+        "normalize":true,
+        "group": "company"
     },
     "company_duns_number": {
         "description": "Data Universal Numbering System - Number",
@@ -69,7 +76,8 @@
             "универсальныйномер", "通用数据编号", "hệthốngđánhsốliệuvũtrụ"
         ],
         "conflictive": false,
-        "normalize": true
+        "normalize": true,
+        "group": "company"
     },
     "company_sos_number": {
         "description": "Secretary of State Number - Number",
@@ -78,7 +86,8 @@
             "номерминистерства", "州务卿编号", "sốthưkýnhànước"
         ],
         "conflictive": false,
-        "normalize": true
+        "normalize": true,
+        "group": "company"
     },
     "company_creditsafe_number": {
         "description": "CreditSafe Number - Number",
@@ -87,7 +96,8 @@
             "кредитныйномер", "信用安全编号", "sốtínddụnganbàn"
         ],
         "conflictive": false,
-        "normalize": true
+        "normalize": true,
+        "group": "company"
     },
     "company_tax_number": {
         "description": "Company Tax Number",
@@ -96,7 +106,8 @@
             "налоговыйномер", "税号", "纳税人识别号", "企业税号", "sốthuếcôngty", "mãsốthuế"
         ],
         "conflictive": false,
-        "normalize": true
+        "normalize": true,
+        "group": "company"
     },
     "date_expire": {
         "description": "Expiration date",
@@ -105,7 +116,8 @@
             "датаистечения", "срокдействия", "истекает", "到期日", "过期时间", "失效日期", "hạnsửdụng", "ngàyhếthạn"
         ],
         "conflictive": true,
-        "normalize": true
+        "normalize": true,
+        "group": "date"
     },
     "date_login": {
         "description": "Login date",
@@ -114,7 +126,8 @@
             "датавхода", "последнийвход", "авторизация", "登录日期", "登录时间", "最后登录", "ngàyđăngnhập", "lầncuốiđăngnhập"
         ],
         "conflictive": true,
-        "normalize": true
+        "normalize": true,
+        "group": "date"
     },
     "date_register": {
         "description": "Register date",
@@ -122,7 +135,9 @@
             "registerdate", "registrationdate", "signupdate", "createddate", "joindate", "fecharegistro", "fechaalta",
             "датарегистрации", "регистрация", "注册日期", "注册时间", "创建日期", "ngàyđăngký", "ngàytạotàikhoản"
         ],
-        "conflictive": true
+        "conflictive": true,
+        "normalize": true,
+        "group": "date"
     },
     "date_update": {
         "description": "Update date",
@@ -130,7 +145,8 @@
             "updatedate", "lastupdated", "modifieddate", "lastmodified", "fechaactualizacion", "ultimamodificacion",
             "датаобновления", "обновление", "更新日期", "修改时间", "最后更新", "ngàycậpnhật", "lầncuốisửa"
         ],
-        "conflictive": true
+        "conflictive": true,
+        "group": "date"
     },
     "date_misc": {
         "description": "Miscellaneous date",
@@ -138,7 +154,8 @@
             "date", "datetime", "timestamp", "fecha", "fechahora",
             "дата", "время", "日期", "时间", "日期时间", "ngày", "thờigian", "dấuthờigian"
         ],
-        "conflictive": true
+        "conflictive": true,
+        "group": "date"
     },
     "device_brand": {
         "description": "Device - Brand",
@@ -146,14 +163,16 @@
             "devicebrand", "brand", "manufacturer", "make", "marca", "fabricante",
             "маркаустройства", "производитель", "设备品牌", "制造商", "品牌", "thươnghiệuthiếtbị", "hãngsảnxuất"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "device"
     },
     "device_model": {
         "description": "Device - Model",
         "variants": [
             "devicemodel", "model", "modelo", "модель", "型号", "设备型号", "mẫuthiếtbị", "kiểumáy"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "device"
     },
     "device_name": {
         "description": "Device - Name",
@@ -161,7 +180,8 @@
             "devicename", "device", "nombreditispositivo", "thiếtbị", "tênthiếtbị",
             "имяустройства", "устройство", "设备名称", "设备", "tênthiếtbị"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "device"
     },
     "device_os": {
         "description": "Device - Operative System",
@@ -169,7 +189,8 @@
             "os", "operatingsystem", "platform", "sistemaoperativo", "plataforma",
             "операционнаясистема", "платформа", "操作系统", "系统", "hệđiềuhành", "nềntảng"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "device"
     },
     "device_serialnumber": {
         "description": "Device - Serial number",
@@ -178,7 +199,8 @@
             "серийныйномер", "序列号", "设备序列号", "sốseri", "sốserithiếtbị"
         ],
         "conflictive": false,
-        "normalize": true
+        "normalize": true,
+        "group": "device"
     },
     "device_specs": {
         "description": "Device - Specifications",
@@ -186,14 +208,16 @@
             "specs", "specifications", "devicespecs", "especificaciones", "características",
             "характеристики", "спецификации", "规格", "设备规格", "thôngthế kỹthuật", "đặcтính"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "device"
     },
     "device_type": {
         "description": "Device - Type",
         "variants": [
             "devicetype", "type", "tipodispositivo", "tipo", "типустройства", "设备类型", "类型", "loạithiếtbị", "kiểu"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "device"
     },
     "device_issue_build_id": {
         "description": "Issue Build ID",
@@ -201,7 +225,8 @@
             "issuebuildid", "buildid", "buildnumber", "buildversion", "idbuild", "numerobuild",
             "идентификаторсборки", "номерсборки", "构建ID", "构建号", "idbản build", "sốbầnbuild"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "device"
     },
     "device_issue_build_path": {
         "description": "Issue Build Path",
@@ -209,7 +234,8 @@
             "issuebuildpath", "buildpath", "buildlocation", "rutabuild", "ubicacionbuild",
             "путьсборки", "расположениесборки", "构建路径", "构建位置", "đường dẫnbuild", "vịtríbuild"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "device"
     },
     "device_username": {
         "description": "UserName",
@@ -217,7 +243,8 @@
             "deviceusername", "deviceuser", "userondevice", "usuariodispositivo", "usuarioequipo",
             "пользовательустройства", "设备用户名", "设备用户", "ngườidùngthiếtbị", "tênngườidùng"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "device"
     },
     "device_language": {
         "description": "Device Language",
@@ -225,7 +252,8 @@
             "devicelanguage", "language", "locale", "idioma", "idiomaequipo",
             "языкустройства", "язык", "设备语言", "语言", "ngônngữthiếtbị", "ngônngữ"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "device"
     },
     "device_screen_size": {
         "description": "Screen Size",
@@ -233,7 +261,8 @@
             "screensize", "displaysize", "resolution", "tamañopantalla", "resolucion",
             "размерэкрана", "разрешение", "屏幕尺寸", "分辨率", "kíchthướcmànhình", "độphângiải"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "device"
     },
     "device_issue_build_permissions": {
         "description": "Issue Build Permissions",
@@ -241,7 +270,8 @@
             "issuebuildpermissions", "buildpermissions", "permissions", "permisosbuild", "autorizaciones",
             "разрешениясборки", "права", "构建权限", "权限", "quyềnbuild", "phânquyền"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "device"
     },
     "device_issue_build_root_mode": {
         "description": "Issue Build Root Mode",
@@ -249,7 +279,8 @@
             "issuebuildrootmode", "rootmode", "rooted", "modoadministrador", "modoroot",
             "режимрут", "рутправа", "root模式", "管理员模式", "chếđộroot", "quyềnroot"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "device"
     },
     "device_keyboard_layout": {
         "description": "KeyBoard Layout",
@@ -257,7 +288,8 @@
             "keyboardlayout", "keyboard", "layout", "disposicionteclado", "tecladoidioma",
             "раскладкаклавиатуры", "клавиатура", "键盘布局", "键盘", "bốcụcbànphím", "kiểubànphím"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "device"
     },
     "device_software_antivirus": {
         "description": "Software Antivirus",
@@ -265,7 +297,8 @@
             "antivirus", "antivirussoftware", "securitysoftware", "softwareantivirus", "programaantivirus",
             "антивирус", "антивирусноепо", "杀毒软件", "防病毒软件", "phầnmềmdiệtvirut", "antivirut"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "device"
     },
     "digid_admin": {
         "description": "Admin",
@@ -273,7 +306,8 @@
             "admin", "administrator", "isadmin", "administrador", "esadmin",
             "администратор", "админ", "管理员", "是否管理员", "quảntrị", "làquảntrị"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "digid"
     },
     "digid_blacklist": {
         "description": "Blacklist",
@@ -281,7 +315,8 @@
             "blacklist", "banned", "blocked", "blacklisted", "listanegra", "bloqueado", "prohibido",
             "черныйсписок", "заблокирован", "黑名单", "被禁止", "danhsáchđen", "bịcấm"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "digid"
     },
     "digid_blocked": {
         "description": "Blocked",
@@ -289,7 +324,8 @@
             "blocked", "isblocked", "suspended", "bloqueado", "suspendido",
             "заблокирован", "приостановлен", "被阻止", "暂停", "bịchặn", "tạmngưng"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "digid"
     },
     "digid_customerid": {
         "description": "Customer ID",
@@ -297,7 +333,8 @@
             "customerid", "clientid", "custid", "idcliente", "identificadorcliente",
             "идклиента", "客户ID", "客户编号", "idkháchhàng", "mãkháchhàng"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "digid"
     },
     "digid_email": {
         "description": "Email",
@@ -307,7 +344,8 @@
             "email", "thưđiệntử", "địachỉemail", "hộpthư"
         ],
         "conflictive": false,
-        "normalize": true
+        "normalize": true,
+        "group": "digid"
     },
     "digid_email_domain": {
         "description": "Email domain",
@@ -315,7 +353,8 @@
             "emaildomain", "maildomain", "domain", "dominioemail", "dominocorreo",
             "доменпочты", "домен", "邮箱域名", "域名", "têmmiềnemail", "têmmiền"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "digid"
     },
     "digid_email_tld": {
         "description": "Email tld",
@@ -323,7 +362,8 @@
             "emailtld", "tld", "topleveldomain", "extension", "extensionemail",
             "доменверхнегоуровня", "расширение", "顶级域名", "扩展名", "têmmiềncấpcao", "phầnmởrộng"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "digid"
     },
     "digid_email_verified": {
         "description": "Email verified",
@@ -332,7 +372,8 @@
             "подтвержденныйемайл", "проверен", "邮箱已验证", "已验证", "emailđãxácthực", "đãxácnhận"
         ],
         "conflictive": false,
-        "normalize": true
+        "normalize": true,
+        "group": "digid"
     },
     "digid_group": {
         "description": "Digid Group",
@@ -340,7 +381,8 @@
             "usergroup", "group", "membergroup", "grupousuario", "grupo",
             "группапользователя", "группа", "用户组", "小组", "nhómngườidùng", "nhóm"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "digid"
     },
     "digid_nickname": {
         "description": "Nickname",
@@ -348,7 +390,8 @@
             "nickname", "nick", "alias", "displayname", "screenname", "apodo", "sobrenombre",
             "псевдоним", "ник", "кличка", "昵称", "别名", "显示名", "biệtdanh", "tênhiển thị"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "digid"
     },
     "digid_objectid": {
         "description": "Object ID",
@@ -356,7 +399,8 @@
             "objectid", "oid", "objectidentifier", "idobjeto", "identificadorobjeto",
             "идентификатороbjекта", "对象ID", "对象标识", "idđốitượng", "mãđốitượng"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "digid"
     },
     "digid_permissions": {
         "description": "Permissions",
@@ -364,7 +408,8 @@
             "permissions", "perms", "access", "privileges", "permisos", "privilegios", "acceso",
             "разрешения", "права", "доступ", "权限", "访问权限", "特权", "quyền", "quyềnhạn", "quyềntrưycập"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "digid"
     },
     "digid_userid": {
         "description": "User ID",
@@ -372,7 +417,8 @@
             "userid", "uid", "useridentifier", "memberid", "idusuario", "identificadorusuario",
             "идпользователя", "用户ID", "用户标识", "会员ID", "idngườidùng", "mãngườidùng"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "digid"
     },
     "digid_username": {
         "description": "Username",
@@ -380,7 +426,8 @@
             "username", "user", "login", "loginname", "accountname", "nombreusuario", "usuario", "cuenta",
             "имяпользователя", "логин", "аккаунт", "用户名", "账户名", "登录名", "tênngườidùng", "tàikhoản", "tênđăngnhập"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "digid"
     },
     "digid_signature": {
         "description": "Signature",
@@ -388,7 +435,8 @@
             "signature", "sig", "usersignature", "firma", "firmausuario",
             "подпись", "цифроваяподпись", "签名", "用户签名", "chữký", "chữkýngườidùng"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "digid"
     },
     "digid_pgp_key": {
         "description": "PGP Key",
@@ -396,7 +444,8 @@
             "pgpkey", "pgp", "publickey", "privatekey", "clavepgp", "clavepublica",
             "ключpgp", "открытыйключ", "pgp密钥", "公钥", "khóapgp", "khóacôngkhai"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "digid"
     },
     "digid_gamertag": {
         "description": "Digid Gamertag",
@@ -404,7 +453,8 @@
             "gamertag", "playername", "gametag", "playerid", "jugador", "nombrejaug", "tagjugador",
             "игровойтег", "имяигрока", "游戏标签", "玩家名", "游戏昵称", "thẻgame", "tênngườichơi"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "digid"
     },
     "financial_account_bank_branch_code": {
         "description": "Financial account - Bank branch code",
@@ -412,7 +462,8 @@
             "bankbranchcode", "branchcode", "codigosucursal", "sucursalbanco",
             "кодфилиала", "отделениебанка", "银行分行代码", "分行代码", "mãchinhánhngânhàng"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "financial"
     },
     "financial_account_bank_code": {
         "description": "Financial account - Bank code",
@@ -420,7 +471,8 @@
             "bankcode", "codigobanco", "banknumber", "numerobanco",
             "кодбанка", "номербанка", "银行代码", "银行编号", "mãngânhàng"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "financial"
     },
     "financial_account_bank_country": {
         "description": "Financial account - Bank country",
@@ -428,7 +480,8 @@
             "bankcountry", "paisbanco", "countrybank", "banknation",
             "странабанка", "银行国家", "银行所在国", "quốcgiangânhàng"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "financial"
     },
     "financial_account_bank_name": {
         "description": "Financial account - Bank name",
@@ -436,7 +489,8 @@
             "bankname", "nombrebanco", "bank", "banco", "institution",
             "названиебанка", "银行名称", "银行", "tênngânhàng"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "financial"
     },
     "financial_account_bank_routingnumber": {
         "description": "Financial account - Bank routing number",
@@ -444,7 +498,8 @@
             "routingnumber", "routing", "numeroenrutamiento", "abarouting",
             "маршрутныйномер", "路由号码", "银行路由号", "sốtuyếnngânhàng"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "financial"
     },
     "financial_account_bank_sortcode": {
         "description": "Financial account - Bank sort code",
@@ -452,7 +507,8 @@
             "sortcode", "codigoclasificacion", "bankidentifier", "codigoidentificacion",
             "сортировочныйкод", "分类代码", "银行分类码", "mãphânloạingânhàng"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "financial"
     },
     "financial_account_bank_swift": {
         "description": "Financial account - Bank swift",
@@ -460,7 +516,8 @@
             "swift", "swiftcode", "bic", "codigoswift", "swiftbic",
             "свифткод", "swift代码", "国际银行代码", "mãswift"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "financial"
     },
     "financial_account_bank_transitnumber": {
         "description": "Financial account - Bank transit number",
@@ -469,7 +526,8 @@
             "транзитныйномер", "过境号码", "转账号码", "sốtranzitngânhàng"
         ],
         "conflictive": false,
-        "normalize": true
+        "normalize": true,
+        "group": "financial"
     },
     "financial_account_branch_code": {
         "description": "Financial account - Branch code",
@@ -477,7 +535,8 @@
             "branchcode", "branch", "codigosucursal", "sucursal", "office",
             "кодфилиала", "филиал", "分支代码", "分行", "mãchinhánh"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "financial"
     },
     "financial_account_check_digits": {
         "description": "Financial account - Check digits",
@@ -486,7 +545,8 @@
             "контрольныецифры", "校验数字", "检查位", "sốkiểmtra"
         ],
         "conflictive": false,
-        "normalize": true
+        "normalize": true,
+        "group": "financial"
     },
     "financial_account_iban": {
         "description": "Financial account - IBAN",
@@ -494,7 +554,8 @@
             "iban", "internationalaccount", "cuentainternacional", "numerocuentainternacional",
             "международныйсчет", "国际银行账号", "国际账户号", "sốtàikhoảnquốctế"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "financial"
     },
     "financial_account_number": {
         "description": "Financial account - Number",
@@ -503,7 +564,8 @@
             "номерсчета", "банковскийсчет", "账户号码", "银行账号", "sốtàikhoản"
         ],
         "conflictive": false,
-        "normalize": true
+        "normalize": true,
+        "group": "financial"
     },
     "financial_card_cvv": {
         "description": "Financial card - CVV",
@@ -512,7 +574,8 @@
             "кодбезопасности", "cvvкод", "安全码", "验证码", "mãbảomật"
         ],
         "conflictive": false,
-        "normalize": true
+        "normalize": true,
+        "group": "financial"
     },
     "financial_card_exp": {
         "description": "Financial card - Expiration date",
@@ -521,7 +584,8 @@
             "срокдействиякарты", "истечениекарты", "卡片到期日", "有效期", "hạnsửdụngthẻ"
         ],
         "conflictive": true,
-        "normalize": true
+        "normalize": true,
+        "group": "financial"
     },
     "financial_card_holder": {
         "description": "Financial card - Holder",
@@ -529,7 +593,8 @@
             "cardholder", "cardname", "titulartarjeta", "nombreentarjeta", "propietariotarjeta",
             "держателькарты", "владелецкарты", "持卡人", "卡片持有者", "chủthẻ"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "financial"
     },
     "financial_card_number": {
         "description": "Financial card - Number",
@@ -538,7 +603,8 @@
             "номеркарты", "кредитнаякарта", "卡号", "信用卡号", "sốthẻ"
         ],
         "conflictive": false,
-        "normalize": true
+        "normalize": true,
+        "group": "financial"
     },
     "financial_card_pin": {
         "description": "Financial card - PIN",
@@ -547,7 +613,8 @@
             "пинкод", "密码", "pin码", "mãpin"
         ],
         "conflictive": false,
-        "normalize": true
+        "normalize": true,
+        "group": "financial"
     },
     "financial_card_type": {
         "description": "Financial card - Type",
@@ -555,7 +622,8 @@
             "cardtype", "tipotarjeta", "brandtarjeta", "marcatarjeta", "visa", "mastercard",
             "типкарты", "видкарты", "卡片类型", "卡种", "loạithẻ"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "financial"
     },
     "financial_card_bin": {
         "description": "Financial card - Bin",
@@ -563,7 +631,8 @@
             "bin", "cardbin", "bankidentification", "identificacionbanco", "binnumber",
             "банковскийидентификатор", "银行识别码", "bin代码", "mãngânhàngphátthẻ"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "financial"
     },
     "financial_card_lastnumbers": {
         "description": "Financial card - Last numbers",
@@ -572,7 +641,8 @@
             "последниецифры", "最后几位", "尾号", "sốcuối"
         ],
         "conflictive": false,
-        "normalize": true
+        "normalize": true,
+        "group": "financial"
     },
     "financial_crypto_ada_wallet": {
         "description": "Wallet - Cardano",
@@ -580,7 +650,8 @@
             "ada", "cardano", "adawallet", "cardanowallet", "monederocardano",
             "кошелеккардано", "ada钱包", "卡尔达诺钱包", "vícardano"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "financial"
     },
     "financial_crypto_bch_wallet": {
         "description": "Wallet - Bitcoin Cash",
@@ -588,7 +659,8 @@
             "bch", "bitcoincash", "bchwallet", "bitcoincashwallet", "monederobitcoincash",
             "кошелекбиткоинкеш", "bch钱包", "比特币现金钱包", "víbitcoincash"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "financial"
     },
     "financial_crypto_btc_wallet": {
         "description": "Wallet - Bitcoin",
@@ -596,7 +668,8 @@
             "btc", "bitcoin", "btcwallet", "bitcoinwallet", "monederobitcoin",
             "кошелекбиткоин", "btc钱包", "比特币钱包", "víbitcoin"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "financial"
     },
     "financial_crypto_dash_wallet": {
         "description": "Wallet - Dash",
@@ -604,7 +677,8 @@
             "dash", "dashwallet", "dashcoin", "monederodash",
             "кошелекдеш", "dash钱包", "达世币钱包", "vídash"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "financial"
     },
     "financial_crypto_doge_wallet": {
         "description": "Wallet - Dogecoin",
@@ -612,7 +686,8 @@
             "doge", "dogecoin", "dogewallet", "dogecoinwallet", "monederodogecoin",
             "кошелекдожкоин", "doge钱包", "狗狗币钱包", "vídogecoin"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "financial"
     },
     "financial_crypto_eth_wallet": {
         "description": "Wallet - Ethereum",
@@ -620,7 +695,8 @@
             "eth", "ethereum", "ethwallet", "ethereumwallet", "monederoethereum",
             "кошелекэфириум", "eth钱包", "以太坊钱包", "víethereum"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "financial"
     },
     "financial_crypto_ltc_wallet": {
         "description": "Wallet - Litecoin",
@@ -628,7 +704,8 @@
             "ltc", "litecoin", "ltcwallet", "litecoinwallet", "monederolitecoin",
             "кошелеклайткоин", "ltc钱包", "莱特币钱包", "vílitecoin"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "financial"
     },
     "financial_crypto_neo_wallet": {
         "description": "Wallet - NEO",
@@ -636,7 +713,8 @@
             "neo", "neowallet", "neocoin", "monederoneo",
             "кошелекнео", "neo钱包", "小蚁钱包", "víneo"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "financial"
     },
     "financial_crypto_usdt_wallet": {
         "description": "Wallet - Tether",
@@ -644,7 +722,8 @@
             "usdt", "tether", "usdtwallet", "tetherwallet", "monederotether",
             "кошелектезер", "usdt钱包", "泰达币钱包", "vítether"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "financial"
     },
     "financial_crypto_xem_wallet": {
         "description": "Wallet - NEM",
@@ -652,7 +731,8 @@
             "xem", "nem", "xemwallet", "nemwallet", "monederonem",
             "кошелекнем", "xem钱包", "新经币钱包", "vínem"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "financial"
     },
     "financial_crypto_xmr_wallet": {
         "description": "Wallet - Monero",
@@ -660,7 +740,8 @@
             "xmr", "monero", "xmrwallet", "monerowallet", "monederomonero",
             "кошелекмонеро", "xmr钱包", "门罗币钱包", "vímonero"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "financial"
     },
     "financial_crypto_xrp_wallet": {
         "description": "Wallet - Ripple",
@@ -668,14 +749,16 @@
             "xrp", "ripple", "xrpwallet", "ripplewallet", "monederoripple",
             "кошелекрипл", "xrp钱包", "瑞波币钱包", "víripple"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "financial"
     },
     "financial_currency": {
         "description": "Currency",
         "variants": [
             "currency", "moneda", "divisa", "coin", "валюта", "货币", "tiềntệ"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "financial"
     },
     "location_address": {
         "description": "Address",
@@ -683,7 +766,8 @@
             "address", "direccion", "domicilio", "ubicacion", "addr",
             "адрес", "местоположение", "地址", "住址", "địachỉ"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "location"
     },
     "location_building": {
         "description": "Building",
@@ -691,7 +775,8 @@
             "building", "edificio", "inmueble", "construccion",
             "здание", "строение", "建筑", "大楼", "tòanhà"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "location"
     },
     "location_city": {
         "description": "City",
@@ -699,15 +784,17 @@
             "city", "ciudad", "localidad", "municipio",
             "город", "城市", "市", "thànhphố"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "location"
     },
     "location_coordinates": {
         "description": "Coordinates",
         "variants": [
-            "coordinates", "coords", "coordenadas", "gps", "position",
+            "coordinates", "coords", "coordenadas", "gps",
             "координаты", "坐标", "位置坐标", "tọađộ"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "location"
     },
     "location_country": {
         "description": "Country",
@@ -715,7 +802,8 @@
             "country", "pais", "nation", "nacion",
             "страна", "国家", "quốcgia"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "location"
     },
     "location_district": {
         "description": "District",
@@ -723,7 +811,8 @@
             "district", "distrito", "zona", "barrio", "sector",
             "район", "округ", "区", "地区", "quận"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "location"
     },
     "location_door": {
         "description": "Door",
@@ -731,7 +820,8 @@
             "door", "puerta", "apartment", "apartamento", "apto",
             "дверь", "квартира", "门", "门牌", "cửa"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "location"
     },
     "location_floor": {
         "description": "Floor",
@@ -739,7 +829,8 @@
             "floor", "piso", "planta", "nivel",
             "этаж", "楼层", "层", "tầng"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "location"
     },
     "location_latitude": {
         "description": "Latitude",
@@ -747,7 +838,8 @@
             "latitude", "lat", "latitud",
             "широта", "纬度", "vĩđộ"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "location"
     },
     "location_longitude": {
         "description": "Longitude",
@@ -755,7 +847,8 @@
             "longitude", "lng", "lon", "longitud",
             "долгота", "经度", "kinhtuyến"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "location"
     },
     "location_province": {
         "description": "Province",
@@ -763,7 +856,8 @@
             "province", "provincia", "region", "comunidad",
             "провинция", "область", "省", "省份", "tỉnh"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "location"
     },
     "location_room": {
         "description": "Room",
@@ -771,7 +865,8 @@
             "room", "habitacion", "cuarto", "sala", "oficina",
             "комната", "房间", "室", "phòng"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "location"
     },
     "location_state": {
         "description": "State",
@@ -779,7 +874,8 @@
             "state", "estado", "provincia", "region",
             "штат", "состояние", "州", "状态", "bang"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "location"
     },
     "location_street": {
         "description": "Street",
@@ -787,7 +883,8 @@
             "street", "calle", "via", "avenida", "carrera",
             "улица", "街道", "街", "đườngphố"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "location"
     },
     "location_street_number": {
         "description": "Street number",
@@ -796,7 +893,8 @@
             "номердома", "门牌号", "街道号码", "sốnhà"
         ],
         "conflictive": false,
-        "normalize": true
+        "normalize": true,
+        "group": "location"
     },
     "location_timezone": {
         "description": "Timezone",
@@ -804,7 +902,8 @@
             "timezone", "tz", "zonahoraria", "husohorario",
             "часовойпояс", "时区", "múigiờ"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "location"
     },
     "location_town": {
         "description": "Town",
@@ -812,7 +911,8 @@
             "town", "pueblo", "villa", "poblacion",
             "город", "поселок", "镇", "城镇", "thị trấn"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "location"
     },
     "location_zip": {
         "description": "ZIP code",
@@ -820,7 +920,8 @@
             "zip", "zipcode", "postalcode", "codigopostal", "cp",
             "почтовыйкод", "邮政编码", "邮编", "mãbưuчính"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "location"
     },
     "network_ip_ipv4_number": {
         "description": "IPv4",
@@ -828,7 +929,8 @@
             "ipv4", "ip", "ipaddress", "ipv4address", "direccionip", "ipv4number",
             "айпичетыре", "ipадрес", "ip地址", "ipv4地址", "địachỉipv4"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "network"
     },
     "network_ip_ipv6_number": {
         "description": "IPv6",
@@ -836,7 +938,8 @@
             "ipv6", "ipv6address", "ipv6number", "direccionipv6",
             "айпишесть", "ipv6адрес", "ipv6地址", "địachỉipv6"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "network"
     },
     "network_mac": {
         "description": "MAC Address",
@@ -844,7 +947,8 @@
             "mac", "macaddress", "macaddr", "direccionmac", "macfisica",
             "макадрес", "физическийадрес", "mac地址", "物理地址", "địachỉmac"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "network"
     },
     "network_useragent": {
         "description": "User agent",
@@ -852,7 +956,8 @@
             "useragent", "ua", "browser", "navegador", "clientstring",
             "агентпользователя", "браузер", "用户代理", "浏览器", "trìnhduyệt"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "network"
     },
     "pdata_appearance_complexion": {
         "description": "Complexion",
@@ -860,7 +965,8 @@
             "complexion", "tez", "cutis", "piel", "compleksion",
             "цветлица", "телосложение", "肤色", "面色", "màuda"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "pdata_appearance"
     },
     "pdata_appearance_ethnicity": {
         "description": "Ethnicity",
@@ -868,7 +974,8 @@
             "ethnicity", "etnia", "raza", "origen", "ancestry",
             "этническаяпринадлежность", "民族", "种族", "dântộc"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "pdata_appearance"
     },
     "pdata_appearance_eye_color": {
         "description": "Eye color",
@@ -876,7 +983,8 @@
             "eyecolor", "colordeojos", "ojos", "colorojos",
             "цветглаз", "眼睛颜色", "眼色", "màumắt"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "pdata_appearance"
     },
     "pdata_appearance_hair_color": {
         "description": "Hair color",
@@ -884,7 +992,8 @@
             "haircolor", "colordecabello", "cabello", "pelo", "colorcabello",
             "цветволос", "头发颜色", "发色", "màutóc"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "pdata_appearance"
     },
     "pdata_appearance_height": {
         "description": "Height",
@@ -892,7 +1001,8 @@
             "height", "altura", "estatura", "tall", "talla",
             "рост", "высота", "身高", "chiềucao"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "pdata_appearance"
     },
     "pdata_appearance_race": {
         "description": "Race",
@@ -900,7 +1010,8 @@
             "race", "raza", "etnia", "racial", "ancestry",
             "раса", "种族", "chủngtộc"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "pdata_appearance"
     },
     "pdata_appearance_size": {
         "description": "Size",
@@ -908,7 +1019,8 @@
             "size", "tamaño", "talla", "medida",
             "размер", "尺寸", "大小", "kíchthước"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "pdata_appearance"
     },
     "pdata_appearance_skin_color": {
         "description": "Skin color",
@@ -916,7 +1028,8 @@
             "skincolor", "colordepiel", "piel", "cutis", "tono",
             "цветкожи", "кожа", "肤色", "皮肤颜色", "màuda"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "pdata_appearance"
     },
     "pdata_appearance_weight": {
         "description": "Weight",
@@ -924,7 +1037,8 @@
             "weight", "peso", "masa", "kg", "pounds",
             "вес", "масса", "体重", "重量", "cânnnặng"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "pdata_appearance"
     },
     "pdata_education_college_degree": {
         "description": "College - Degree",
@@ -932,7 +1046,8 @@
             "collegedegree", "degree", "titulo", "titulouniversitario", "diplomauni",
             "степеньколледжа", "学院学位", "大学学位", "bằngđạihọc"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "pdata_education"
     },
     "pdata_education_college_gpa": {
         "description": "College - GPA",
@@ -940,7 +1055,8 @@
             "collegegpa", "gpa", "promedio", "notapromedio", "calificacionpromedio",
             "средниебаллколледжа", "gpa", "学院绩点", "平均分", "điểmtbđạihọc"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "pdata_education"
     },
     "pdata_education_college_name": {
         "description": "College - Name",
@@ -948,7 +1064,8 @@
             "collegename", "college", "universidad", "institutouni", "nombreuniversidad",
             "названиеколледжа", "学院名称", "大学名", "tênđạihọc"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "pdata_education"
     },
     "pdata_education_college_studentid": {
         "description": "College - Student ID",
@@ -956,7 +1073,8 @@
             "collegestudentid", "studentid", "idestudiante", "matricula", "numeroestudiante",
             "идстудентаколледжа", "学生号", "学号", "mãsinhviên"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "pdata_education"
     },
     "pdata_education_college_year": {
         "description": "College - Year",
@@ -964,7 +1082,8 @@
             "collegeyear", "year", "año", "añoestudio", "cursoacademico",
             "годколледжа", "учебныйгод", "学年", "年级", "nămhọc"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "pdata_education"
     },
     "pdata_education_highschool_gpa": {
         "description": "High school - GPA",
@@ -972,7 +1091,8 @@
             "highschoolgpa", "gpaescuela", "promediosecundaria", "notasecundaria",
             "gpaсреднейшколы", "中学绩点", "高中平均分", "điểmtbthptphổthông"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "pdata_education"
     },
     "pdata_education_highschool_name": {
         "description": "High school - Name",
@@ -980,7 +1100,8 @@
             "highschoolname", "highschool", "secundaria", "escuelasecundaria", "instituto",
             "названиесреднейшколы", "中学名称", "高中名", "têntrườngphổthông"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "pdata_education"
     },
     "pdata_education_highschool_studentid": {
         "description": "High school - Student ID",
@@ -988,7 +1109,8 @@
             "highschoolstudentid", "idestudiantesecundaria", "matriculasecundaria",
             "идстудентасреднейшколы", "中学生号", "高中学号", "mãhọcsinhphổthông"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "pdata_education"
     },
     "pdata_education_highschool_year": {
         "description": "High school - Year",
@@ -996,7 +1118,8 @@
             "highschoolyear", "añosecundaria", "cursosecundaria", "gradosecundaria",
             "годсреднейшколы", "中学年级", "高中年级", "lớpphổthông"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "pdata_education"
     },
     "pdata_education_school_gpa": {
         "description": "School - GPA",
@@ -1004,7 +1127,8 @@
             "schoolgpa", "gpaescuela", "promedioescuela", "calificacionescuela",
             "gpaшколы", "школьныйбалл", "学校绩点", "学校平均分", "điểmtbtrường"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "pdata_education"
     },
     "pdata_education_school_name": {
         "description": "School - Name",
@@ -1012,7 +1136,8 @@
             "schoolname", "school", "escuela", "colegio", "nombreescuela",
             "названиешколы", "学校名称", "学校名", "têntrường"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "pdata_education"
     },
     "pdata_education_school_studentid": {
         "description": "School - Student ID",
@@ -1020,7 +1145,8 @@
             "schoolstudentid", "idestudianteescuela", "matriculaescuela", "numeroalumno",
             "идстуденташколы", "学校学生号", "школьныйномер", "mãhọcsinh"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "pdata_education"
     },
     "pdata_education_school_year": {
         "description": "School - Year",
@@ -1028,7 +1154,8 @@
             "schoolyear", "añoescuela", "cursoescuela", "gradoescuela", "nivelescuela",
             "школьныйгод", "年级", "学年", "lớphọc"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "pdata_education"
     },
     "pdata_education_university_degree": {
         "description": "University - Degree",
@@ -1036,7 +1163,8 @@
             "universitydegree", "titulouniversidad", "diplomauniversidad", "gradouniversidad",
             "степеньуниверситета", "大学学位", "universitybằng", "bằngđạihọcuni"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "pdata_education"
     },
     "pdata_education_university_gpa": {
         "description": "University - GPA",
@@ -1044,7 +1172,8 @@
             "universitygpa", "gpauni", "promediouniversidad", "calificacionuniversidad",
             "gpaуниверситета", "大学绩点", "大学平均分", "điểmtbuni"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "pdata_education"
     },
     "pdata_education_university_name": {
         "description": "University - Name",
@@ -1052,7 +1181,8 @@
             "universityname", "university", "nombreuniversidad", "uni",
             "названиеуниверситета", "大学名称", "大学名", "tênđạihọcuni"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "pdata_education"
     },
     "pdata_education_university_studentid": {
         "description": "University - Student ID",
@@ -1060,7 +1190,8 @@
             "universitystudentid", "idestudianteuni", "matriculauni", "numerosinhviên",
             "идстудентауниверситета", "大学学生号", "大学学号", "mãsinhviênuni"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "pdata_education"
     },
     "pdata_education_university_year": {
         "description": "University - Year",
@@ -1068,7 +1199,8 @@
             "universityyear", "añouni", "cursouni", "carrerauni", "semestreuni",
             "годуниверситета", "大学年级", "学年", "nămđạihọc"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "pdata_education"
     },
     "pdata_family_fathername": {
         "description": "Fathername",
@@ -1076,7 +1208,8 @@
             "fathername", "father", "padre", "papa", "nombrepadre", "papanombre",
             "имяотца", "отец", "父亲姓名", "父亲", "têncha", "tênbố"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "pdata_family"
     },
     "pdata_family_marital_status": {
         "description": "Marital status",
@@ -1084,7 +1217,8 @@
             "maritalstatus", "married", "single", "estadocivil", "casado", "soltero", "relationship",
             "семейноеположение", "женат", "замужем", "одинок", "婚姻状况", "已婚", "单身", "tìnhhìnhhônhân", "kếthôn", "độctân"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "pdata_family"
     },
     "pdata_family_mothermaiden": {
         "description": "Mothermaiden",
@@ -1092,7 +1226,8 @@
             "mothermaiden", "maiden", "apellidosoltera", "nombresoltera", "madremaiiden",
             "девичьяфамилия", "девичья", "母亲娘家姓", "娘家姓", "họkhaigáy", "tênmẹkhiganả"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "pdata_family"
     },
     "pdata_family_mothername": {
         "description": "Mothername",
@@ -1100,7 +1235,8 @@
             "mothername", "mother", "madre", "mama", "nombremadre", "mamanombre",
             "имямыаятери", "мать", "母亲姓名", "母亲", "tênmẹ", "tênmá"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "pdata_family"
     },
     "pdata_family_number_children": {
         "description": "Number of children",
@@ -1108,7 +1244,8 @@
             "numberofchildren", "children", "hijos", "numerohijos", "cantidadhijos", "kids",
             "количестводетей", "дети", "孩子数量", "子女数", "sốcon", "contrai"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "pdata_family"
     },
     "pdata_family_petname": {
         "description": "Petname",
@@ -1117,7 +1254,8 @@
             "кличкапитомца", "питомец", "宠物名", "宠物", "tênthúcưng", "vậtнuôi", "dogname", "catname",
             "tênchó", "têngiảitri"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "pdata_family"
     },
     "pdata_family_size": {
         "description": "Family size",
@@ -1125,7 +1263,8 @@
             "familysize", "size", "tamaño", "tamañofamilia", "miembrosfamilia", "integrantes",
             "размерсемьи", "семья", "家庭规模", "家庭成员数", "quyмôgiaпình", "sốngườiтronggia"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "pdata_family"
     },
     "pdata_id_drivinglicense_country": {
         "description": "Driving license - Country",
@@ -1133,7 +1272,8 @@
             "drivinglicensecountry", "licensecountry", "paislicencia", "paisconducir",
             "странаводительскихправ", "страналицензии", "驾驶证国家", "驾照国家", "quốcgiabằnglái"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "pdata_id"
     },
     "pdata_id_drivinglicense_exp": {
         "description": "Driving license - Expiration date",
@@ -1141,7 +1281,8 @@
             "drivinglicenseexp", "licenseexpiry", "vencimientolicencia", "expiralicencia",
             "срокдействияправ", "истечениелицензии", "驾驶证到期", "驾照有效期", "hạnbằnglái"
         ],
-        "conflictive": true
+        "conflictive": true,
+        "group": "pdata_id"
     },
     "pdata_id_drivinglicense_holder": {
         "description": "Driving license - Holder",
@@ -1149,7 +1290,8 @@
             "drivinglicenseholder", "licenseholder", "titularlicencia", "propietariolicencia",
             "держательправ", "владелецлицензии", "驾驶证持有者", "驾照持有人", "chủbằnglái"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "pdata_id"
     },
     "pdata_id_drivinglicense_image": {
         "description": "Driving license - Image",
@@ -1157,7 +1299,8 @@
             "drivinglicenseimage", "licenseimage", "imagenlicencia", "fotolicencia",
             "изображениеправ", "фотолицензии", "驾驶证照片", "驾照图片", "ảnhbằnglái"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "pdata_id"
     },
     "pdata_id_drivinglicense_number": {
         "description": "Driving license - Number",
@@ -1165,7 +1308,8 @@
             "drivinglicensenumber", "licensenumber", "numerolicencia", "numeroconducir",
             "номерводительскихправ", "номерлицензии", "驾驶证号", "驾照号码", "sốbằnglái"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "pdata_id"
     },
     "pdata_id_drivinglicense_type": {
         "description": "Driving license - Type",
@@ -1173,7 +1317,8 @@
             "drivinglicensetype", "licensetype", "tipolicencia", "clasehicencia",
             "типлицензии", "видправ", "驾驶证类型", "驾照类别", "loạibằnglái"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "pdata_id"
     },
     "pdata_id_loyalty_program_number": {
         "description": "Loyalty program number - Number",
@@ -1182,7 +1327,8 @@
             "номерпрограммылояльности", "忠诚计划号码", "会员号", "sốthànhviên"
         ],
         "conflictive": false,
-        "normalize": true
+        "normalize": true,
+        "group": "pdata_id"
     },
     "pdata_id_loyalty_program_name": {
         "description": "Loyalty program name",
@@ -1190,7 +1336,8 @@
             "loyaltyprogramname", "loyaltyprogram", "nombrefidelidad", "programalealtad",
             "названиепрограммылояльности", "忠诚计划名称", "会员计划", "tênchươngtrìnhthànhviên"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "pdata_id"
     },
     "pdata_id_nid_country": {
         "description": "National ID - Country",
@@ -1198,7 +1345,8 @@
             "nidcountry", "nationalidcountry", "paisidentidad", "paisdni", "paiscedula",
             "странаудостоверенияличности", "国民身份证国家", "身份证国家", "quốcgiacmnd"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "pdata_id"
     },
     "pdata_id_nid_exp": {
         "description": "National ID - Expiration date",
@@ -1206,7 +1354,8 @@
             "nidexp", "nationalidexp", "vencimientodni", "expiraidenti", "vencimientocedula",
             "срокдействияудостоверения", "身份证到期日", "身份证有效期", "hạncmnd"
         ],
-        "conflictive": true
+        "conflictive": true,
+        "group": "pdata_id"
     },
     "pdata_id_nid_holder": {
         "description": "National ID - Holder",
@@ -1214,7 +1363,8 @@
             "nidholder", "nationalidholder", "titulardni", "propietarioidentidad",
             "держательудостоверения", "身份证持有者", "身份证持有人", "chủcmnd"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "pdata_id"
     },
     "pdata_id_nid_image": {
         "description": "National ID - Image",
@@ -1222,7 +1372,8 @@
             "nidimage", "nationalidimage", "imagendni", "fotoidentidad", "imagencedula",
             "фотоудостоверения", "身份证照片", "身份证图片", "ảnhcmnd"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "pdata_id"
     },
     "pdata_id_nid_number": {
         "description": "National ID - Number",
@@ -1230,7 +1381,8 @@
             "nidnumber", "nationalidnumber", "dni", "cedula", "numeroidentidad",
             "номерудостоверенияличности", "身份证号码", "国民身份证号", "sốcmnd"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "pdata_id"
     },
     "pdata_id_passport_country": {
         "description": "Passport - Country",
@@ -1238,7 +1390,8 @@
             "passportcountry", "paispasaporte", "countrypassport", "nacionalidadpasaporte",
             "странапаспорта", "护照国家", "护照发行国", "quốcgiahộchiếu"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "pdata_id"
     },
     "pdata_id_passport_exp": {
         "description": "Passport - Expiration date",
@@ -1246,7 +1399,8 @@
             "passportexp", "passportexpiry", "vencimientopasaporte", "expirapasaporte",
             "срокдействияпаспорта", "护照到期日", "护照有效期", "hạnhộchiếu"
         ],
-        "conflictive": true
+        "conflictive": false,
+        "group": "pdata_id"
     },
     "pdata_id_passport_holder": {
         "description": "Passport - Holder",
@@ -1254,7 +1408,8 @@
             "passportholder", "titularpasaporte", "propietariopasaporte", "portadorpasaporte",
             "держательпаспорта", "护照持有者", "护照持有人", "chủhộchiếu"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "pdata_id"
     },
     "pdata_id_passport_image": {
         "description": "Passport - Image",
@@ -1262,7 +1417,8 @@
             "passportimage", "imagenpasaporte", "fotopasaporte", "fotografia",
             "фотопаспорта", "护照照片", "护照图片", "ảnhhộchiếu"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "pdata_id"
     },
     "pdata_id_passport_number": {
         "description": "Passport - Number",
@@ -1270,7 +1426,8 @@
             "passportnumber", "numeropasaporte", "passport", "pasaporte",
             "номерпаспорта", "护照号码", "护照号", "sốhộchiếu"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "pdata_id"
     },
     "pdata_id_ssn_country": {
         "description": "SSN - Country",
@@ -1278,7 +1435,8 @@
             "ssncountry", "socialsecuritycountry", "paissegurosocial", "paisssn",
             "странасоцстраха", "社会保障号国家", "社保国家", "quốcgiabảohiểm"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "pdata_id"
     },
     "pdata_id_ssn_holder": {
         "description": "SSN - Holder",
@@ -1286,7 +1444,8 @@
             "ssnholder", "socialsecurityholder", "titularssn", "propietariossn",
             "держательсоцстраха", "社会保障号持有者", "社保持有人", "chủbảohiểm"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "pdata_id"
     },
     "pdata_id_ssn_image": {
         "description": "SSN - Image",
@@ -1294,7 +1453,8 @@
             "ssnimage", "socialsecurityimage", "imagenssn", "fotossn",
             "фотосоцстраха", "社会保障号照片", "社保图片", "ảnhbảohiểm"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "pdata_id"
     },
     "pdata_id_ssn_number": {
         "description": "SSN - Number",
@@ -1303,7 +1463,8 @@
             "номерсоцстраха", "社会保障号码", "社保号", "sốbảohiểm"
         ],
         "conflictive": false,
-        "normalize": true
+        "normalize": true,
+        "group": "pdata_id"
     },
     "pdata_id_tax_country": {
         "description": "Tax Number - Number",
@@ -1311,7 +1472,8 @@
             "taxcountry", "paistax", "paistributario", "countrytax",
             "странаналогов", "税务国家", "纳税国", "quốcgiathuế"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "pdata_id"
     },
     "pdata_id_tax_number": {
         "description": "Tax Country - Country",
@@ -1320,7 +1482,8 @@
             "налоговыйномер", "税号", "纳税号", "sốthuế"
         ],
         "conflictive": false,
-        "normalize": true
+        "normalize": true,
+        "group": "pdata_id"
     },
     "pdata_id_sin_number": {
         "description": "Social Insurance - Number",
@@ -1329,7 +1492,8 @@
             "номерсоциальногострахования", "社会保险号", "社保号码", "sốbảohiểmxãhội"
         ],
         "conflictive": false,
-        "normalize": true
+        "normalize": true,
+        "group": "pdata_id"
     },
     "pdata_id_vat_number": {
         "description": "VAT Number",
@@ -1338,7 +1502,8 @@
             "номерндс", "增值税号", "增值税编号", "sốthuếgtgt"
         ],
         "conflictive": false,
-        "normalize": true
+        "normalize": true,
+        "group": "pdata_id"
     },
     "pdata_id_visa_number": {
         "description": "VISA Number",
@@ -1347,7 +1512,8 @@
             "номервизы", "签证号码", "签证号", "sốthịthực"
         ],
         "conflictive": false,
-        "normalize": true
+        "normalize": true,
+        "group": "pdata_id"
     },
     "pdata_medical_bloodtype": {
         "description": "Blood type",
@@ -1355,7 +1521,8 @@
             "bloodtype", "tiposangre", "gruposanguineo", "blood", "rh",
             "группакрови", "типкрови", "血型", "血液类型", "nhómmáu"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "pdata_medical"
     },
     "pdata_medical_disease": {
         "description": "Disease",
@@ -1363,7 +1530,8 @@
             "disease", "enfermedad", "patologia", "dolencia", "illness",
             "болезнь", "заболевание", "疾病", "病症", "bệnh"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "pdata_medical"
     },
     "pdata_medical_doctor_name": {
         "description": "Doctor name",
@@ -1371,7 +1539,8 @@
             "doctorname", "doctor", "medico", "nombremedico", "physician",
             "имяврача", "врач", "医生姓名", "医生", "tênbácchí"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "pdata_medical"
     },
     "pdata_medical_medication": {
         "description": "Medication",
@@ -1379,7 +1548,8 @@
             "medication", "medicine", "medicamento", "medicina", "farmaco",
             "лекарство", "медикамент", "药物", "药品", "thuốc"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "pdata_medical"
     },
     "pdata_pdata_avatar": {
         "description": "Avatar",
@@ -1387,7 +1557,8 @@
             "avatar", "profilepicture", "profileimage", "picture", "image", "fotoperfil",
             "аватар", "фотопрофиля", "头像", "个人照片", "ảnhđạidiện"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "pdata_pdata"
     },
     "pdata_pdata_birthdate": {
         "description": "Date Of Birth",
@@ -1396,7 +1567,8 @@
             "датарождения", "деньрождения", "出生日期", "生日", "ngàysinh"
         ],
         "conflictive": true,
-        "normalize": true
+        "normalize": true,
+        "group": "pdata_pdata"
     },
     "pdata_pdata_description": {
         "description": "Description",
@@ -1404,7 +1576,8 @@
             "description", "desc", "descripcion", "bio", "biografia", "about",
             "описание", "биография", "описания", "描述", "简介", "mô tả"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "pdata_pdata"
     },
     "pdata_pdata_drink": {
         "description": "Drink",
@@ -1412,7 +1585,8 @@
             "drink", "alcohol", "bebida", "drinking", "bebidaalcoholica",
             "напиток", "алкоголь", "饮酒", "酒精", "đồuống"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "pdata_pdata"
     },
     "pdata_pdata_drugs": {
         "description": "Drugs",
@@ -1420,7 +1594,8 @@
             "drugs", "drogas", "sustancias", "narcoticos", "substances",
             "наркотики", "вещества", "毒品", "药物", "chấtgâydienchen"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "pdata_pdata"
     },
     "pdata_pdata_fax": {
         "description": "Fax",
@@ -1429,7 +1604,8 @@
             "факс", "номерфакса", "传真", "传真号码", "sốfax"
         ],
         "conflictive": false,
-        "normalize": true
+        "normalize": true,
+        "group": "pdata_pdata"
     },
     "pdata_pdata_firstname": {
         "description": "First name",
@@ -1437,7 +1613,8 @@
             "firstname", "first", "nombre", "primernombre", "givenname",
             "имя", "личноеимя", "名字", "名", "tên"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "pdata_pdata"
     },
     "pdata_pdata_fullname": {
         "description": "Full name",
@@ -1445,7 +1622,8 @@
             "fullname", "name", "nombrecompleto", "nombreapellidos", "completename",
             "полноеимя", "полныйнэйм", "全名", "姓名", "họvàtên"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "pdata_pdata"
     },
     "pdata_pdata_gender": {
         "description": "Gender",
@@ -1453,7 +1631,8 @@
             "gender", "sex", "genero", "sexo", "sexualidad",
             "пол", "гендер", "性别", "giớitính"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "pdata_pdata"
     },
     "pdata_pdata_hobbies": {
         "description": "Hobby",
@@ -1461,7 +1640,8 @@
             "hobbies", "hobby", "interests", "aficiones", "pasatiempos", "gustos",
             "хобби", "увлечения", "爱好", "兴趣", "sởthích"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "pdata_pdata"
     },
     "pdata_pdata_language": {
         "description": "Language",
@@ -1469,7 +1649,8 @@
             "language", "idioma", "lengua", "lang", "tongue",
             "язык", "语言", "ngônngữ"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "pdata_pdata"
     },
     "pdata_pdata_lastname": {
         "description": "Last name",
@@ -1477,7 +1658,8 @@
             "lastname", "surname", "apellido", "apellidos", "familyname",
             "фамилия", "姓", "姓氏", "họ"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "pdata_pdata"
     },
     "pdata_pdata_middlename": {
         "description": "Middle name",
@@ -1485,7 +1667,8 @@
             "middlename", "middle", "segundonombre", "nombredelmedio",
             "отчество", "среднееимя", "中间名", "têngiữa"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "pdata_pdata"
     },
     "pdata_pdata_nationality": {
         "description": "Nationality",
@@ -1493,7 +1676,8 @@
             "nationality", "nacionalidad", "ciudadania", "citizenship",
             "национальность", "гражданство", "国籍", "quốctịch"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "pdata_pdata"
     },
     "pdata_pdata_nickname": {
         "description": "Nickname user",
@@ -1501,7 +1685,8 @@
             "nickname", "nick", "alias", "apodo", "sobrenombre", "usernames",
             "псевдоним", "кличка", "昵称", "别名", "biệtdanh"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "pdata_pdata"
     },
     "pdata_pdata_phone_countrycode": {
         "description": "Phone countrycode",
@@ -1509,7 +1694,8 @@
             "phonecountrycode", "countrycode", "codigopais", "prefijopais", "indicativo",
             "кодстраны", "国家代码", "国际区号", "mãquốcgia"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "pdata_pdata"
     },
     "pdata_pdata_phone_number": {
         "description": "Phone",
@@ -1518,7 +1704,8 @@
             "телефон", "номертелефона", "电话", "电话号码", "điệnthoại"
         ],
         "conflictive": false,
-        "normalize": true
+        "normalize": true,
+        "group": "pdata_pdata"
     },
     "pdata_pdata_political": {
         "description": "Political",
@@ -1526,7 +1713,8 @@
             "political", "politics", "politica", "partidopolitico", "ideologia",
             "политика", "политические", "政治", "政治立场", "chínhtrị"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "pdata_pdata"
     },
     "pdata_pdata_religion": {
         "description": "Religion",
@@ -1534,7 +1722,8 @@
             "religion", "faith", "fe", "creencia", "religioso",
             "религия", "вера", "宗教", "信仰", "tôngiáo"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "pdata_pdata"
     },
     "pdata_pdata_sexual": {
         "description": "Sexual",
@@ -1542,7 +1731,8 @@
             "sexual", "sexuality", "orientacion", "orientacionsexual", "preferencia",
             "сексуальность", "ориентация", "性取向", "性倾向", "tínhdục"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "pdata_pdata"
     },
     "pdata_pdata_title": {
         "description": "Personal title",
@@ -1550,7 +1740,8 @@
             "title", "titulo", "tratamiento", "mr", "mrs", "dr",
             "титул", "обращение", "称谓", "头衔", "danh hiệu"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "pdata_pdata"
     },
     "pdata_pdata_relationship": {
         "description": "Personal relationship",
@@ -1558,7 +1749,8 @@
             "relationship", "relacion", "estadorelacion", "pareja", "novio",
             "отношения", "связь", "关系", "恋爱状态", "mốiqhệ"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "pdata_pdata"
     },
     "pdata_pdata_misc": {
         "description": "Personal miscellaneous",
@@ -1566,7 +1758,8 @@
             "misc", "miscellaneous", "varios", "otros", "variado", "diverso",
             "разное", "прочее", "其他", "杂项", "khác"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "pdata_pdata"
     },
     "pdata_pdata_age": {
         "description": "Age",
@@ -1575,7 +1768,8 @@
             "возраст", "лет", "年龄", "岁", "tuổi"
         ],
         "conflictive": false,
-        "normalize": true
+        "normalize": true,
+        "group": "pdata_pdata"
     },
     "pdata_pdata_secondarylastname": {
         "description": "Secondary last name",
@@ -1583,7 +1777,8 @@
             "secondarylastname", "segundoapellido", "apellidomaterno", "maternalsurname",
             "втораяфамилия", "материнскаяфамилия", "第二姓氏", "母姓", "họmẹ"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "pdata_pdata"
     },
     "professional_dea_number": {
         "description": "National Provider Identifier - Number",
@@ -1592,7 +1787,8 @@
             "номернацпоставщика", "国家提供商标识", "全国供应商号", "sốnhàcungcấpquốcgia"
         ],
         "conflictive": false,
-        "normalize": true
+        "normalize": true,
+        "group": "professional"
     },
     "professional_npi_number": {
         "description": "Drug Enforcement Administration - Number",
@@ -1601,7 +1797,8 @@
             "номеруправленияпонаркотикам", "缉毒署编号", "禁毒局号码", "sốcựcchốngmatuy"
         ],
         "conflictive": false,
-        "normalize": true
+        "normalize": true,
+        "group": "professional"
     },
     "professional_job": {
         "description": "Professional job",
@@ -1609,7 +1806,8 @@
             "professionaljob", "job", "trabajo", "empleo", "profesion", "ocupacion",
             "работа", "профессия", "工作", "职业", "côngviệc"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "professional"
     },
     "professional_role": {
         "description": "Professional role",
@@ -1617,7 +1815,8 @@
             "professionalrole", "role", "papel", "funcion", "cargo", "puesto",
             "роль", "функция", "角色", "职务", "vai trò"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "professional"
     },
     "profile_adobe": {
         "description": "Profile - Adobe",
@@ -1625,7 +1824,8 @@
             "adobe", "adobeprofile", "perfiladobe", "adobeaccount", "adobeid",
             "профильадоб", "adobe账户", "adobe配置文件", "hồsơadobe"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "profile"
     },
     "profile_aim": {
         "description": "Profile - AIM",
@@ -1633,7 +1833,8 @@
             "aim", "aimprofile", "perfilaim", "aimaccount", "aimid",
             "профильайм", "aim账户", "aim配置文件", "hồsơaim"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "profile"
     },
     "profile_amazon": {
         "description": "Profile - Amazon",
@@ -1641,7 +1842,8 @@
             "amazon", "amazonprofile", "perfilamazon", "amazonaccount", "amazonid",
             "профильамазон", "amazon账户", "amazon配置文件", "hồsơamazon"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "profile"
     },
     "profile_facebook": {
         "description": "Profile - Facebook",
@@ -1649,7 +1851,8 @@
             "facebook", "fb", "facebookprofile", "perfilfacebook", "facebookaccount",
             "профильфейсбук", "facebook账户", "facebook配置文件", "hồsơfacebook"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "profile"
     },
     "profile_forbes": {
         "description": "Profile - Forbes",
@@ -1657,7 +1860,8 @@
             "forbes", "forbesprofile", "perfilforbes", "forbesaccount",
             "профильфорбс", "forbes账户", "forbes配置文件", "hồsơforbes"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "profile"
     },
     "profile_google": {
         "description": "Profile - Google",
@@ -1665,7 +1869,8 @@
             "google", "googleprofile", "perfilgoogle", "googleaccount", "gmail",
             "профильгугл", "google账户", "google配置文件", "hồsơgoogle"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "profile"
     },
     "profile_instagram": {
         "description": "Profile - Instagram",
@@ -1673,7 +1878,8 @@
             "instagram", "ig", "instagramprofile", "perfilinstagram", "instagramaccount",
             "профильинстаграм", "instagram账户", "instagram配置文件", "hồsơinstagram"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "profile"
     },
     "profile_linkedin": {
         "description": "Profile - Linkedin",
@@ -1681,7 +1887,8 @@
             "linkedin", "linkedinprofile", "perfillinkedin", "linkedinaccount",
             "профильлинкедин", "linkedin账户", "linkedin配置文件", "hồsơlinkedin"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "profile"
     },
     "profile_venmo": {
         "description": "Profile - Venmo",
@@ -1689,7 +1896,8 @@
             "venmo", "venmoprofile", "perfilvenmo", "venmoaccount",
             "профильвенмо", "venmo账户", "venmo配置文件", "hồsơvenmo"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "profile"
     },
     "profile_msn": {
         "description": "Profile - MSN",
@@ -1697,7 +1905,8 @@
             "msn", "msnprofile", "perfilmsn", "msnaccount", "msnmessenger",
             "профильмсн", "msn账户", "msn配置文件", "hồsơmsn"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "profile"
     },
     "profile_paypal": {
         "description": "Profile - PayPal",
@@ -1705,7 +1914,8 @@
             "paypal", "paypalprofile", "perfilpaypal", "paypalaccount",
             "профильпайпал", "paypal账户", "paypal配置文件", "hồsơpaypal"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "profile"
     },
     "profile_skype": {
         "description": "Profile - Skype",
@@ -1713,7 +1923,8 @@
             "skype", "skypeprofile", "perfilskype", "skypeaccount", "skypeid",
             "профильскайп", "skype账户", "skype配置文件", "hồsơskype"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "profile"
     },
     "profile_steam": {
         "description": "Profile - Steam",
@@ -1721,7 +1932,8 @@
             "steam", "steamprofile", "perfilsteam", "steamaccount", "steamid",
             "профильстим", "steam账户", "steam配置文件", "hồsơsteam"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "profile"
     },
     "profile_twitter": {
         "description": "Profile - Twitter",
@@ -1729,7 +1941,8 @@
             "twitter", "twitterprofile", "perfiltwitter", "twitteraccount", "tweet",
             "профильтвиттер", "twitter账户", "twitter配置文件", "hồsơtwitter"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "profile"
     },
     "profile_yahoo": {
         "description": "Profile - Yahoo",
@@ -1737,7 +1950,8 @@
             "yahoo", "yahooprofile", "perfilyahoo", "yahooaccount", "yahooid",
             "профильяху", "yahoo账户", "yahoo配置文件", "hồsơyahoo"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "profile"
     },
     "profile_yim": {
         "description": "Profile - YIM",
@@ -1745,7 +1959,8 @@
             "yim", "yimprofile", "perfilyim", "yimaccount", "yahooimessenger",
             "профильяим", "yim账户", "yim配置文件", "hồsơyim"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "profile"
     },
     "profile_youtube": {
         "description": "Profile - YouTube",
@@ -1753,7 +1968,8 @@
             "youtube", "youtubeprofile", "perfilyoutube", "youtubeaccount", "youtubechannel",
             "профильютуб", "youtube账户", "youtube配置文件", "hồsơyoutube"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "profile"
     },
     "profile_icq": {
         "description": "Profile - ICQ",
@@ -1761,7 +1977,8 @@
             "icq", "icqprofile", "perfilicq", "icqaccount", "icqnumber",
             "профильайсикью", "icq账户", "icq配置文件", "hồsơicq"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "profile"
     },
     "profile_tumblr": {
         "description": "Profile - Tumblr",
@@ -1769,7 +1986,8 @@
             "tumblr", "tumblrprofile", "perfiltumblr", "tumblraccount", "tumblrblog",
             "профильтумблр", "tumblr账户", "tumblr配置文件", "hồsơtumblr"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "profile"
     },
     "profile_flickr": {
         "description": "Profile - Flickr",
@@ -1777,7 +1995,8 @@
             "flickr", "flickrprofile", "perfilflickr", "flickraccount", "flickrphoto",
             "профильфликр", "flickr账户", "flickr配置文件", "hồsơflickr"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "profile"
     },
     "profile_misc": {
         "description": "Profile - Miscellaneous",
@@ -1785,7 +2004,8 @@
             "profilemisc", "misc", "varios", "otros", "variado", "diverso",
             "разныепрофили", "其他资料", "杂项配置", "hồsơkhác"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "profile"
     },
     "profile_telegram": {
         "description": "Profile - Telegram",
@@ -1793,7 +2013,8 @@
             "telegram", "telegramprofile", "perfiltelegram", "telegramaccount", "telegramid",
             "профильтелеграм", "telegram账户", "telegram配置文件", "hồsơtelegram"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "profile"
     },
     "profile_github": {
         "description": "Profile - Github",
@@ -1801,7 +2022,8 @@
             "github", "githubprofile", "perfilgithub", "githubaccount", "githubuser",
             "профильгитхаб", "github账户", "github配置文件", "hồsơgithub"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "profile"
     },
     "pwd_algorithm": {
         "description": "Password - Algorithm",
@@ -1809,7 +2031,8 @@
             "passwordalgorithm", "algorithm", "algoritmo", "encriptacion", "encryption",
             "алгоритмпароля", "пароль算法", "密码算法", "thuậttoánmậtkhẩu"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "pwd"
     },
     "pwd_answer": {
         "description": "Password - Answer",
@@ -1817,7 +2040,8 @@
             "passwordanswer", "answer", "respuesta", "securityanswer", "respuestaseguridad",
             "ответпароля", "ответнавопрос", "密码答案", "安全答案", "câutrảlờimậtkhẩu"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "pwd"
     },
     "pwd_date_change": {
         "description": "Password - Date change",
@@ -1826,7 +2050,8 @@
             "датасменыпароля", "смена", "密码更改日期", "密码修改时间", "ngàythayđổimậtkhẩu"
         ],
         "conflictive": true,
-        "normalize": true
+        "normalize": true,
+        "group": "pwd"
     },
     "pwd_hash": {
         "description": "Password - Hash",
@@ -1834,7 +2059,8 @@
             "passwordhash", "hash", "hashedpassword", "contraseñacifrada", "hashcode",
             "хешпароля", "хеш", "密码哈希", "密码散列", "hashmậtkhẩu"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "pwd"
     },
     "pwd_hint": {
         "description": "Password - Hint",
@@ -1842,7 +2068,8 @@
             "passwordhint", "hint", "pista", "ayuda", "securityhint", "pistaseguridad",
             "подсказкапароля", "подсказка", "密码提示", "安全提示", "gợiýmậtkhẩu"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "pwd"
     },
     "pwd_plain": {
         "description": "Password - Plain text",
@@ -1858,7 +2085,8 @@
             "passwordprevious", "previous", "anterior", "oldpassword", "contraseñaanterior",
             "предыдущийпароль", "старыйпароль", "以前密码", "旧密码", "mậtkhẩucũ"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "pwd"
     },
     "pwd_question": {
         "description": "Password - Question",
@@ -1866,7 +2094,8 @@
             "passwordquestion", "question", "pregunta", "securityquestion", "preguntaseguridad",
             "вопроспароля", "секретныйвопрос", "密码问题", "安全问题", "câuhỏimậtkhẩu"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "pwd"
     },
     "pwd_round": {
         "description": "Password - Round",
@@ -1874,7 +2103,8 @@
             "passwordround", "round", "ronda", "iteracion", "iteration", "vueltas",
             "раундпароля", "итерация", "密码轮次", "哈希轮数", "vòngmậtkhẩu"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "pwd"
     },
     "pwd_salt": {
         "description": "Password - Salt",
@@ -1882,7 +2112,8 @@
             "passwordsalt", "salt", "sal", "saltvalue", "valorsalt",
             "сольпароля", "соль", "密码盐", "盐值", "muốimậtkhẩu"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "pwd"
     },
     "pwd_data": {
         "description": "Password - Date",
@@ -1890,7 +2121,8 @@
             "passworddata", "passworddate", "fechapassword", "datapassword", "passwordinfo",
             "данныепароля", "информацияпароля", "密码数据", "密码日期", "dữliệumậtkhẩu"
         ],
-        "conflictive": true
+        "conflictive": true,
+        "group": "pwd"
     },
     "service_carrier_account": {
         "description": "Service carrier - Account",
@@ -1898,7 +2130,8 @@
             "carrieraccount", "servicecarrier", "cuentaoperador", "cuentacarrier", "operadoraccount",
             "счетоператора", "аккаунтперевозчика", "运营商账户", "载体账户", "tàikhoảnnhàmạng"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "service"
     },
     "service_carrier_holder": {
         "description": "Service carrier - Holder",
@@ -1906,7 +2139,8 @@
             "carrierholder", "titularcarrier", "propietariooperador", "holdercarrier",
             "держательоператора", "владелецперевозчика", "运营商持有者", "载体持有人", "chủnhàmạng"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "service"
     },
     "service_carrier_provider": {
         "description": "Service carrier - Provider",
@@ -1914,7 +2148,8 @@
             "carrierprovider", "proveedorcarrier", "operadorproveedor", "providercarrier",
             "поставщикоператора", "провайдерперевозчика", "运营商提供商", "载体供应商", "nhàcungcấpmạng"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "service"
     },
     "service_insurance_account": {
         "description": "Service insurance - Account",
@@ -1922,7 +2157,8 @@
             "insuranceaccount", "cuentaseguro", "accountinsurance", "segurocuenta",
             "счетстрахования", "страховойсчет", "保险账户", "保险账号", "tàikhoảnbảohiểm"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "service"
     },
     "service_insurance_holder": {
         "description": "Service insurance - Holder",
@@ -1930,7 +2166,8 @@
             "insuranceholder", "titularseguro", "holderinsurance", "propietarioseguro",
             "держательстрахования", "страхователь", "保险持有者", "保险持有人", "chủbảohiểm"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "service"
     },
     "service_insurance_provider": {
         "description": "Service insurance - Provider",
@@ -1938,7 +2175,8 @@
             "insuranceprovider", "proveedorseguro", "compañiaseguro", "aseguradora",
             "поставщикстрахования", "страховаякомпания", "保险提供商", "保险公司", "nhàcungcấpbảohiểm"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "service"
     },
     "service_isp_account": {
         "description": "Service ISP - Account",
@@ -1946,7 +2184,8 @@
             "ispaccount", "internetaccount", "cuentaisp", "cuentainternet", "proveedorinternet",
             "счетинтернетпровайдера", "интернетсчет", "ISP账户", "网络服务账户", "tàikhoảnmạng"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "service"
     },
     "service_isp_holder": {
         "description": "Service ISP - Holder",
@@ -1954,7 +2193,8 @@
             "ispholder", "internetholder", "titularisp", "propietariointernet",
             "держательинтернета", "владелециспаккаунта", "ISP持有者", "网络持有人", "chủmạng"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "service"
     },
     "service_isp_provider": {
         "description": "Service ISP - Provider",
@@ -1962,7 +2202,8 @@
             "ispprovider", "internetprovider", "proveedorisp", "proveedorinternet", "ispcompany",
             "интернетпровайдер", "поставщикинтернета", "ISP提供商", "网络服务商", "nhàcungcấpmạnginternet"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "service"
     },
     "token_custom": {
         "description": "Token Custom",
@@ -1970,7 +2211,8 @@
             "tokencustom", "customtoken", "tokenpersonalizado", "tokenpropio", "personaltoken",
             "пользовательскийтокен", "токенкастом", "自定义令牌", "个人令牌", "tokentùychỉnh"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "token"
     },
     "token_facebook": {
         "description": "Token Facebook",
@@ -1978,7 +2220,8 @@
             "tokenfacebook", "facebooktoken", "fbtoken", "tokenfb", "facebookaccesstoken",
             "токенфейсбук", "facebook令牌", "facebook代币", "tokenfacebook"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "token"
     },
     "token_google": {
         "description": "Token Google",
@@ -1986,7 +2229,8 @@
             "tokengoogle", "googletoken", "googleaccesstoken", "gmailtoken", "googleapitoken",
             "токенгугл", "google令牌", "google代币", "tokengoogle"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "token"
     },
     "token_others": {
         "description": "Token others",
@@ -1994,7 +2238,8 @@
             "token","tokenothers", "othertokens", "tokenotros", "otrostokens", "varioustokens",
             "другиетокены", "прочиетокены", "其他令牌", "其他代币", "tokenkhác"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "token"
     },
     "token_twitter": {
         "description": "Token Twitter",
@@ -2002,7 +2247,8 @@
             "tokentwitter", "twittertoken", "twitteraccesstoken", "tweettoken", "twitterapitoken",
             "токентвиттер", "twitter令牌", "twitter代币", "tokentwitter"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "token"
     },
     "token_youtube": {
         "description": "Token YouTube",
@@ -2010,7 +2256,8 @@
             "tokenyoutube", "youtubetoken", "youtubeaccesstoken", "youtubeeapitoken", "yttoken",
             "токенютуб", "youtube令牌", "youtube代币", "tokenyoutube"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "token"
     },
     "vehicle_color": {
         "description": "Vehicle - Color",
@@ -2018,7 +2265,8 @@
             "vehiclecolor", "color", "colorvehiculo", "colorauto", "colorcoche",
             "цветтранспорта", "автомобильцвет", "车辆颜色", "汽车颜色", "màuxe"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "vehicle"
     },
     "vehicle_model": {
         "description": "Vehicle - Model",
@@ -2026,7 +2274,8 @@
             "vehiclemodel", "model", "modelovehiculo", "modeloauto", "modelocoche",
             "модельтранспорта", "модельавто", "车辆型号", "汽车型号", "kiểuxe"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "vehicle"
     },
     "vehicle_permit_exp": {
         "description": "Vehicle - Permit Expiration date",
@@ -2034,7 +2283,8 @@
             "vehiclepermitexp", "permitexp", "vencimientopermiso", "expiracionpermiso", "permisovencimiento",
             "срокдействияразрешения", "истечениепермита", "车辆许可到期", "许可证过期", "hạnphépxe"
         ],
-        "conflictive": true
+        "conflictive": true,
+        "group": "vehicle"
     },
     "vehicle_permit_number": {
         "description": "Vehicle - Permit number",
@@ -2043,7 +2293,8 @@
             "номерразрешения", "пермитномер", "车辆许可号", "许可证号码", "sốphépxe"
         ],
         "conflictive": false,
-        "normalize": true
+        "normalize": true,
+        "group": "vehicle"
     },
     "vehicle_plate": {
         "description": "Vehicle - Plate",
@@ -2051,7 +2302,8 @@
             "vehicleplate", "plate", "placa", "placavehiculo", "matricula", "patente",
             "номерныйзнак", "автономер", "车牌", "车牌号", "biểnsốxe"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "vehicle"
     },
     "vehicle_type": {
         "description": "Vehicle - Type",
@@ -2059,7 +2311,8 @@
             "vehicletype", "type", "tipovehiculo", "tipotransporte", "clasevehiculo",
             "типтранспорта", "видавто", "车辆类型", "交通工具类型", "loạixe"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "vehicle"
     },
     "vehicle_vin": {
         "description": "Vehicle - Identification Number",
@@ -2067,7 +2320,8 @@
             "vin", "vehiclevin", "vehicleidentificationnumber", "numerovehiculo", "numeroidentificacion",
             "винномер", "номершасси", "车辆识别号", "车架号", "sốkhungxe"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "vehicle"
     },
     "web_activity": {
         "description": "Web Activity",
@@ -2075,7 +2329,8 @@
             "webactivity", "activity", "actividad", "actividadweb", "webhistory", "navegacion",
             "веббактивность", "активность", "网络活动", "网页活动", "hoạtđộngweb"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "web"
     },
     "web_address": {
         "description": "Web Address",
@@ -2083,7 +2338,8 @@
             "webaddress", "address", "direccion", "direccionweb", "url", "website",
             "вебадрес", "адресweb", "网址", "网站地址", "địachỉweb"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "web"
     },
     "web_messages": {
         "description": "Web Messages",
@@ -2091,7 +2347,8 @@
             "webmessages", "messages", "mensajes", "mensajesweb", "chat", "conversacion",
             "веббсообщения", "сообщения", "网络消息", "网页消息", "tinnhắnweb"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "web"
     },
     "web_payment": {
         "description": "Web Payment",
@@ -2099,7 +2356,8 @@
             "webpayment", "payment", "pago", "pagoweb", "onlinepayment", "pagolinea",
             "веббоплата", "платеж", "网络支付", "在线支付", "thanhtoanweb"
         ],
-        "conflictive": false
+        "conflictive": false,
+        "group": "web"
     },
     "null": {
         "description": "Do not normalize",

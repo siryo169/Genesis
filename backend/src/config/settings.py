@@ -24,6 +24,7 @@ class Settings(BaseSettings):
     OUTPUT_DIR: str = "data/output"
     INVALID_DIR: str = "data/invalid"
     NOT_TABULAR_DIR: str = "data/not_tabular"
+    BE_OUTPUT_DIR: str = "data/be_output"
     LOGS_DIR: str = "logs"
     PIPELINE_MODE: str = os.getenv("PIPELINE_MODE", "demo")
 
@@ -43,7 +44,7 @@ class Settings(BaseSettings):
         import stat
         import os
         
-        for path in [self.INPUT_DIR, self.OUTPUT_DIR, self.INVALID_DIR, self.NOT_TABULAR_DIR, self.LOGS_DIR]:
+        for path in [self.INPUT_DIR, self.OUTPUT_DIR, self.INVALID_DIR, self.NOT_TABULAR_DIR, self.LOGS_DIR,self.BE_OUTPUT_DIR]:
             path_obj = Path(path)
             path_obj.mkdir(parents=True, exist_ok=True)
             

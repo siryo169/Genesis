@@ -1190,17 +1190,17 @@ export default function CsvMonitorPage() {
                   )}
                 </CardContent>
               </Card>
-               <div className="p-4 border-t-0 border rounded-b-lg">
-                  <DataTablePagination
-                    pageIndex={pageIndex}
-                    pageCount={pageCount}
-                    pageSize={pageSize}
-                    setPageIndex={setPageIndex}
-                    setPageSize={setPageSize}
-                    canPreviousPage={pageIndex > 0}
-                    canNextPage={pageIndex < pageCount - 1}
-                  />
-                </div>
+              <div className="p-4 border-t-0 border rounded-b-lg">
+                <DataTablePagination
+                  pageIndex={pageIndex}
+                  pageCount={pageCount}
+                  pageSize={pageSize}
+                  setPageIndex={setPageIndex}
+                  setPageSize={setPageSize}
+                  canPreviousPage={pageIndex > 0}
+                  canNextPage={pageIndex < pageCount - 1}
+                />
+              </div>
             </div>
           </TabsContent>
         </Tabs>

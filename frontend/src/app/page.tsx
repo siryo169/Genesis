@@ -36,6 +36,7 @@ import { DataTablePagination } from "@/components/ui/data-table-pagination";
 import { Separator } from "@/components/ui/separator";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import Link from "next/link";
+import { MultiSelectFilter } from "@/components/csv-monitor/MultiSelectFilter";
 
 
 // Mock logs for analysis
@@ -79,10 +80,10 @@ export default function CsvMonitorPage() {
   });
   const [timeFrom, setTimeFrom] = useState<string>(defaultFrom.toTimeString().slice(0,5));
   const [timeTo, setTimeTo] = useState<string>(defaultTo.toTimeString().slice(0,5));
-  const [statusFilter, setStatusFilter] = useState("all");
-  const [priorityFilter, setPriorityFilter] = useState("all");
-  const [fileTypeFilter, setFileTypeFilter] = useState("all");
-  const [modelFilter, setModelFilter] = useState("all");
+  const [statusFilter, setStatusFilter] = useState<string[]>([]);
+  const [priorityFilter, setPriorityFilter] = useState<number[]>([]);
+  const [fileTypeFilter, setFileTypeFilter] = useState<string[]>([]);
+  const [modelFilter, setModelFilter] = useState<string[]>([]);
   const [fieldsFilter, setFieldsFilter] = useState("");
   const [selectedFileId, setSelectedFileId] = useState<string | null>(null);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
@@ -321,10 +322,10 @@ export default function CsvMonitorPage() {
 
   const handleClearFilters = useCallback(() => {
     setFilterText("");
-    setStatusFilter("all");
-    setPriorityFilter("all");
-    setFileTypeFilter("all");
-    setModelFilter("all");
+    setStatusFilter([]);
+    setPriorityFilter([]);
+    setFileTypeFilter([]);
+    setModelFilter([]);
     setFieldsFilter("");
     setDate({ from: undefined, to: undefined });
   }, []);
@@ -332,8 +333,8 @@ export default function CsvMonitorPage() {
   const filteredData = useMemo(() => {
     let sortableItems = [...csvData];
     
-    if (statusFilter !== 'all') {
-      sortableItems = sortableItems.filter(entry => getOverallStatus(entry) === statusFilter);
+    if (statusFilter.length > 0) {
+      sortableItems = sortableItems.filter(entry => statusFilter.includes(getOverallStatus(entry)));
     }
     
     if (filterText) {
@@ -342,17 +343,18 @@ export default function CsvMonitorPage() {
       );
     }
 
-    if (priorityFilter !== 'all') {
-      const priorityNum = parseInt(priorityFilter, 10);
-      sortableItems = sortableItems.filter(entry => entry.priority === priorityNum);
+    if (priorityFilter.length > 0) {
+      sortableItems = sortableItems.filter(entry => priorityFilter.includes(entry.priority));
     }
 
-    if (fileTypeFilter !== 'all') {
-      sortableItems = sortableItems.filter(entry => entry.filename.toLowerCase().endsWith(fileTypeFilter));
+    if (fileTypeFilter.length > 0) {
+      sortableItems = sortableItems.filter(entry => 
+        fileTypeFilter.some(ext => entry.filename.toLowerCase().endsWith(ext))
+      );
     }
 
-    if (modelFilter !== 'all') {
-      sortableItems = sortableItems.filter(entry => entry.ai_model === modelFilter);
+    if (modelFilter.length > 0) {
+      sortableItems = sortableItems.filter(entry => entry.ai_model && modelFilter.includes(entry.ai_model));
     }
 
     if (fieldsFilter) {
@@ -380,21 +382,19 @@ export default function CsvMonitorPage() {
         
         let comparison = 0;
         if (sortConfig.key === 'priority') {
-            // If a priority filter is active, sort by that first
-            if (priorityFilter !== 'all') {
-                comparison = (a.priority || 3) - (b.priority || 3);
+            if (priorityFilter.length > 0) {
+                const priorityA = priorityFilter.includes(a.priority) ? 0 : 1;
+                const priorityB = priorityFilter.includes(b.priority) ? 0 : 1;
+                comparison = priorityA - priorityB;
             }
-            // If priorities are equal or no filter is active, sort by running status
             if (comparison === 0) {
                 const isRunningA = a.status === 'running' ? 1 : 0;
                 const isRunningB = b.status === 'running' ? 1 : 0;
                 comparison = isRunningB - isRunningA;
             }
-             // If still equal, sort by priority
             if (comparison === 0) {
                 comparison = (a.priority || 3) - (b.priority || 3);
             }
-            // Finally, sort by insertion date
             if (comparison === 0) {
                 const dateA = a.insertion_date ? new Date(a.insertion_date).getTime() : 0;
                 const dateB = b.insertion_date ? new Date(b.insertion_date).getTime() : 0;
@@ -609,8 +609,8 @@ export default function CsvMonitorPage() {
   }, [csvData]);
 
   const errorPalette = [
-    '#ED5565', // Destructive Red
     '#DA4453', // Darker Red
+    '#ED5565', // Destructive Red
     '#FC6E51', // Orange-Red
     '#FFCE54', // Yellow
     '#A0D468', // Light Green (for less critical)
@@ -960,56 +960,54 @@ export default function CsvMonitorPage() {
                       aria-label="Filter by filename"
                     />
                 </div>
-                <Select value={statusFilter} onValueChange={setStatusFilter}>
-                    <SelectTrigger className="w-[150px]">
-                      <SelectValue placeholder="Status" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All Statuses</SelectItem>
-                      <SelectItem value="ok">Completed</SelectItem>
-                      <SelectItem value="running">Running</SelectItem>
-                      <SelectItem value="error">Error</SelectItem>
-                      <SelectItem value="enqueued">Enqueued</SelectItem>
-                    </SelectContent>
-                </Select>
-                <Select value={priorityFilter} onValueChange={setPriorityFilter}>
-                    <SelectTrigger className="w-[150px]">
-                      <SelectValue placeholder="Priority" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All Priorities</SelectItem>
-                      <SelectItem value="1">Urgent</SelectItem>
-                      <SelectItem value="2">High</SelectItem>
-                      <SelectItem value="3">Medium</SelectItem>
-                      <SelectItem value="4">Low</SelectItem>
-                      <SelectItem value="5">Very Low</SelectItem>
-                    </SelectContent>
-                </Select>
-                <Select value={fileTypeFilter} onValueChange={setFileTypeFilter}>
-                    <SelectTrigger className="w-[150px]">
-                      <SelectValue placeholder="File Type" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        <SelectItem value="all">All File Types</SelectItem>
-                        <SelectItem value=".csv">CSV</SelectItem>
-                        <SelectItem value=".xlsx">XLSX</SelectItem>
-                        <SelectItem value=".xls">XLS</SelectItem>
-                        <SelectItem value=".zip">ZIP</SelectItem>
-                        <SelectItem value=".rar">RAR</SelectItem>
-                        <SelectItem value=".7z">7Z</SelectItem>
-                        <SelectItem value=".gz">GZ</SelectItem>
-                        <SelectItem value=".tar">TAR</SelectItem>
-                    </SelectContent>
-                </Select>
-                <Select value={modelFilter} onValueChange={setModelFilter}>
-                    <SelectTrigger className="w-[180px]">
-                      <SelectValue placeholder="AI Model" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        <SelectItem value="all">All AI Models</SelectItem>
-                        {availableModels.map(m => <SelectItem key={m} value={m}>{m}</SelectItem>)}
-                    </SelectContent>
-                </Select>
+                <MultiSelectFilter
+                  label="Status"
+                  options={[
+                    { value: "ok", label: "Completed" },
+                    { value: "running", label: "Running" },
+                    { value: "error", label: "Error" },
+                    { value: "enqueued", label: "Enqueued" },
+                  ]}
+                  selectedValues={statusFilter}
+                  onSelectionChange={setStatusFilter}
+                  className="w-auto"
+                />
+                <MultiSelectFilter
+                  label="Priority"
+                  options={[
+                    { value: 1, label: "Urgent" },
+                    { value: 2, label: "High" },
+                    { value: 3, label: "Medium" },
+                    { value: 4, label: "Low" },
+                    { value: 5, label: "Very Low" },
+                  ]}
+                  selectedValues={priorityFilter}
+                  onSelectionChange={setPriorityFilter}
+                  className="w-auto"
+                />
+                <MultiSelectFilter
+                  label="File Type"
+                  options={[
+                    { value: ".csv", label: "CSV" },
+                    { value: ".xlsx", label: "XLSX" },
+                    { value: ".xls", label: "XLS" },
+                    { value: ".zip", label: "ZIP" },
+                    { value: ".rar", label: "RAR" },
+                    { value: ".7z", label: "7Z" },
+                    { value: ".gz", label: "GZ" },
+                    { value: ".tar", label: "TAR" },
+                  ]}
+                  selectedValues={fileTypeFilter}
+                  onSelectionChange={setFileTypeFilter}
+                  className="w-auto"
+                />
+                 <MultiSelectFilter
+                  label="AI Model"
+                  options={availableModels.map(m => ({ value: m, label: m }))}
+                  selectedValues={modelFilter}
+                  onSelectionChange={setModelFilter}
+                  className="w-auto"
+                />
                 <div className="relative">
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                     <Input

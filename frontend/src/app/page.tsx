@@ -1076,7 +1076,7 @@ export default function CsvMonitorPage() {
                 </CardContent>
               </Card>
 
-               <Card className="shadow-lg">
+              <Card className="shadow-lg">
                 <CardHeader>
                   <CardTitle>Error Analysis</CardTitle>
                   <CardDescription>Breakdown of common failure points.</CardDescription>
@@ -1116,13 +1116,86 @@ export default function CsvMonitorPage() {
                   )}
                 </CardContent>
               </Card>
+              <Card className="shadow-lg">
+                <CardHeader>
+                   <div className="flex justify-between items-center">
+                    <div>
+                        <CardTitle>Token Consumption</CardTitle>
+                        <CardDescription>Total tokens used by AI models.</CardDescription>
+                    </div>
+                    <RadioGroup value={tokenMetricType} onValueChange={(v) => setTokenMetricType(v as 'total' | 'input' | 'output')} className="flex">
+                        <div className="flex items-center space-x-1">
+                        <RadioGroupItem value="total" id="total" />
+                        <Label htmlFor="total" className="text-xs">Total</Label>
+                        </div>
+                        <div className="flex items-center space-x-1">
+                        <RadioGroupItem value="input" id="input" />
+                        <Label htmlFor="input" className="text-xs">Input</Label>
+                        </div>
+                        <div className="flex items-center space-x-1">
+                        <RadioGroupItem value="output" id="output" />
+                        <Label htmlFor="output" className="text-xs">Output</Label>
+                        </div>
+                    </RadioGroup>
+                   </div>
+                </CardHeader>
+                <CardContent className="pl-2">
+                  {tokenChartData.length > 0 ? (
+                    <ChartContainer config={{}} className="h-[250px] w-full">
+                        <ResponsiveContainer>
+                        <LineChart data={tokenChartData} margin={{ top: 5, right: 30, left: 0, bottom: 5 }}>
+                            <CartesianGrid strokeDasharray="3 3" vertical={false}/>
+                            <XAxis dataKey="time" tickLine={false} axisLine={false} tickMargin={8} stroke="hsl(var(--muted-foreground))" fontSize={12} />
+                            <YAxis tickLine={false} axisLine={false} tickMargin={8} stroke="hsl(var(--muted-foreground))" fontSize={12} />
+                            <RechartsTooltip content={<ChartTooltipContent />} />
+                            <Line dataKey="value" type="monotone" strokeWidth={2} stroke="var(--color-chart-1)" />
+                        </LineChart>
+                        </ResponsiveContainer>
+                    </ChartContainer>
+                  ) : (
+                    <div className="flex flex-col items-center justify-center h-[250px] text-center text-muted-foreground">
+                        <FileQuestion className="w-12 h-12 mb-4" />
+                        <h3 className="text-lg font-semibold">No Token Data</h3>
+                        <p className="text-sm">No token usage data available for this period.</p>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+
+              <Card className="shadow-lg">
+                <CardHeader>
+                  <CardTitle>Estimated Cost</CardTitle>
+                  <CardDescription>Total estimated cost of AI model usage.</CardDescription>
+                </CardHeader>
+                <CardContent className="pl-2">
+                  {costChartData.length > 0 ? (
+                    <ChartContainer config={{}} className="h-[250px] w-full">
+                        <ResponsiveContainer>
+                        <LineChart data={costChartData} margin={{ top: 5, right: 30, left: 0, bottom: 5 }}>
+                            <CartesianGrid strokeDasharray="3 3" vertical={false}/>
+                            <XAxis dataKey="time" tickLine={false} axisLine={false} tickMargin={8} stroke="hsl(var(--muted-foreground))" fontSize={12} />
+                            <YAxis tickLine={false} axisLine={false} tickMargin={8} stroke="hsl(var(--muted-foreground))" fontSize={12} dataKey="value" tickFormatter={(v) => `$${v.toFixed(3)}`} />
+                            <RechartsTooltip content={<ChartTooltipContent formatter={(v) => `$${Number(v).toFixed(4)}`} />} />
+                            <Line dataKey="value" type="monotone" strokeWidth={2} stroke="var(--color-chart-2)" />
+                        </LineChart>
+                        </ResponsiveContainer>
+                    </ChartContainer>
+                  ) : (
+                     <div className="flex flex-col items-center justify-center h-[250px] text-center text-muted-foreground">
+                        <FileQuestion className="w-12 h-12 mb-4" />
+                        <h3 className="text-lg font-semibold">No Cost Data</h3>
+                        <p className="text-sm">No cost data available for this period.</p>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
             </div>
             
             <div className="flex flex-col flex-grow min-h-0 pt-6">
-              <h2 className="text-2xl font-bold tracking-tight">Processing Status</h2>
               <div className="flex items-center justify-between gap-4 my-4">
-                <div className="flex flex-col sm:flex-row items-center gap-2 w-full flex-wrap">
-                  <div className="relative w-full sm:w-auto sm:flex-grow">
+                <h2 className="text-2xl font-bold tracking-tight">Processing Status</h2>
+                <div className="flex items-center gap-2">
+                   <div className="relative w-full sm:w-auto sm:flex-grow">
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                     <Input
                       type="text"
@@ -1149,14 +1222,14 @@ export default function CsvMonitorPage() {
                   <Button variant="ghost" onClick={handleClearFilters} className="w-full sm:w-auto">
                       <X className="mr-2 h-4 w-4" /> Clear
                   </Button>
-                </div>
-                 <Button
+                   <Button
                     onClick={() => setIsUploadDialogOpen(true)}
                     className="h-10 w-10 p-0"
                     aria-label="Upload files"
                   >
                     <Plus className="h-6 w-6" />
                   </Button>
+                </div>
               </div>
               <Card className="shadow-xl flex flex-col flex-grow relative">
                 <CardContent className="flex flex-col flex-grow p-0">

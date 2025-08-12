@@ -1119,46 +1119,46 @@ export default function CsvMonitorPage() {
             </div>
             
             <div className="flex flex-col flex-grow min-h-0 pt-6">
-               <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-4">
-                  <h2 className="text-2xl font-bold tracking-tight">Processing Status</h2>
-                  <div className="flex flex-col sm:flex-row items-center gap-2 w-full md:w-auto flex-wrap">
-                    <div className="relative w-full sm:w-auto sm:flex-grow">
-                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                      <Input
-                        type="text"
-                        placeholder="Filter by filename..."
-                        value={filterText}
-                        onChange={(e) => setFilterText(e.target.value)}
-                        className="pl-10 w-full"
-                        aria-label="Filter by filename"
-                      />
-                    </div>
-                    <Select value={statusFilter} onValueChange={setStatusFilter}>
-                        <SelectTrigger className="w-full sm:w-[180px]">
-                          <SelectValue placeholder="Filter by status" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="all">All Statuses</SelectItem>
-                          <SelectItem value="ok">Completed</SelectItem>
-                          <SelectItem value="running">Running</SelectItem>
-                          <SelectItem value="error">Error</SelectItem>
-                          <SelectItem value="enqueued">Enqueued</SelectItem>
-                        </SelectContent>
-                    </Select>
-                    <Separator orientation="vertical" className="h-6 mx-2 hidden sm:block" />
-                    <Button variant="ghost" onClick={handleClearFilters} className="w-full sm:w-auto">
-                        <X className="mr-2 h-4 w-4" /> Clear
-                    </Button>
+              <h2 className="text-2xl font-bold tracking-tight">Processing Status</h2>
+              <div className="flex items-center justify-between gap-4 my-4">
+                <div className="flex flex-col sm:flex-row items-center gap-2 w-full flex-wrap">
+                  <div className="relative w-full sm:w-auto sm:flex-grow">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      type="text"
+                      placeholder="Filter by filename..."
+                      value={filterText}
+                      onChange={(e) => setFilterText(e.target.value)}
+                      className="pl-10 w-full"
+                      aria-label="Filter by filename"
+                    />
                   </div>
+                  <Select value={statusFilter} onValueChange={setStatusFilter}>
+                      <SelectTrigger className="w-full sm:w-[180px]">
+                        <SelectValue placeholder="Filter by status" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">All Statuses</SelectItem>
+                        <SelectItem value="ok">Completed</SelectItem>
+                        <SelectItem value="running">Running</SelectItem>
+                        <SelectItem value="error">Error</SelectItem>
+                        <SelectItem value="enqueued">Enqueued</SelectItem>
+                      </SelectContent>
+                  </Select>
+                  <Separator orientation="vertical" className="h-6 mx-2 hidden sm:block" />
+                  <Button variant="ghost" onClick={handleClearFilters} className="w-full sm:w-auto">
+                      <X className="mr-2 h-4 w-4" /> Clear
+                  </Button>
                 </div>
-              <Card className="shadow-xl flex flex-col flex-grow relative">
                  <Button
                     onClick={() => setIsUploadDialogOpen(true)}
-                    className="absolute top-4 right-4 z-10 rounded-full h-12 w-12"
+                    className="h-10 w-10 p-0"
                     aria-label="Upload files"
                   >
                     <Plus className="h-6 w-6" />
                   </Button>
+              </div>
+              <Card className="shadow-xl flex flex-col flex-grow relative">
                 <CardContent className="flex flex-col flex-grow p-0">
                   {isInitialLoading ? (
                     <div className="flex flex-col items-center justify-center h-[500px] text-center text-muted-foreground">

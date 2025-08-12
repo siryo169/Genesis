@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useState, useEffect, useMemo, useCallback, useRef } from "react";
@@ -342,7 +343,8 @@ export default function CsvMonitorPage() {
     }
 
     if (priorityFilter !== 'all') {
-      sortableItems = sortableItems.filter(entry => (entry.priority || 3) === parseInt(priorityFilter));
+      const priorityNum = parseInt(priorityFilter, 10);
+      sortableItems = sortableItems.filter(entry => (entry.priority || 3) === priorityNum);
     }
 
     if (fileTypeFilter !== 'all') {

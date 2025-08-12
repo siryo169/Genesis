@@ -940,477 +940,468 @@ export default function CsvMonitorPage() {
 
   return (
     <div className="min-h-screen bg-background text-foreground p-4 md:p-8 flex flex-col">
-       <header className="mb-8 sticky top-0 z-50 bg-background/80 backdrop-blur-sm -mx-4 -mt-4 px-4 pt-4 pb-4 border-b sm:-mx-8 sm:px-8">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-4">
-            <span className="h-10 w-10 text-primary"><Logo /></span>
-            <Tabs value={activeTab} onValueChange={setActiveTab} className="hidden md:block">
-              <TabsList>
-                <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
-              </TabsList>
-            </Tabs>
-          </div>
-          
-          <div className="flex items-center gap-2">
-            <Badge 
-              variant={isMockMode ? "secondary" : "default"} 
-              className="flex items-center gap-1"
-            >
-              {isMockMode ? (
-                <>
-                  <Database className="h-3 w-3" />
-                  Mock Data
-                </>
-              ) : (
-                <>
-                  <Cloud className="h-3 w-3" />
-                  Live API
-                </>
-              )}
-            </Badge>
-            <Sheet>
-              <SheetTrigger asChild>
-                <Button variant="ghost" size="icon">
-                  <Settings className="h-5 w-5" />
-                  <span className="sr-only">Settings</span>
-                </Button>
-              </SheetTrigger>
-              <SheetContent>
-                  <SheetHeader>
-                    <SheetTitle>Settings</SheetTitle>
-                  </SheetHeader>
-                  <div className="space-y-8 mt-4">
-                  {/* Data Source Section */}
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="flex items-center gap-2 text-base">
-                        <Settings2 className="h-5 w-5" />
-                        Data Source
-                      </CardTitle>
-                      <CardDescription className="text-xs">
-                        Switch between mock data and live API.
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                      <div className="flex items-center justify-between p-3 border rounded-lg">
-                        <div className="space-y-1">
-                          <Label htmlFor="mock-mode-toggle" className="text-sm font-medium">
-                            {isMockMode ? 'Mock Data Mode' : 'Live API Mode'}
-                          </Label>
-                        </div>
-                        <Switch 
-                          id="mock-mode-toggle"
-                          checked={isMockMode}
-                          onCheckedChange={handleModeToggle}
-                        />
+       <header className="sticky top-0 z-50 flex h-14 items-center justify-between border-b bg-background/80 px-4 backdrop-blur-sm sm:px-8 -mx-4 -mt-4">
+        <div className="flex items-center space-x-4">
+          <span className="h-10 w-10 text-primary"><Logo /></span>
+        </div>
+        
+        <div className="flex items-center gap-2">
+          <Badge 
+            variant={isMockMode ? "secondary" : "default"} 
+            className="flex items-center gap-1"
+          >
+            {isMockMode ? (
+              <>
+                <Database className="h-3 w-3" />
+                Mock Data
+              </>
+            ) : (
+              <>
+                <Cloud className="h-3 w-3" />
+                Live API
+              </>
+            )}
+          </Badge>
+          <Sheet>
+            <SheetTrigger asChild>
+              <Button variant="ghost" size="icon">
+                <Settings className="h-5 w-5" />
+                <span className="sr-only">Settings</span>
+              </Button>
+            </SheetTrigger>
+            <SheetContent>
+                <SheetHeader>
+                  <SheetTitle>Settings</SheetTitle>
+                </SheetHeader>
+                <div className="space-y-8 mt-4">
+                {/* Data Source Section */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2 text-base">
+                      <Settings2 className="h-5 w-5" />
+                      Data Source
+                    </CardTitle>
+                    <CardDescription className="text-xs">
+                      Switch between mock data and live API.
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="flex items-center justify-between p-3 border rounded-lg">
+                      <div className="space-y-1">
+                        <Label htmlFor="mock-mode-toggle" className="text-sm font-medium">
+                          {isMockMode ? 'Mock Data Mode' : 'Live API Mode'}
+                        </Label>
                       </div>
-                    </CardContent>
-                  </Card>
+                      <Switch 
+                        id="mock-mode-toggle"
+                        checked={isMockMode}
+                        onCheckedChange={handleModeToggle}
+                      />
+                    </div>
+                  </CardContent>
+                </Card>
 
-                  {/* Notifications Section */}
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="text-base">Notifications</CardTitle>
-                      <CardDescription className="text-xs">Configure how and when you receive notifications.</CardDescription>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                      <div className="flex items-center gap-4">
-                        <Label htmlFor="notif-email" className="text-sm">Email</Label>
-                        <Switch id="notif-email" />
-                      </div>
-                       <div className="flex items-center gap-4">
-                        <Label htmlFor="notif-telegram" className="text-sm">Telegram</Label>
-                        <Switch id="notif-telegram" />
-                      </div>
-                    </CardContent>
-                  </Card>
-                   {/* AI Models Table Section */}
-                  <Card>
-                    <CardHeader>
-                      <CardTitle  className="text-base">AI Models & API Keys</CardTitle>
-                      <CardDescription className="text-xs">Manage your API keys and view model details.</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      <table className="w-full border-collapse text-sm">
-                        <thead>
-                          <tr>
-                            <th className="text-left p-2 font-medium text-muted-foreground">Model</th>
-                            <th className="text-right p-2 font-medium text-muted-foreground">Actions</th>
+                {/* Notifications Section */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-base">Notifications</CardTitle>
+                    <CardDescription className="text-xs">Configure how and when you receive notifications.</CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="flex items-center gap-4">
+                      <Label htmlFor="notif-email" className="text-sm">Email</Label>
+                      <Switch id="notif-email" />
+                    </div>
+                     <div className="flex items-center gap-4">
+                      <Label htmlFor="notif-telegram" className="text-sm">Telegram</Label>
+                      <Switch id="notif-telegram" />
+                    </div>
+                  </CardContent>
+                </Card>
+                 {/* AI Models Table Section */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle  className="text-base">AI Models & API Keys</CardTitle>
+                    <CardDescription className="text-xs">Manage your API keys and view model details.</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <table className="w-full border-collapse text-sm">
+                      <thead>
+                        <tr>
+                          <th className="text-left p-2 font-medium text-muted-foreground">Model</th>
+                          <th className="text-right p-2 font-medium text-muted-foreground">Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {aiModels.map(model => (
+                          <tr key={model.name} className={`border-t ${activeModel === model.name ? 'bg-primary/10' : ''}`}>
+                            <td className="p-2 font-medium">{model.name}</td>
+                            <td className="p-2 text-right">
+                              <div className="flex items-center justify-end gap-1">
+                                <Button
+                                  variant={activeModel === model.name ? 'secondary' : 'ghost'}
+                                  size="icon"
+                                  onClick={() => setActiveModel(model.name)}
+                                  aria-label={activeModel === model.name ? 'Active model' : 'Activate model'}
+                                  className="h-7 w-7"
+                                >
+                                  <Check className={`h-4 w-4 ${activeModel === model.name ? 'text-primary' : ''}`} />
+                                </Button>
+                                <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setModelInfoDialog({ open: true, model: model.name })}>
+                                  <Info className="h-4 w-4" />
+                                </Button>
+                                <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setKeyDialog({ open: true, model: model.name })}>
+                                  <Key className="h-4 w-4" />
+                                </Button>
+                              </div>
+                            </td>
                           </tr>
-                        </thead>
-                        <tbody>
-                          {aiModels.map(model => (
-                            <tr key={model.name} className={`border-t ${activeModel === model.name ? 'bg-primary/10' : ''}`}>
-                              <td className="p-2 font-medium">{model.name}</td>
-                              <td className="p-2 text-right">
-                                <div className="flex items-center justify-end gap-1">
-                                  <Button
-                                    variant={activeModel === model.name ? 'secondary' : 'ghost'}
-                                    size="icon"
-                                    onClick={() => setActiveModel(model.name)}
-                                    aria-label={activeModel === model.name ? 'Active model' : 'Activate model'}
-                                    className="h-7 w-7"
-                                  >
-                                    <Check className={`h-4 w-4 ${activeModel === model.name ? 'text-primary' : ''}`} />
-                                  </Button>
-                                  <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setModelInfoDialog({ open: true, model: model.name })}>
-                                    <Info className="h-4 w-4" />
-                                  </Button>
-                                  <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setKeyDialog({ open: true, model: model.name })}>
-                                    <Key className="h-4 w-4" />
-                                  </Button>
-                                </div>
-                              </td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </CardContent>
-                  </Card>
-                </div>
-              </SheetContent>
-            </Sheet>
-          </div>
+                        ))}
+                      </tbody>
+                    </table>
+                  </CardContent>
+                </Card>
+              </div>
+            </SheetContent>
+          </Sheet>
         </div>
       </header>
       
-      <main className="flex-grow">
-        <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsContent value="dashboard" className="mt-6 space-y-6">
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-              <StatCard title="Processed Today" value={todayStats.processedToday} Icon={Activity} description="Files reaching a terminal state today." />
-              <StatCard title="Success Rate Today" value={todayStats.successRateToday} Icon={CheckCircle2} description="Of files processed today." />
-              <StatCard title="Files In Progress" value={todayStats.inProgress} Icon={Loader2} description="Currently running pipelines." />
-              <StatCard title="Total Files" value={csvData.length} Icon={Files} description="Tracked in the system." />
-            </div>
-            
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <Card className="shadow-lg">
-                <CardHeader>
-                   <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
-                    <div>
-                      <CardTitle>Throughput</CardTitle>
-                      <CardDescription>Files processed and successful over time.</CardDescription>
-                    </div>
+      <main className="flex-grow pt-8">
+        <div className="space-y-6">
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+            <StatCard title="Processed Today" value={todayStats.processedToday} Icon={Activity} description="Files reaching a terminal state today." />
+            <StatCard title="Success Rate Today" value={todayStats.successRateToday} Icon={CheckCircle2} description="Of files processed today." />
+            <StatCard title="Files In Progress" value={todayStats.inProgress} Icon={Loader2} description="Currently running pipelines." />
+            <StatCard title="Total Files" value={csvData.length} Icon={Files} description="Tracked in the system." />
+          </div>
+          
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <Card className="shadow-lg">
+              <CardHeader>
+                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+                  <div>
+                    <CardTitle>Throughput</CardTitle>
+                    <CardDescription>Files processed and successful over time.</CardDescription>
                   </div>
-                </CardHeader>
-                <CardContent className="pl-2">
-                  {throughputChartData.length > 0 ? (
-                    <ChartContainer config={{}} className="h-[250px] w-full">
-                      <ResponsiveContainer width="100%" height="100%">
-                        <LineChart data={throughputChartData} margin={{ top: 5, right: 30, left: 0, bottom: 5 }}>
-                          <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                          <XAxis dataKey="day" tickLine={false} axisLine={false} tickMargin={8} stroke="hsl(var(--muted-foreground))" fontSize={12} />
-                          <YAxis allowDecimals={false} tickLine={false} axisLine={false} tickMargin={8} stroke="hsl(var(--muted-foreground))" fontSize={12} />
-                          <RechartsTooltip
-                            cursor={{strokeDasharray: '3 3'}}
-                            content={<ChartTooltipContent indicator="dot" />}
-                          />
-                          <RechartsLegend verticalAlign="top" height={36} />
-                          <Line type="monotone" dataKey="successfully" stroke="var(--color-successfully, #4ade80)" strokeWidth={2} activeDot={{ r: 8 }} dot={{ r: 4, stroke: 'var(--color-successfully, #4ade80)', strokeWidth: 2, fill: 'white' }} connectNulls={true} />
-                          <Line type="monotone" dataKey="processed" stroke="var(--color-processed, #60a5fa)" strokeWidth={2} activeDot={{ r: 8 }} dot={{ r: 4, stroke: 'var(--color-processed, #60a5fa)', strokeWidth: 2, fill: 'white' }} connectNulls={true} />
-                        </LineChart>
-                      </ResponsiveContainer>
-                    </ChartContainer>
-                  ) : (
-                    <div className="flex flex-col items-center justify-center h-[250px] text-center text-muted-foreground">
-                        <FileQuestion className="w-12 h-12 mb-4" />
-                        <h3 className="text-lg font-semibold">No Data Available</h3>
-                        <p className="text-sm">There are no processed files in the selected date range.</p>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-
-              <Card className="shadow-lg">
-                <CardHeader>
-                  <CardTitle>Error Analysis</CardTitle>
-                  <CardDescription>Breakdown of common failure points.</CardDescription>
-                </CardHeader>
-                <CardContent className="h-[250px] flex items-center justify-center">
-                  {errorAnalysisData.length > 0 ? (
-                    <ChartContainer config={errorChartConfig} className="w-full h-full">
-                      <ResponsiveContainer>
-                        <PieChart>
-                          <RechartsTooltip
-                            cursor={{ strokeDasharray: "3 3" }}
-                            content={<ChartTooltipContent hideLabel />}
-                          />
-                          <Pie
-                            data={errorAnalysisData}
-                            dataKey="value"
-                            nameKey="name"
-                            innerRadius={60}
-                            strokeWidth={5}
-                          >
-                            {errorAnalysisData.map((entry, index) => (
-                              <Cell
-                                key={`cell-${index}`}
-                                fill={errorPalette[index % errorPalette.length]}
-                              />
-                            ))}
-                          </Pie>
-                        </PieChart>
-                      </ResponsiveContainer>
-                    </ChartContainer>
-                  ) : (
-                    <div className="flex flex-col items-center justify-center h-full text-center text-muted-foreground">
-                      <CheckCircle2 className="w-12 h-12 mb-4 text-green-500" />
-                      <h3 className="text-lg font-semibold">No Errors Found</h3>
-                      <p className="text-sm">Everything is running smoothly!</p>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-              <Card className="shadow-lg">
-                <CardHeader>
-                   <div className="flex justify-between items-center">
-                    <div>
-                        <CardTitle>Token Consumption</CardTitle>
-                        <CardDescription>Total tokens used by AI models.</CardDescription>
-                    </div>
-                    <RadioGroup value={tokenMetricType} onValueChange={(v) => setTokenMetricType(v as 'total' | 'input' | 'output')} className="flex">
-                        <div className="flex items-center space-x-1">
-                        <RadioGroupItem value="total" id="total" />
-                        <Label htmlFor="total" className="text-xs">Total</Label>
-                        </div>
-                        <div className="flex items-center space-x-1">
-                        <RadioGroupItem value="input" id="input" />
-                        <Label htmlFor="input" className="text-xs">Input</Label>
-                        </div>
-                        <div className="flex items-center space-x-1">
-                        <RadioGroupItem value="output" id="output" />
-                        <Label htmlFor="output" className="text-xs">Output</Label>
-                        </div>
-                    </RadioGroup>
-                   </div>
-                </CardHeader>
-                <CardContent className="pl-2">
-                  {tokenChartData.length > 0 ? (
-                    <ChartContainer config={{}} className="h-[250px] w-full">
-                        <ResponsiveContainer>
-                        <LineChart data={tokenChartData} margin={{ top: 5, right: 30, left: 0, bottom: 5 }}>
-                            <CartesianGrid strokeDasharray="3 3" vertical={false}/>
-                            <XAxis dataKey="time" tickLine={false} axisLine={false} tickMargin={8} stroke="hsl(var(--muted-foreground))" fontSize={12} />
-                            <YAxis tickLine={false} axisLine={false} tickMargin={8} stroke="hsl(var(--muted-foreground))" fontSize={12} />
-                            <RechartsTooltip content={<ChartTooltipContent />} />
-                            <Line dataKey="value" type="monotone" strokeWidth={2} stroke="var(--color-chart-1)" />
-                        </LineChart>
-                        </ResponsiveContainer>
-                    </ChartContainer>
-                  ) : (
-                    <div className="flex flex-col items-center justify-center h-[250px] text-center text-muted-foreground">
-                        <FileQuestion className="w-12 h-12 mb-4" />
-                        <h3 className="text-lg font-semibold">No Token Data</h3>
-                        <p className="text-sm">No token usage data available for this period.</p>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-
-              <Card className="shadow-lg">
-                <CardHeader>
-                  <CardTitle>Estimated Cost</CardTitle>
-                  <CardDescription>Total estimated cost of AI model usage.</CardDescription>
-                </CardHeader>
-                <CardContent className="pl-2">
-                  {costChartData.length > 0 ? (
-                    <ChartContainer config={{}} className="h-[250px] w-full">
-                        <ResponsiveContainer>
-                        <LineChart data={costChartData} margin={{ top: 5, right: 30, left: 0, bottom: 5 }}>
-                            <CartesianGrid strokeDasharray="3 3" vertical={false}/>
-                            <XAxis dataKey="time" tickLine={false} axisLine={false} tickMargin={8} stroke="hsl(var(--muted-foreground))" fontSize={12} />
-                            <YAxis tickLine={false} axisLine={false} tickMargin={8} stroke="hsl(var(--muted-foreground))" fontSize={12} dataKey="value" tickFormatter={(v) => `$${v.toFixed(3)}`} />
-                            <RechartsTooltip content={<ChartTooltipContent formatter={(v) => `$${Number(v).toFixed(4)}`} />} />
-                            <Line dataKey="value" type="monotone" strokeWidth={2} stroke="var(--color-chart-2)" />
-                        </LineChart>
-                        </ResponsiveContainer>
-                    </ChartContainer>
-                  ) : (
-                     <div className="flex flex-col items-center justify-center h-[250px] text-center text-muted-foreground">
-                        <FileQuestion className="w-12 h-12 mb-4" />
-                        <h3 className="text-lg font-semibold">No Cost Data</h3>
-                        <p className="text-sm">No cost data available for this period.</p>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            </div>
-            
-            <div className="flex flex-col flex-grow min-h-0 pt-6">
-              <div className="flex items-center justify-between gap-4 mb-4">
-                <h2 className="text-2xl font-bold tracking-tight">Processing Status</h2>
-              </div>
-              <div className="flex flex-wrap items-center gap-2 mb-4">
-                  <div className="relative">
-                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                      <Input
-                        type="text"
-                        placeholder="Filter by filename..."
-                        value={filterText}
-                        onChange={(e) => setFilterText(e.target.value)}
-                        className="pl-10 w-48"
-                        aria-label="Filter by filename"
-                      />
-                  </div>
-                  <Select value={statusFilter} onValueChange={setStatusFilter}>
-                      <SelectTrigger className="w-[150px]">
-                        <SelectValue placeholder="Status" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="all">All Statuses</SelectItem>
-                        <SelectItem value="ok">Completed</SelectItem>
-                        <SelectItem value="running">Running</SelectItem>
-                        <SelectItem value="error">Error</SelectItem>
-                        <SelectItem value="enqueued">Enqueued</SelectItem>
-                      </SelectContent>
-                  </Select>
-                  <Select value={priorityFilter} onValueChange={setPriorityFilter}>
-                      <SelectTrigger className="w-[150px]">
-                        <SelectValue placeholder="Priority" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="all">All Priorities</SelectItem>
-                        <SelectItem value="1">Urgent</SelectItem>
-                        <SelectItem value="2">High</SelectItem>
-                        <SelectItem value="3">Medium</SelectItem>
-                        <SelectItem value="4">Low</SelectItem>
-                        <SelectItem value="5">Very Low</SelectItem>
-                      </SelectContent>
-                  </Select>
-                  <Select value={fileTypeFilter} onValueChange={setFileTypeFilter}>
-                      <SelectTrigger className="w-[150px]">
-                        <SelectValue placeholder="File Type" />
-                      </SelectTrigger>
-                      <SelectContent>
-                          <SelectItem value="all">All File Types</SelectItem>
-                          <SelectItem value=".csv">CSV</SelectItem>
-                          <SelectItem value=".xlsx">XLSX</SelectItem>
-                          <SelectItem value=".xls">XLS</SelectItem>
-                          <SelectItem value=".zip">ZIP</SelectItem>
-                          <SelectItem value=".rar">RAR</SelectItem>
-                          <SelectItem value=".7z">7Z</SelectItem>
-                          <SelectItem value=".gz">GZ</SelectItem>
-                          <SelectItem value=".tar">TAR</SelectItem>
-                      </SelectContent>
-                  </Select>
-                  <Select value={modelFilter} onValueChange={setModelFilter}>
-                      <SelectTrigger className="w-[180px]">
-                        <SelectValue placeholder="AI Model" />
-                      </SelectTrigger>
-                      <SelectContent>
-                          <SelectItem value="all">All AI Models</SelectItem>
-                          {availableModels.map(m => <SelectItem key={m} value={m}>{m}</SelectItem>)}
-                      </SelectContent>
-                  </Select>
-                  <div className="relative">
-                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                      <Input
-                        type="text"
-                        placeholder="Filter by fields..."
-                        value={fieldsFilter}
-                        onChange={(e) => setFieldsFilter(e.target.value)}
-                        className="pl-10 w-48"
-                        aria-label="Filter by extracted fields"
-                      />
-                  </div>
-                  <div className="relative">
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <Button
-                          id="date"
-                          variant={"outline"}
-                          className={cn(
-                            "w-[300px] justify-start text-left font-normal",
-                            !date && "text-muted-foreground"
-                          )}
-                        >
-                          <CalendarIcon className="mr-2 h-4 w-4" />
-                          {date?.from ? (
-                            date.to ? (
-                              <>
-                                {formatDate(date.from, "LLL dd, y")} -{" "}
-                                {formatDate(date.to, "LLL dd, y")}
-                              </>
-                            ) : (
-                              formatDate(date.from, "LLL dd, y")
-                            )
-                          ) : (
-                            <span>Pick a date</span>
-                          )}
-                        </Button>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0" align="start">
-                        <Calendar
-                          initialFocus
-                          mode="range"
-                          defaultMonth={date?.from}
-                          selected={date}
-                          onSelect={setDate}
-                          numberOfMonths={2}
+                </div>
+              </CardHeader>
+              <CardContent className="pl-2">
+                {throughputChartData.length > 0 ? (
+                  <ChartContainer config={{}} className="h-[250px] w-full">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <LineChart data={throughputChartData} margin={{ top: 5, right: 30, left: 0, bottom: 5 }}>
+                        <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                        <XAxis dataKey="day" tickLine={false} axisLine={false} tickMargin={8} stroke="hsl(var(--muted-foreground))" fontSize={12} />
+                        <YAxis allowDecimals={false} tickLine={false} axisLine={false} tickMargin={8} stroke="hsl(var(--muted-foreground))" fontSize={12} />
+                        <RechartsTooltip
+                          cursor={{strokeDasharray: '3 3'}}
+                          content={<ChartTooltipContent indicator="dot" />}
                         />
-                      </PopoverContent>
-                    </Popover>
+                        <RechartsLegend verticalAlign="top" height={36} />
+                        <Line type="monotone" dataKey="successfully" stroke="var(--color-successfully, #4ade80)" strokeWidth={2} activeDot={{ r: 8 }} dot={{ r: 4, stroke: 'var(--color-successfully, #4ade80)', strokeWidth: 2, fill: 'white' }} connectNulls={true} />
+                        <Line type="monotone" dataKey="processed" stroke="var(--color-processed, #60a5fa)" strokeWidth={2} activeDot={{ r: 8 }} dot={{ r: 4, stroke: 'var(--color-processed, #60a5fa)', strokeWidth: 2, fill: 'white' }} connectNulls={true} />
+                      </LineChart>
+                    </ResponsiveContainer>
+                  </ChartContainer>
+                ) : (
+                  <div className="flex flex-col items-center justify-center h-[250px] text-center text-muted-foreground">
+                      <FileQuestion className="w-12 h-12 mb-4" />
+                      <h3 className="text-lg font-semibold">No Data Available</h3>
+                      <p className="text-sm">There are no processed files in the selected date range.</p>
                   </div>
-                  <Button variant="ghost" onClick={handleClearFilters}>
-                      <X className="mr-2 h-4 w-4" /> Clear All
-                  </Button>
-                  <div className="flex-grow"></div>
-                  <Button
-                    onClick={() => setIsUploadDialogOpen(true)}
-                    className="h-10 w-10 p-0"
-                    aria-label="Upload files"
-                  >
-                    <Plus className="h-6 w-6" />
-                  </Button>
-              </div>
+                )}
+              </CardContent>
+            </Card>
 
-              <Card className="shadow-xl flex flex-col flex-grow relative">
-                <CardContent className="flex flex-col flex-grow p-0">
-                  {isInitialLoading ? (
-                    <div className="flex flex-col items-center justify-center h-[500px] text-center text-muted-foreground">
-                      <Loader2 className="w-12 h-12 mb-4 animate-spin" />
-                      <h3 className="text-lg font-semibold">Loading Pipeline Data</h3>
-                      <p className="text-sm">Fetching processing status from backend...</p>
-                    </div>
-                  ) : error ? (
-                    <div className="flex flex-col items-center justify-center h-[500px] text-center text-muted-foreground">
-                      <AlertTriangle className="w-12 h-12 mb-4 text-red-500" />
-                      <h3 className="text-lg font-semibold">Error Loading Data</h3>
-                      <p className="text-sm">{error}</p>
-                      <Button onClick={() => fetchPipelineData()} className="mt-4">
-                        <RefreshCw className="mr-2 h-4 w-4" />
-                        Retry
-                      </Button>
-                    </div>
-                  ) : (
-                    <CsvStatusTable 
-                      data={paginatedData} 
-                      sortConfig={sortConfig} 
-                      requestSort={requestSort} 
-                      now={currentTime}
-                      onDownload={handleDownload}
-                      onRowClick={handleShowFileDetails}
-                      onRetry={handleRetry}
-                      onPriorityChange={handlePriorityChange}
-                    />
-                  )}
-                </CardContent>
-              </Card>
-              <div className="pt-4">
-                <DataTablePagination
-                  pageIndex={pageIndex}
-                  pageCount={pageCount}
-                  pageSize={pageSize}
-                  setPageIndex={setPageIndex}
-                  setPageSize={setPageSize}
-                  canPreviousPage={pageIndex > 0}
-                  canNextPage={pageIndex < pageCount - 1}
-                />
-              </div>
+            <Card className="shadow-lg">
+              <CardHeader>
+                <CardTitle>Error Analysis</CardTitle>
+                <CardDescription>Breakdown of common failure points.</CardDescription>
+              </CardHeader>
+              <CardContent className="h-[250px] flex items-center justify-center">
+                {errorAnalysisData.length > 0 ? (
+                  <ChartContainer config={errorChartConfig} className="w-full h-full">
+                    <ResponsiveContainer>
+                      <PieChart>
+                        <RechartsTooltip
+                          cursor={{ strokeDasharray: "3 3" }}
+                          content={<ChartTooltipContent hideLabel />}
+                        />
+                        <Pie
+                          data={errorAnalysisData}
+                          dataKey="value"
+                          nameKey="name"
+                          innerRadius={60}
+                          strokeWidth={5}
+                        >
+                          {errorAnalysisData.map((entry, index) => (
+                            <Cell
+                              key={`cell-${index}`}
+                              fill={errorPalette[index % errorPalette.length]}
+                            />
+                          ))}
+                        </Pie>
+                      </PieChart>
+                    </ResponsiveContainer>
+                  </ChartContainer>
+                ) : (
+                  <div className="flex flex-col items-center justify-center h-full text-center text-muted-foreground">
+                    <CheckCircle2 className="w-12 h-12 mb-4 text-green-500" />
+                    <h3 className="text-lg font-semibold">No Errors Found</h3>
+                    <p className="text-sm">Everything is running smoothly!</p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+            <Card className="shadow-lg">
+              <CardHeader>
+                 <div className="flex justify-between items-center">
+                  <div>
+                      <CardTitle>Token Consumption</CardTitle>
+                      <CardDescription>Total tokens used by AI models.</CardDescription>
+                  </div>
+                  <RadioGroup value={tokenMetricType} onValueChange={(v) => setTokenMetricType(v as 'total' | 'input' | 'output')} className="flex">
+                      <div className="flex items-center space-x-1">
+                      <RadioGroupItem value="total" id="total" />
+                      <Label htmlFor="total" className="text-xs">Total</Label>
+                      </div>
+                      <div className="flex items-center space-x-1">
+                      <RadioGroupItem value="input" id="input" />
+                      <Label htmlFor="input" className="text-xs">Input</Label>
+                      </div>
+                      <div className="flex items-center space-x-1">
+                      <RadioGroupItem value="output" id="output" />
+                      <Label htmlFor="output" className="text-xs">Output</Label>
+                      </div>
+                  </RadioGroup>
+                 </div>
+              </CardHeader>
+              <CardContent className="pl-2">
+                {tokenChartData.length > 0 ? (
+                  <ChartContainer config={{}} className="h-[250px] w-full">
+                      <ResponsiveContainer>
+                      <LineChart data={tokenChartData} margin={{ top: 5, right: 30, left: 0, bottom: 5 }}>
+                          <CartesianGrid strokeDasharray="3 3" vertical={false}/>
+                          <XAxis dataKey="time" tickLine={false} axisLine={false} tickMargin={8} stroke="hsl(var(--muted-foreground))" fontSize={12} />
+                          <YAxis tickLine={false} axisLine={false} tickMargin={8} stroke="hsl(var(--muted-foreground))" fontSize={12} />
+                          <RechartsTooltip content={<ChartTooltipContent />} />
+                          <Line dataKey="value" type="monotone" strokeWidth={2} stroke="var(--color-chart-1)" />
+                      </LineChart>
+                      </ResponsiveContainer>
+                  </ChartContainer>
+                ) : (
+                  <div className="flex flex-col items-center justify-center h-[250px] text-center text-muted-foreground">
+                      <FileQuestion className="w-12 h-12 mb-4" />
+                      <h3 className="text-lg font-semibold">No Token Data</h3>
+                      <p className="text-sm">No token usage data available for this period.</p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            <Card className="shadow-lg">
+              <CardHeader>
+                <CardTitle>Estimated Cost</CardTitle>
+                <CardDescription>Total estimated cost of AI model usage.</CardDescription>
+              </CardHeader>
+              <CardContent className="pl-2">
+                {costChartData.length > 0 ? (
+                  <ChartContainer config={{}} className="h-[250px] w-full">
+                      <ResponsiveContainer>
+                      <LineChart data={costChartData} margin={{ top: 5, right: 30, left: 0, bottom: 5 }}>
+                          <CartesianGrid strokeDasharray="3 3" vertical={false}/>
+                          <XAxis dataKey="time" tickLine={false} axisLine={false} tickMargin={8} stroke="hsl(var(--muted-foreground))" fontSize={12} />
+                          <YAxis tickLine={false} axisLine={false} tickMargin={8} stroke="hsl(var(--muted-foreground))" fontSize={12} dataKey="value" tickFormatter={(v) => `$${v.toFixed(3)}`} />
+                          <RechartsTooltip content={<ChartTooltipContent formatter={(v) => `$${Number(v).toFixed(4)}`} />} />
+                          <Line dataKey="value" type="monotone" strokeWidth={2} stroke="var(--color-chart-2)" />
+                      </LineChart>
+                      </ResponsiveContainer>
+                  </ChartContainer>
+                ) : (
+                   <div className="flex flex-col items-center justify-center h-[250px] text-center text-muted-foreground">
+                      <FileQuestion className="w-12 h-12 mb-4" />
+                      <h3 className="text-lg font-semibold">No Cost Data</h3>
+                      <p className="text-sm">No cost data available for this period.</p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+          
+          <div className="flex flex-col flex-grow min-h-0 pt-6">
+            <div className="flex items-center justify-between gap-4 mb-4">
+              <h2 className="text-2xl font-bold tracking-tight">Processing Status</h2>
             </div>
-          </TabsContent>
-        </Tabs>
+            <div className="flex flex-wrap items-center gap-2 mb-4">
+                <div className="relative">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      type="text"
+                      placeholder="Filter by filename..."
+                      value={filterText}
+                      onChange={(e) => setFilterText(e.target.value)}
+                      className="pl-10 w-48"
+                      aria-label="Filter by filename"
+                    />
+                </div>
+                <Select value={statusFilter} onValueChange={setStatusFilter}>
+                    <SelectTrigger className="w-[150px]">
+                      <SelectValue placeholder="Status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Statuses</SelectItem>
+                      <SelectItem value="ok">Completed</SelectItem>
+                      <SelectItem value="running">Running</SelectItem>
+                      <SelectItem value="error">Error</SelectItem>
+                      <SelectItem value="enqueued">Enqueued</SelectItem>
+                    </SelectContent>
+                </Select>
+                <Select value={priorityFilter} onValueChange={setPriorityFilter}>
+                    <SelectTrigger className="w-[150px]">
+                      <SelectValue placeholder="Priority" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Priorities</SelectItem>
+                      <SelectItem value="1">Urgent</SelectItem>
+                      <SelectItem value="2">High</SelectItem>
+                      <SelectItem value="3">Medium</SelectItem>
+                      <SelectItem value="4">Low</SelectItem>
+                      <SelectItem value="5">Very Low</SelectItem>
+                    </SelectContent>
+                </Select>
+                <Select value={fileTypeFilter} onValueChange={setFileTypeFilter}>
+                    <SelectTrigger className="w-[150px]">
+                      <SelectValue placeholder="File Type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="all">All File Types</SelectItem>
+                        <SelectItem value=".csv">CSV</SelectItem>
+                        <SelectItem value=".xlsx">XLSX</SelectItem>
+                        <SelectItem value=".xls">XLS</SelectItem>
+                        <SelectItem value=".zip">ZIP</SelectItem>
+                        <SelectItem value=".rar">RAR</SelectItem>
+                        <SelectItem value=".7z">7Z</SelectItem>
+                        <SelectItem value=".gz">GZ</SelectItem>
+                        <SelectItem value=".tar">TAR</SelectItem>
+                    </SelectContent>
+                </Select>
+                <Select value={modelFilter} onValueChange={setModelFilter}>
+                    <SelectTrigger className="w-[180px]">
+                      <SelectValue placeholder="AI Model" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="all">All AI Models</SelectItem>
+                        {availableModels.map(m => <SelectItem key={m} value={m}>{m}</SelectItem>)}
+                    </SelectContent>
+                </Select>
+                <div className="relative">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      type="text"
+                      placeholder="Filter by fields..."
+                      value={fieldsFilter}
+                      onChange={(e) => setFieldsFilter(e.target.value)}
+                      className="pl-10 w-48"
+                      aria-label="Filter by extracted fields"
+                    />
+                </div>
+                <div className="relative">
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        id="date"
+                        variant={"outline"}
+                        className={cn(
+                          "w-[300px] justify-start text-left font-normal",
+                          !date && "text-muted-foreground"
+                        )}
+                      >
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        {date?.from ? (
+                          date.to ? (
+                            <>
+                              {formatDate(date.from, "LLL dd, y")} -{" "}
+                              {formatDate(date.to, "LLL dd, y")}
+                            </>
+                          ) : (
+                            formatDate(date.from, "LLL dd, y")
+                          )
+                        ) : (
+                          <span>Pick a date</span>
+                        )}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        initialFocus
+                        mode="range"
+                        defaultMonth={date?.from}
+                        selected={date}
+                        onSelect={setDate}
+                        numberOfMonths={2}
+                      />
+                    </PopoverContent>
+                  </Popover>
+                </div>
+                <Button variant="ghost" onClick={handleClearFilters}>
+                    <X className="mr-2 h-4 w-4" /> Clear All
+                </Button>
+                <div className="flex-grow"></div>
+                <Button
+                  onClick={() => setIsUploadDialogOpen(true)}
+                  className="h-10 w-10 p-0"
+                  aria-label="Upload files"
+                >
+                  <Plus className="h-6 w-6" />
+                </Button>
+            </div>
+
+            <Card className="shadow-xl flex flex-col flex-grow relative">
+              <CardContent className="flex flex-col flex-grow p-0">
+                {isInitialLoading ? (
+                  <div className="flex flex-col items-center justify-center h-[500px] text-center text-muted-foreground">
+                    <Loader2 className="w-12 h-12 mb-4 animate-spin" />
+                    <h3 className="text-lg font-semibold">Loading Pipeline Data</h3>
+                    <p className="text-sm">Fetching processing status from backend...</p>
+                  </div>
+                ) : error ? (
+                  <div className="flex flex-col items-center justify-center h-[500px] text-center text-muted-foreground">
+                    <AlertTriangle className="w-12 h-12 mb-4 text-red-500" />
+                    <h3 className="text-lg font-semibold">Error Loading Data</h3>
+                    <p className="text-sm">{error}</p>
+                    <Button onClick={() => fetchPipelineData()} className="mt-4">
+                      <RefreshCw className="mr-2 h-4 w-4" />
+                      Retry
+                    </Button>
+                  </div>
+                ) : (
+                  <CsvStatusTable 
+                    data={paginatedData} 
+                    sortConfig={sortConfig} 
+                    requestSort={requestSort} 
+                    now={currentTime}
+                    onDownload={handleDownload}
+                    onRowClick={handleShowFileDetails}
+                    onRetry={handleRetry}
+                    onPriorityChange={handlePriorityChange}
+                  />
+                )}
+              </CardContent>
+            </Card>
+            <div className="pt-4">
+              <DataTablePagination
+                pageIndex={pageIndex}
+                pageCount={pageCount}
+                pageSize={pageSize}
+                setPageIndex={setPageIndex}
+                setPageSize={setPageSize}
+                canPreviousPage={pageIndex > 0}
+                canNextPage={pageIndex < pageCount - 1}
+              />
+            </div>
+          </div>
+        </div>
       </main>
       
       <footer className="mt-12 text-center text-sm text-muted-foreground">

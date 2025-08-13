@@ -46,7 +46,7 @@ class Normalizer:
         self.strip_prefixes = {k: v.strip() for k, v in raw_prefixes.items()} if raw_prefixes else {}
         
         self.total_columns = gemini_result.get("total_columns")
-
+        self.header_metadata = gemini_result.get("header_metadata", {})
     def _normalize_value(self, header: str, value: Any) -> Any:
         """
         Normalizes a single value based on its header.
@@ -252,14 +252,6 @@ class Normalizer:
                 invalid_file.write(f"Row_Number,Reason,Original_Line\n")
                 row_iter = enumerate(infile, start=1)
 
-                be_header = {}
-                for idx,header in enumerate(new_headers):
-                    if idx == 0:
-                        be_header["field"] = header
-                    else:
-                        be_header[f"field_{idx-1}"] = header
-                be_output_file.write(json.dumps(be_header,ensure_ascii= False) + "\n")
-
                 if self.input_has_header:
                     next(row_iter)
                     input_processed_rows += 1  # header processed
@@ -291,11 +283,14 @@ class Normalizer:
                     processed_row = self._process_row(row, new_headers)
                     writer.writerow(processed_row)
                     be_row = {}
+                    unclassified_row = {}
                     for i, value in enumerate(processed_row):
-                        if i == 0:
-                            be_row["field"] = value
-                        else:
-                            be_row[f"field_{i-1}"] = value
+                        known = new_headers[i] in known_header_keys
+                        target_dict = be_row if known else unclassified_row
+                        if new_headers[i] not in target_dict:
+                            target_dict[new_headers[i]] = []
+                        target_dict[new_headers[i]].append(value)
+                    be_row["unclassified"] = unclassified_row
                     be_output_file.write(json.dumps(be_row, ensure_ascii=False) + "\n")
                     output_written_rows += 1
 
@@ -311,12 +306,6 @@ class Normalizer:
                 output_written_rows += 1  # header written
                 invalid_file.write(f"Row_Number,Reason,Original_Line\n")
                 row_iter = df.iterrows()
-                be_header = {}
-                for idx, header in enumerate(new_headers):
-                    if idx == 0:
-                        be_header["field"] = header
-                    else:
-                        be_header[f"field_{idx-1}"] = header
                 if self.input_has_header:
                     next(row_iter)
                     input_processed_rows += 1  # header processed
@@ -341,11 +330,14 @@ class Normalizer:
                     processed_row = self._process_row(row_list, new_headers)
                     writer.writerow(processed_row)
                     be_row = {}
+                    unclassified_row = {}
                     for i, value in enumerate(processed_row):
-                        if i == 0:
-                            be_row["field"] = value
-                        else:
-                            be_row[f"field_{i-1}"] = value
+                        known = new_headers[i] in known_header_keys
+                        target_dict = be_row if known else unclassified_row
+                        if new_headers[i] not in target_dict:
+                            target_dict[new_headers[i]] = []
+                        target_dict[new_headers[i]].append(value)
+                    be_row["unclassified"] = unclassified_row
                     be_output_file.write(json.dumps(be_row, ensure_ascii=False) + "\n")
                     output_written_rows += 1
         else:

@@ -1,3 +1,4 @@
+
 "use client";
 
 import type { CsvProcessingEntry } from "@/types/csv-status";
@@ -203,22 +204,22 @@ export function CsvStatusTable({ data, sortConfig, requestSort, now, onDownload,
                   Filename {getSortIndicator('filename')}
                 </Button>
               </TableHead>
-              <TableHead className="w-40">
+              <TableHead className="w-28 text-center">
                  <span className="px-2 py-1 group text-xs">Classifier</span>
               </TableHead>
-              <TableHead className="w-28">
+              <TableHead className="w-28 text-center">
                   <Button variant="ghost" disabled className="px-2 py-1 group text-xs">
                   File Type
                 </Button>
               </TableHead>
-              <TableHead className="w-40">
+              <TableHead className="w-28 text-center">
                 <span className="px-2 py-1 group text-xs">Sampling</span>
               </TableHead>
-              <TableHead className="w-40">
+              <TableHead className="w-28 text-center">
                 <span className="px-2 py-1 group text-xs">Gemini Query</span>
               </TableHead>
               <TableHead className="text-xs">Extracted Fields</TableHead>
-              <TableHead className="w-40">
+              <TableHead className="w-28 text-center">
                 <span className="px-2 py-1 group text-xs">Normalizer</span>
               </TableHead>
               <TableHead className="text-right px-4 text-xs w-20">Actions</TableHead>
@@ -263,14 +264,16 @@ export function CsvStatusTable({ data, sortConfig, requestSort, now, onDownload,
                           </Tooltip>
                         </TooltipProvider>
                       </TableCell>
-                    <TableCell className={cellPaddingClass}>
-                      <StatusBadge 
-                        status={entry.status === 'enqueued' ? 'not_started' : entry.stage_stats?.classification?.status || 'not_started'}
-                        startTime={entry.stage_stats?.classification?.start_time ? new Date(entry.stage_stats.classification.start_time).getTime() : undefined}
-                        endTime={entry.stage_stats?.classification?.end_time ? new Date(entry.stage_stats.classification.end_time).getTime() : undefined}
-                        error_message={entry.stage_stats?.classification?.error_message}
-                        now={now} 
-                      />
+                    <TableCell className={cn("text-center", cellPaddingClass)}>
+                      <div className="flex items-center justify-center">
+                        <StatusBadge 
+                          status={entry.status === 'enqueued' ? 'not_started' : entry.stage_stats?.classification?.status || 'not_started'}
+                          startTime={entry.stage_stats?.classification?.start_time ? new Date(entry.stage_stats.classification.start_time).getTime() : undefined}
+                          endTime={entry.stage_stats?.classification?.end_time ? new Date(entry.stage_stats.classification.end_time).getTime() : undefined}
+                          error_message={entry.stage_stats?.classification?.error_message}
+                          now={now} 
+                        />
+                      </div>
                     </TableCell>
                       <TableCell className={cn("text-center text-xs", cellPaddingClass)}>
                       <TooltipProvider delayDuration={100}>
@@ -325,14 +328,16 @@ export function CsvStatusTable({ data, sortConfig, requestSort, now, onDownload,
                         )}
                       </div>
                     </TableCell>
-                    <TableCell className={cellPaddingClass}>
-                      <StatusBadge 
-                        status={entry.stage_stats?.gemini_query?.status || 'not_started'}
-                        startTime={entry.stage_stats?.gemini_query?.start_time ? new Date(entry.stage_stats.gemini_query.start_time).getTime() : undefined}
-                        endTime={entry.stage_stats?.gemini_query?.end_time ? new Date(entry.stage_stats.gemini_query.end_time).getTime() : undefined}
-                        error_message={entry.stage_stats?.gemini_query?.error_message}
-                        now={now}
-                      />
+                    <TableCell className={cn("text-center", cellPaddingClass)}>
+                      <div className="flex items-center justify-center">
+                        <StatusBadge 
+                          status={entry.stage_stats?.gemini_query?.status || 'not_started'}
+                          startTime={entry.stage_stats?.gemini_query?.start_time ? new Date(entry.stage_stats.gemini_query.start_time).getTime() : undefined}
+                          endTime={entry.stage_stats?.gemini_query?.end_time ? new Date(entry.stage_stats.gemini_query.end_time).getTime() : undefined}
+                          error_message={entry.stage_stats?.gemini_query?.error_message}
+                          now={now}
+                        />
+                      </div>
                     </TableCell>
                     <TableCell className={cn("text-sm text-muted-foreground", cellPaddingClass)} title={entry.extracted_fields ? entry.extracted_fields.join(", ") : "No fields extracted"}>
                       {(() => {
@@ -374,14 +379,16 @@ export function CsvStatusTable({ data, sortConfig, requestSort, now, onDownload,
                         </span>
                       )}
                     </TableCell>
-                    <TableCell className={cellPaddingClass}>
-                      <StatusBadge
-                        status={entry.stage_stats?.normalization?.status || 'not_started'}
-                        startTime={entry.stage_stats?.normalization?.start_time ? new Date(entry.stage_stats.normalization.start_time).getTime() : undefined}
-                        endTime={entry.stage_stats?.normalization?.end_time ? new Date(entry.stage_stats.normalization.end_time).getTime() : undefined}
-                        error_message={entry.stage_stats?.normalization?.error_message}
-                        now={now}
-                      />
+                    <TableCell className={cn("text-center", cellPaddingClass)}>
+                      <div className="flex items-center justify-center">
+                        <StatusBadge
+                          status={entry.stage_stats?.normalization?.status || 'not_started'}
+                          startTime={entry.stage_stats?.normalization?.start_time ? new Date(entry.stage_stats.normalization.start_time).getTime() : undefined}
+                          endTime={entry.stage_stats?.normalization?.end_time ? new Date(entry.stage_stats.normalization.end_time).getTime() : undefined}
+                          error_message={entry.stage_stats?.normalization?.error_message}
+                          now={now}
+                        />
+                      </div>
                     </TableCell>
                     <TableCell className={cn("text-right", cellPaddingClass)}>
                       <DropdownMenu>
@@ -549,8 +556,3 @@ function getStatusColor(status: string): string {
       return 'bg-gray-500';
   }
 }
-
-
-
-
-

@@ -78,7 +78,7 @@ const PriorityLabel = ({ priority = 3, entryId, onPriorityChange }: { priority: 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="outline" size="icon" className={cn("rounded-full border w-[22px] h-[22px]", config.className)} onClick={(e) => e.stopPropagation()}>
+        <Button variant="outline" className={cn("rounded-full border h-[22px] px-2", config.className)} onClick={(e) => e.stopPropagation()}>
            <Icon className={cn("h-4 w-4", config.iconClassName)} />
            <span className="sr-only">{config.label}</span>
         </Button>

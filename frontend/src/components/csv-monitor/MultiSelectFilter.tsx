@@ -1,3 +1,4 @@
+
 "use client";
 
 import React from "react";
@@ -51,7 +52,7 @@ export function MultiSelectFilter({
           variant="outline"
           className={cn(
             "relative h-10 w-auto justify-start",
-            hasSelection && "border-primary hover:border-primary/80",
+            hasSelection && "border-foreground",
             className
           )}
         >
@@ -83,3 +84,5 @@ export function MultiSelectFilter({
     </DropdownMenu>
   );
 }
+
+    

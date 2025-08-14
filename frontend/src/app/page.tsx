@@ -1030,9 +1030,9 @@ export default function CsvMonitorPage() {
                         id="date"
                         variant={"outline"}
                         className={cn(
-                          "w-auto justify-start text-left font-normal",
+                          "w-auto justify-start text-left font-normal pr-8",
                           !date && "text-muted-foreground",
-                          !!date && "border-foreground pr-8"
+                          !!date && "border-foreground"
                         )}
                       >
                         <CalendarIcon className="mr-2 h-4 w-4" />
@@ -1072,8 +1072,9 @@ export default function CsvMonitorPage() {
                     </Button>
                   )}
                 </div>
+                <Separator orientation="vertical" className="h-6 mx-2" />
                 <Button variant="ghost" onClick={handleClearFilters}>
-                    <X className="mr-2 h-4 w-4" /> Clear All
+                   Reset
                 </Button>
                 <div className="flex-grow"></div>
                 <Button

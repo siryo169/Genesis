@@ -1,5 +1,4 @@
 
-
 "use client";
 
 import React, { useState, useEffect, useMemo, useCallback, useRef } from "react";
@@ -105,7 +104,16 @@ export default function CsvMonitorPage() {
     { name: 'Gemini 2.0 Flash' },
   ];
   const availableModels = aiModels.map(m => m.name);
-  const [uploadPriority, setUploadPriority] = useState<'Normal' | 'High'>('Normal');
+  type PriorityValue = 1 | 2 | 3 | 4 | 5;
+  type PriorityLabel = 'Urgent' | 'High' | 'Medium' | 'Low' | 'Very Low';
+  const priorityOptions: { value: PriorityValue, label: PriorityLabel }[] = [
+    { value: 1, label: "Urgent" },
+    { value: 2, label: "High" },
+    { value: 3, label: "Medium" },
+    { value: 4, label: "Low" },
+    { value: 5, label: "Very Low" },
+  ];
+  const [uploadPriority, setUploadPriority] = useState<PriorityValue>(3);
   const [uploadSelectedModel, setUploadSelectedModel] = useState<string>('Gemini 2.5 Flash');
 
   const getOverallStatus = useCallback((entry: CsvProcessingEntry): ProcessingStatus => {
@@ -279,20 +287,22 @@ export default function CsvMonitorPage() {
     }
   }, [csvData, toast]);
 
-  const handleFileUpload = useCallback(async (files: File[], model: string = '', priority: boolean = false) => {
+  const handleFileUpload = useCallback(async (files: File[], model: string, priority: number) => {
     try {
       for (const file of files) {
         const formData = new FormData();
         formData.append('file', file);
-        if (model) formData.append('model', model);
-        if (priority) formData.append('priority', 'true');
-        const response = await fetch(`${config.apiBaseUrl}/api/upload`, {
+        formData.append('model', model);
+        formData.append('priority', priority.toString());
+        
+        // Use apiClient for upload
+        await apiClient.request(`/api/upload`, {
           method: 'POST',
           body: formData,
+          headers: {
+            'Content-Type': 'multipart/form-data'
+          }
         });
-        if (!response.ok) {
-          throw new Error(`Failed to upload ${file.name}`);
-        }
       }
       toast({
         title: "Upload Successful",
@@ -978,13 +988,7 @@ export default function CsvMonitorPage() {
                 />
                 <MultiSelectFilter
                   label="Priority"
-                  options={[
-                    { value: 1, label: "Urgent" },
-                    { value: 2, label: "High" },
-                    { value: 3, label: "Medium" },
-                    { value: 4, label: "Low" },
-                    { value: 5, label: "Very Low" },
-                  ]}
+                  options={priorityOptions}
                   selectedValues={priorityFilter}
                   onSelectionChange={setPriorityFilter}
                   className="w-auto"
@@ -1061,7 +1065,7 @@ export default function CsvMonitorPage() {
                       />
                     </PopoverContent>
                   </Popover>
-                   {date && (
+                   {!!(date?.from || date?.to) && (
                     <Button
                       variant="ghost"
                       size="icon"
@@ -1165,29 +1169,33 @@ export default function CsvMonitorPage() {
               <Label className="text-base">Priority</Label>
               <Popover>
                 <PopoverTrigger asChild>
-                  <Button variant="outline" size="sm" className="flex items-center gap-2">
-                    {uploadPriority}
+                  <Button variant="outline" size="sm" className="flex items-center gap-2 w-[120px] justify-between">
+                    <span>{priorityOptions.find(p => p.value === uploadPriority)?.label}</span>
                     <ChevronDown className="h-4 w-4" />
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent className="min-w-[120px]">
-                  {['Normal', 'High'].map(option => (
-                    <div key={option} className="flex items-center gap-2 cursor-pointer hover:bg-muted px-2 py-1 rounded" onClick={() => setUploadPriority(option as 'Normal' | 'High')}>
-                      <span className="inline-block w-4">{uploadPriority === option && <Check className="h-4 w-4 text-primary" />}</span>
-                      <span>{option}</span>
+                <PopoverContent className="min-w-[120px] p-1">
+                  {priorityOptions.map(option => (
+                    <div 
+                      key={option.value} 
+                      className="flex items-center gap-2 cursor-pointer hover:bg-muted px-2 py-1 rounded" 
+                      onClick={() => {
+                        setUploadPriority(option.value);
+                      }}
+                    >
+                      <span className="inline-block w-4">{uploadPriority === option.value && <Check className="h-4 w-4 text-primary" />}</span>
+                      <span>{option.label}</span>
                     </div>
                   ))}
                 </PopoverContent>
               </Popover>
             </div>
           </div>
-          <FileUpload onFileUpload={files => handleFileUpload(files, uploadSelectedModel, uploadPriority === 'High')} />
+          <FileUpload onFileUpload={files => handleFileUpload(files, uploadSelectedModel, uploadPriority)} />
         </DialogContent>
       </Dialog>
     </div>
   );
 }
-
-    
 
     

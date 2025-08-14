@@ -193,35 +193,35 @@ export function CsvStatusTable({ data, sortConfig, requestSort, now, onDownload,
         <Table className="min-w-full border-collapse relative">
           <TableHeader className="bg-muted sticky top-0 z-10">
             <TableRow>
-              <TableHead className="w-[150px] text-center">
+              <TableHead className="w-20 text-center">
                 <Button variant="ghost" onClick={() => requestSort('priority')} className="px-2 py-1 group text-xs">
                   Priority {getSortIndicator('priority')}
                 </Button>
               </TableHead>
-              <TableHead>
+              <TableHead className="w-[20%]">
                   <Button variant="ghost" onClick={() => requestSort('filename')} className="px-2 py-1 group text-xs">
                   Filename {getSortIndicator('filename')}
                 </Button>
               </TableHead>
-              <TableHead>
+              <TableHead className="w-40">
                  <span className="px-2 py-1 group text-xs">Classifier</span>
               </TableHead>
-              <TableHead>
+              <TableHead className="w-28">
                   <Button variant="ghost" disabled className="px-2 py-1 group text-xs">
                   File Type
                 </Button>
               </TableHead>
-              <TableHead>
+              <TableHead className="w-40">
                 <span className="px-2 py-1 group text-xs">Sampling</span>
               </TableHead>
-              <TableHead>
+              <TableHead className="w-40">
                 <span className="px-2 py-1 group text-xs">Gemini Query</span>
               </TableHead>
               <TableHead className="text-xs">Extracted Fields</TableHead>
-              <TableHead>
+              <TableHead className="w-40">
                 <span className="px-2 py-1 group text-xs">Normalizer</span>
               </TableHead>
-              <TableHead className="text-right px-4 text-xs">Actions</TableHead>
+              <TableHead className="text-right px-4 text-xs w-20">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -248,7 +248,7 @@ export function CsvStatusTable({ data, sortConfig, requestSort, now, onDownload,
 
                 return (
                   <TableRow key={entry.id} className="hover:bg-muted/20 transition-colors cursor-pointer" onClick={() => onRowClick(entry)}>
-                    <TableCell className={cn("w-[150px]", cellPaddingClass)}>
+                    <TableCell className={cn("text-center", cellPaddingClass)}>
                       <div className="flex justify-center items-center">
                         <PriorityLabel priority={(entry.priority && entry.priority >=1 && entry.priority<=5 ? entry.priority : 3) as Priority} entryId={entry.id} onPriorityChange={onPriorityChange} />
                       </div>
@@ -257,7 +257,7 @@ export function CsvStatusTable({ data, sortConfig, requestSort, now, onDownload,
                         <TooltipProvider delayDuration={100}>
                           <Tooltip>
                             <TooltipTrigger asChild>
-                              <span className="block overflow-hidden text-ellipsis whitespace-nowrap max-w-[240px]">{entry.filename}</span>
+                              <span className="block overflow-hidden text-ellipsis whitespace-nowrap">{entry.filename}</span>
                             </TooltipTrigger>
                             <TooltipContent>{entry.filename}</TooltipContent>
                           </Tooltip>
@@ -549,6 +549,7 @@ function getStatusColor(status: string): string {
       return 'bg-gray-500';
   }
 }
+
 
 
 

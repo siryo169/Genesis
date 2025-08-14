@@ -10,7 +10,7 @@ import { FileUpload } from "@/components/csv-monitor/FileUpload";
 import { FileDetailDialog } from "@/components/csv-monitor/FileDetailDialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { RefreshCw, Search, Loader2, Activity, CheckCircle2, Files, X, Download, Calendar as CalendarIcon, FileQuestion, Wand2, Settings, AlertTriangle, Info, Key, Eye, EyeOff, Copy, Pencil, ChevronDown, Check, Plus, ArrowUp, Database, Cloud, Settings2, Upload, AreaChart } from "lucide-react";
+import { RefreshCw, Search, Loader2, Activity, CheckCircle2, Files, X, Download, Calendar as CalendarIcon, FileQuestion, Wand2, Settings, AlertTriangle, Info, Key, Eye, EyeOff, Copy, Pencil, ChevronDown, Check, Plus, ArrowUp, ArrowRight, ArrowDown, ChevronsUp, ChevronsDown, Minus, AreaChart } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { AlertDialog, AlertDialogAction, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
@@ -59,6 +59,14 @@ const mockLogs = `
 2025-06-23 12:18:07,047 - src.pipeline.orchestrator - INFO - Pipeline stage verification: error
 `.trim();
 
+const priorityConfig: Record<PriorityValue, { icon: React.FC<any>, label: PriorityLabel, className: string, iconClassName: string }> = {
+  1: { icon: ChevronsUp, label: 'Urgent', className: 'bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-300 border-red-200 dark:border-red-800/60', iconClassName: 'text-red-600 dark:text-red-400' },
+  2: { icon: ArrowUp, label: 'High', className: 'bg-orange-100 dark:bg-orange-900/40 text-orange-700 dark:text-orange-300 border-orange-200 dark:border-orange-800/60', iconClassName: 'text-orange-600 dark:text-orange-400' },
+  3: { icon: ArrowRight, label: 'Medium', className: 'bg-yellow-100 dark:bg-yellow-900/40 text-yellow-700 dark:text-yellow-300 border-yellow-200 dark:border-yellow-800/60', iconClassName: 'text-yellow-600 dark:text-yellow-400' },
+  4: { icon: ArrowDown, label: 'Low', className: 'bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-800/60', iconClassName: 'text-blue-600 dark:text-blue-400' },
+  5: { icon: ChevronsDown, label: 'Very Low', className: 'bg-gray-100 dark:bg-gray-700/40 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-gray-600/60', iconClassName: 'text-gray-500 dark:text-gray-400' },
+};
+
 export default function CsvMonitorPage() {
   const [csvData, setCsvData] = useState<CsvProcessingEntry[]>([]);
   const [filterText, setFilterText] = useState("");
@@ -68,19 +76,9 @@ export default function CsvMonitorPage() {
   const { toast } = useToast();
   const [sortConfig, setSortConfig] = useState<{ key: keyof CsvProcessingEntry | null; direction: 'ascending' | 'descending' }>({ key: 'priority', direction: 'ascending' });
   const [currentTime, setCurrentTime] = useState<number | undefined>(undefined);
-  // Default: last 2 hours
-  const defaultTo = new Date();
-  defaultTo.setMinutes(defaultTo.getUTCMinutes());
-  defaultTo.setHours(defaultTo.getUTCHours());
-  const defaultFrom = new Date(defaultTo.getTime() - 2 * 60 * 60 * 1000);
-  defaultFrom.setMinutes(defaultFrom.getUTCMinutes());
-  defaultFrom.setHours(defaultFrom.getUTCHours());
-  const [date, setDate] = React.useState<DateRange | undefined>({
-    from: defaultFrom,
-    to: defaultTo,
-  });
-  const [timeFrom, setTimeFrom] = useState<string>(defaultFrom.toTimeString().slice(0,5));
-  const [timeTo, setTimeTo] = useState<string>(defaultTo.toTimeString().slice(0,5));
+  const [date, setDate] = React.useState<DateRange | undefined>(undefined);
+  const [timeFrom, setTimeFrom] = useState<string>('00:00');
+  const [timeTo, setTimeTo] = useState<string>('23:59');
   const [statusFilter, setStatusFilter] = useState<string[]>([]);
   const [priorityFilter, setPriorityFilter] = useState<number[]>([]);
   const [fileTypeFilter, setFileTypeFilter] = useState<string[]>([]);
@@ -106,12 +104,12 @@ export default function CsvMonitorPage() {
   const availableModels = aiModels.map(m => m.name);
   type PriorityValue = 1 | 2 | 3 | 4 | 5;
   type PriorityLabel = 'Urgent' | 'High' | 'Medium' | 'Low' | 'Very Low';
-  const priorityOptions: { value: PriorityValue, label: PriorityLabel }[] = [
-    { value: 1, label: "Urgent" },
-    { value: 2, label: "High" },
-    { value: 3, label: "Medium" },
-    { value: 4, label: "Low" },
-    { value: 5, label: "Very Low" },
+  const priorityOptions: { value: PriorityValue, label: PriorityLabel, node: React.ReactNode }[] = [
+    { value: 1, label: "Urgent", node: <div className="flex items-center gap-2"><ChevronsUp className="h-4 w-4 text-red-500" /> Urgent</div> },
+    { value: 2, label: "High", node: <div className="flex items-center gap-2"><ArrowUp className="h-4 w-4 text-orange-500" /> High</div> },
+    { value: 3, label: "Medium", node: <div className="flex items-center gap-2"><ArrowRight className="h-4 w-4 text-yellow-500" /> Medium</div> },
+    { value: 4, label: "Low", node: <div className="flex items-center gap-2"><ArrowDown className="h-4 w-4 text-blue-500" /> Low</div> },
+    { value: 5, label: "Very Low", node: <div className="flex items-center gap-2"><ChevronsDown className="h-4 w-4 text-gray-500" /> Very Low</div> },
   ];
   const [uploadPriority, setUploadPriority] = useState<PriorityValue>(3);
   const [uploadSelectedModel, setUploadSelectedModel] = useState<string>('Gemini 2.5 Flash');
@@ -339,7 +337,7 @@ export default function CsvMonitorPage() {
     setFileTypeFilter([]);
     setModelFilter([]);
     setFieldsFilter("");
-    setDate({ from: undefined, to: undefined });
+    setDate(undefined);
   }, []);
 
   const filteredData = useMemo(() => {
@@ -764,7 +762,7 @@ export default function CsvMonitorPage() {
     [csvData, selectedFileId]
   );
   
-  const statusOptions = [
+  const statusOptions: { value: string, label: string, node: React.ReactNode }[] = [
     { value: "ok", label: "Completed", node: <StatusBadge status="ok" /> },
     { value: "running", label: "Running", node: <StatusBadge status="running" /> },
     { value: "error", label: "Error", node: <StatusBadge status="error" /> },
@@ -1184,7 +1182,7 @@ export default function CsvMonitorPage() {
                       }}
                     >
                       <span className="inline-block w-4">{uploadPriority === option.value && <Check className="h-4 w-4 text-primary" />}</span>
-                      <span>{option.label}</span>
+                      <span>{option.node}</span>
                     </div>
                   ))}
                 </PopoverContent>
@@ -1197,5 +1195,3 @@ export default function CsvMonitorPage() {
     </div>
   );
 }
-
-    

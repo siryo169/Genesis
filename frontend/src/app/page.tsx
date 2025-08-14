@@ -1032,7 +1032,7 @@ export default function CsvMonitorPage() {
                         className={cn(
                           "w-auto justify-start text-left font-normal",
                           !date && "text-muted-foreground",
-                          !!date && "border-foreground"
+                          !!date && "border-foreground pr-8"
                         )}
                       >
                         <CalendarIcon className="mr-2 h-4 w-4" />

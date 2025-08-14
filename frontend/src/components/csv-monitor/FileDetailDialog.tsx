@@ -175,13 +175,13 @@ export function FileDetailDialog({ entry, isOpen, onOpenChange }: FileDetailDial
                         }
                         return (
                           <TableRow key={stage}>
-                            <TableCell className="font-medium">{stage.charAt(0).toUpperCase() + stage.slice(1).replace('_', ' ')}</TableCell>
-                            <TableCell>
+                            <TableCell className="font-medium py-2">{stage.charAt(0).toUpperCase() + stage.slice(1).replace('_', ' ')}</TableCell>
+                            <TableCell className="py-2">
                               <Badge variant="outline" className={getStatusClassNames(stat?.status)}>
                                 {stat?.status || 'enqueued'}
                               </Badge>
                             </TableCell>
-                            <TableCell className="text-right font-mono">{duration}</TableCell>
+                            <TableCell className="text-right font-mono py-2">{duration}</TableCell>
                           </TableRow>
                         );
                       })}

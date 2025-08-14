@@ -92,7 +92,7 @@ export function StatusBadge({
     <Badge
       variant="outline"
       className={cn(
-        "px-2 text-sm font-medium rounded-full flex items-center justify-center w-32 h-[22px] whitespace-nowrap",
+        "px-2 text-sm font-medium rounded-full flex items-center justify-center h-[22px] whitespace-nowrap",
         getStatusClassNames(currentStatus),
         className
       )}

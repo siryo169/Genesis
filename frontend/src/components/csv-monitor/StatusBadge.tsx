@@ -36,7 +36,7 @@ export function getStatusClassNames(status: ProcessingStatus | 'not_started' | '
 }
 
 const StatusIcon = ({ status }: { status: ProcessingStatus | 'not_started' | 'skipped' }) => {
-  const iconClass = "h-4 w-4 mr-2";
+  const iconClass = "h-4 w-4";
   switch (status) {
     case "ok":
       return <CheckCircle2 className={cn(iconClass, "text-green-500")} />;
@@ -92,7 +92,7 @@ export function StatusBadge({
     <Badge
       variant="outline"
       className={cn(
-        "px-2 text-sm font-medium rounded-full flex items-center justify-center w-32 h-[22px] whitespace-nowrap",
+        "px-2 text-sm font-medium rounded-full flex items-center justify-center h-[22px] whitespace-nowrap gap-1",
         getStatusClassNames(currentStatus),
         className
       )}

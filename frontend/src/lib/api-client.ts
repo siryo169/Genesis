@@ -13,10 +13,12 @@ class ApiClient {
     const fullUrl = `${this.baseUrl}${endpoint}`;
     console.log(`🚀 Attempting request to: ${fullUrl}`);
     
+    const isFormData = options.body instanceof FormData;
+
     try {
       const response = await fetch(fullUrl, {
         ...options,
-        headers: {
+        headers: isFormData ? options.headers : {
           'Content-Type': 'application/json',
           ...(options.headers || {}),
         },
@@ -25,7 +27,10 @@ class ApiClient {
       if (!response.ok) {
         throw new Error(`API error: ${response.status}`);
       }
-      return await response.json();
+      if (response.headers.get('Content-Type')?.includes('application/json')) {
+        return await response.json();
+      }
+      return response as any;
     } catch (err) {
       console.error(`❌ Request failed for ${fullUrl}:`, err);
       throw err;
@@ -84,3 +89,5 @@ class ApiClient {
 }
 
 export const apiClient = new ApiClient(); 
+
+    

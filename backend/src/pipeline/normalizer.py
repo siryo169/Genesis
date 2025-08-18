@@ -46,7 +46,7 @@ class Normalizer:
         self.strip_prefixes = {k: v.strip() for k, v in raw_prefixes.items()} if raw_prefixes else {}
         
         self.total_columns = gemini_result.get("total_columns")
-
+        self.header_metadata = gemini_result.get("header_metadata", {})
     def _normalize_value(self, header: str, value: Any) -> Any:
         """
         Normalizes a single value based on its header.
@@ -203,7 +203,7 @@ class Normalizer:
         # logger.debug(f"[SPLIT] Final result: {fields} (count: {len(fields)})")
         return fields
 
-    def normalize_file(self, input_path: Path, output_path: Path, encoding: str = None) -> Tuple[bool, str, list, int, int, list, int]:
+    def normalize_file(self, input_path: Path, output_path: Path, be_output_path: Path, encoding: str = None) -> Tuple[bool, str, list, int, int, list, int]:
         """
         Single-pass normalization: verifies and normalizes in one go.
         - If matched_columns_count < 1, raise error and stop.
@@ -243,13 +243,15 @@ class Normalizer:
             input_open_kwargs = {'encoding': encoding or 'utf-8'}
             with open(input_path, 'r', **input_open_kwargs, errors='replace') as infile, \
                  open(output_path, 'w', encoding='utf-8', newline='') as outfile, \
-                 open(invalid_file_path, 'w', encoding='utf-8') as invalid_file:
+                 open(invalid_file_path, 'w', encoding='utf-8') as invalid_file, \
+                 open(be_output_path, 'w', encoding='utf-8') as be_output_file:
                 import csv
                 writer = csv.writer(outfile, quoting=csv.QUOTE_ALL)
                 writer.writerow(new_headers)
                 output_written_rows += 1  # header written
                 invalid_file.write(f"Row_Number,Reason,Original_Line\n")
                 row_iter = enumerate(infile, start=1)
+
                 if self.input_has_header:
                     next(row_iter)
                     input_processed_rows += 1  # header processed
@@ -280,13 +282,25 @@ class Normalizer:
                         continue
                     processed_row = self._process_row(row, new_headers)
                     writer.writerow(processed_row)
+                    be_row = {}
+                    unclassified_row = {}
+                    for i, value in enumerate(processed_row):
+                        known = new_headers[i] in known_header_keys
+                        target_dict = be_row if known else unclassified_row
+                        if new_headers[i] not in target_dict:
+                            target_dict[new_headers[i]] = []
+                        target_dict[new_headers[i]].append(value)
+                    be_row["unclassified"] = unclassified_row
+                    be_output_file.write(json.dumps(be_row, ensure_ascii=False) + "\n")
                     output_written_rows += 1
+
         elif input_path_str.lower().endswith(excel_exts):
             import csv
             import pandas as pd
             df = read_excel_file(input_path, encoding=encoding)
             with open(output_path, 'w', encoding='utf-8', newline='') as outfile, \
-                 open(invalid_file_path, 'w', encoding='utf-8') as invalid_file:
+                 open(invalid_file_path, 'w', encoding='utf-8') as invalid_file, \
+                 open(be_output_path, 'w', encoding='utf-8') as be_output_file:
                 writer = csv.writer(outfile, quoting=csv.QUOTE_ALL)
                 writer.writerow(new_headers)
                 output_written_rows += 1  # header written
@@ -315,6 +329,16 @@ class Normalizer:
                         continue
                     processed_row = self._process_row(row_list, new_headers)
                     writer.writerow(processed_row)
+                    be_row = {}
+                    unclassified_row = {}
+                    for i, value in enumerate(processed_row):
+                        known = new_headers[i] in known_header_keys
+                        target_dict = be_row if known else unclassified_row
+                        if new_headers[i] not in target_dict:
+                            target_dict[new_headers[i]] = []
+                        target_dict[new_headers[i]].append(value)
+                    be_row["unclassified"] = unclassified_row
+                    be_output_file.write(json.dumps(be_row, ensure_ascii=False) + "\n")
                     output_written_rows += 1
         else:
             return False, "Unsupported file type for normalization", warnings, 0, 0, [], 0
@@ -323,13 +347,15 @@ class Normalizer:
         self._analyze_repetitive_patterns(output_path, new_headers)
         
         output_file_size = 0
+        be_output_file_size = 0
         try:
             output_file_size = os.path.getsize(output_path)
+            be_output_file_size = os.path.getsize(be_output_path)
         except Exception:
             pass
         if output_written_rows != input_processed_rows:
             warnings.append(f"{output_written_rows} of {input_processed_rows} non-empty rows written to normalized CSV (some rows were skipped)")
-        return True, "", warnings, output_written_rows, input_processed_rows, skipped_line_numbers, output_file_size
+        return True, "", warnings, output_written_rows, input_processed_rows, skipped_line_numbers, output_file_size, be_output_file_size
 
     def _analyze_repetitive_patterns(self, output_path: Path, headers: List[str]):
         """

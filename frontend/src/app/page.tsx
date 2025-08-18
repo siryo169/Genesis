@@ -266,6 +266,8 @@ export default function CsvMonitorPage() {
   const handlePriorityChange = useCallback(async (entryId: string, newPriority: number) => {
     try{
       await apiClient.updatePriority(entryId, newPriority);
+      // Update the local state immediately
+
       setCsvData(prevData => prevData.map(entry =>
         entry.id === entryId ? { ...entry, priority: newPriority } : entry
       ));
@@ -387,6 +389,7 @@ export default function CsvMonitorPage() {
 
     if (sortConfig.key !== null) {
       sortableItems.sort((a, b) => {
+        // Primary sort: by the selected column
         const valA = a[sortConfig.key!];
         const valB = b[sortConfig.key!];
         
@@ -977,6 +980,7 @@ export default function CsvMonitorPage() {
                       aria-label="Filter by filename"
                     />
                 </div>
+
                 <MultiSelectFilter
                   label="Status"
                   options={statusOptions}

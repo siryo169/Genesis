@@ -46,7 +46,7 @@
     --muted-foreground: 0 0% 60%;
     --accent: 230 46% 64%;
     --accent-foreground: 0 0% 98%;
-    --accent-hover: 0 0% 100%; /* White for hover */
+    --accent-hover: 220 10% 25%;
     --destructive: 354 79% 63%; /* Updated to #ED5565 */
     --destructive-foreground: 0 0% 98%;
     --border: 220 10% 25%;

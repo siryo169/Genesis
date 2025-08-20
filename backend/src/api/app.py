@@ -605,8 +605,8 @@ async def upload_file(file: UploadFile = File(...), priority: int = Form(3)):
         if priority != 3:
             with open(priority_path, "w") as f:
                 f.write(str(priority))
-            logger.info(f"Created priority file for {file.filename} with priority {priority}")
-        
+            logger.info(f"Created priority file {priority_path} with priority {priority}")
+
         # Rename to final name (this will trigger FileWatcher)
         temp_path.rename(final_path)
         logger.info(f"File {file.filename} uploaded successfully, FileWatcher will process it")
@@ -668,3 +668,36 @@ async def update_run_priority(run_id: str, priority: int = Form(...), db: Sessio
 async def retry_gemini_query(run_id: str):
     #TODO: Implement retry_gemini_query
     raise HTTPException(status_code=500, detail="Not implemented")
+
+@app.get("/runs/{run_id}/download_be")
+async def download_be(run_id: str, db: Session = Depends(get_db)):
+    """
+    Download the normalized json for BE file for a completed run.
+    """
+    try:
+        run = db.query(PipelineRun).filter(PipelineRun.id == run_id).first()
+        if not run:
+            raise HTTPException(status_code=404, detail="Run not found")
+            
+        if run.status != 'ok':
+            raise HTTPException(
+                status_code=400,
+                detail="Cannot download file - processing not complete or failed"
+            )
+            
+        output_file = Path(settings.BE_OUTPUT_DIR) / f"be_normalized_{Path(run.filename).stem}"
+        output_archive = output_file.with_suffix('.7z')
+        if not output_archive.exists():
+            raise HTTPException(status_code=404, detail="Output file not found")
+            
+        return FileResponse(
+            str(output_archive),
+            media_type='application/x-7z-compressed',
+            filename=output_archive.name
+        )
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error downloading JSON for run {run_id}: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))

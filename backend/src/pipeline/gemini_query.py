@@ -74,7 +74,7 @@ IMPORTANT:
   - For the row: email:password | Name: John Doe | Country: US
   - column_separators: [":", "|", "|"]
   - strip_prefixes: {{2: "Name:", 3: "Country:"}}
-
+- Remember there can be multiple type of separators, you should watch if they are being used as separator or not, even if the column is empty, it is a column.
 Please perform the following steps:
 1. For each column in the sample (indexed from 0), analyze its content to understand what kind of data it represents.
 2. Compare the content of each column to the descriptions of the known headers provided above.

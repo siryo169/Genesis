@@ -13,10 +13,12 @@ class ApiClient {
     const fullUrl = `${this.baseUrl}${endpoint}`;
     console.log(`🚀 Attempting request to: ${fullUrl}`);
     
+    const isFormData = options.body instanceof FormData;
+
     try {
       const response = await fetch(fullUrl, {
         ...options,
-        headers: {
+        headers: isFormData ? options.headers : {
           'Content-Type': 'application/json',
           ...(options.headers || {}),
         },
@@ -25,7 +27,10 @@ class ApiClient {
       if (!response.ok) {
         throw new Error(`API error: ${response.status}`);
       }
-      return await response.json();
+      if (response.headers.get('Content-Type')?.includes('application/json')) {
+        return await response.json();
+      }
+      return response as any;
     } catch (err) {
       console.error(`❌ Request failed for ${fullUrl}:`, err);
       throw err;
@@ -52,6 +57,24 @@ class ApiClient {
     return response.blob();
   }
 
+  async downloadBeProcessedFile(runId: string): Promise<Blob> {
+    const response = await fetch(`${this.baseUrl}/runs/${runId}/download_be`);
+    if (!response.ok) {
+      throw new Error(`Download failed: ${response.statusText}`);
+    }
+    return response.blob();
+  }
+
+  async uploadFile(formData : FormData){
+    return this.request('/api/upload',
+      {
+          method: 'POST',
+          body: formData
+      }
+    );
+
+  }
+
   async getStats(): Promise<{
     total: number;
     processing: number;
@@ -64,6 +87,25 @@ class ApiClient {
   async retryGeminiQuery(runId: string): Promise<any> {
     return this.request(`/runs/${runId}/retry_gemini_query`, { method: 'POST' });
   }
+
+  async updatePriority(runId: string, priority: number): Promise<any> {
+    // Use FormData to avoid setting Content-Type manually
+    console.log(`🔧 Updating priority for run ${runId} to ${priority}`);
+    const formData = new FormData();
+    formData.append('priority', priority.toString());
+
+    const response = await fetch(`${this.baseUrl}/runs/${runId}/priority`, {
+      method: 'PATCH',
+      body: formData,  
+    });
+
+    if (!response.ok) {
+      console.log(`✅ Priority updated successfully: ${response}`);
+    }
+    return response.json();
+  }
 }
 
 export const apiClient = new ApiClient(); 
+
+    

@@ -69,7 +69,7 @@ class PipelineOrchestrator:
             log_file = Path(settings.LOGS_DIR) / f"{run.id}_{filename}.log"
             file_handler = self._setup_logging(log_file)
             run.log_file_path = str(log_file)
-
+            
             # Set status to RUNNING at the start of actual processing
             run.status = Status.RUNNING.value
             db_session.commit()
@@ -188,7 +188,8 @@ class PipelineOrchestrator:
             norm = normalizer.Normalizer(mapping)
             output_base = Path(filename).stem
             output_path = Path(settings.OUTPUT_DIR) / f"normalized_{output_base}.csv"
-            success, error_msg, norm_warnings, output_written_rows, input_processed_rows, norm_invalid_lines, output_file_size = norm.normalize_file(file_path, output_path, encoding=run.file_encoding)
+            be_output_path = Path(settings.BE_OUTPUT_DIR) / f"be_normalized_{output_base}.json"
+            success, error_msg, norm_warnings, output_written_rows, input_processed_rows, norm_invalid_lines, output_file_size, be_output_file_size = norm.normalize_file(file_path, output_path,be_output_path, encoding=run.file_encoding)
             if not success:
                 self._update_stage(run, Stage.NORMALIZATION, Status.ERROR, error_message=error_msg, warning='; '.join(norm_warnings) if norm_warnings else None, db_session=db_session)
                 raise ValueError(error_msg)

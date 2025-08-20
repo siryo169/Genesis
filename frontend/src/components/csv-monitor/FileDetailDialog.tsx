@@ -1,3 +1,4 @@
+
 "use client";
 
 import type { CsvProcessingEntry } from "@/types/csv-status";
@@ -28,10 +29,9 @@ const DetailRow = ({ icon: Icon, label, value }: { icon: React.FC<any>, label: s
 );
 
 
-const DetailSection = ({ title, icon: Icon, children }: { title: string, icon: React.FC<any>, children: React.ReactNode }) => (
+const DetailSection = ({ title, children }: { title: string, children: React.ReactNode }) => (
   <div>
     <h4 className="text-base font-semibold text-foreground mb-2 flex items-center">
-      <Icon className="h-5 w-5 mr-3 text-primary" />
       {title}
     </h4>
     <dl className="divide-y divide-border/50 border-t border-b border-border/50">
@@ -117,14 +117,14 @@ export function FileDetailDialog({ entry, isOpen, onOpenChange }: FileDetailDial
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-4">
           {/* Left Column */}
           <div className="space-y-6">
-            <DetailSection title="Timestamps" icon={Calendar}>
+            <DetailSection title="Timestamps">
               <DetailRow icon={Calendar} label="Insertion Date" value={formatUTCDate(entry.insertion_date)} />
               <DetailRow icon={Clock} label="Processing Start" value={formatUTCDate(entry.start_time)} />
               <DetailRow icon={Clock} label="Processing End" value={formatUTCDate(entry.end_time)} />
               <DetailRow icon={Hourglass} label="Total Duration" value={totalDuration} />
             </DetailSection>
 
-            <DetailSection title="File Metrics" icon={Scaling}>
+            <DetailSection title="File Metrics">
               <DetailRow icon={Database} label="Original File Size" value={formatFileSize(entry.original_file_size)} />
               <DetailRow icon={Hash} label="Original Row Count" value={entry.original_row_count?.toLocaleString() ?? 'N/A'} />
               <DetailRow icon={Database} label="Final File Size" value={formatFileSize(entry.final_file_size)} />
@@ -133,7 +133,7 @@ export function FileDetailDialog({ entry, isOpen, onOpenChange }: FileDetailDial
               <DetailRow icon={ShieldAlert} label="Invalid Lines" value={invalidLines} />
             </DetailSection>
 
-            <DetailSection title="AI Usage" icon={BrainCircuit}>
+            <DetailSection title="AI Usage">
               <DetailRow icon={Bot} label="AI Model Used" value={entry.ai_model ?? 'N/A'} />
               <DetailRow icon={FileText} label="Gemini Input Tokens" value={entry.gemini_input_tokens?.toLocaleString() ?? 'N/A'} />
               <DetailRow icon={FileText} label="Gemini Output Tokens" value={entry.gemini_output_tokens?.toLocaleString() ?? 'N/A'} />
@@ -175,13 +175,13 @@ export function FileDetailDialog({ entry, isOpen, onOpenChange }: FileDetailDial
                         }
                         return (
                           <TableRow key={stage}>
-                            <TableCell className="font-medium">{stage.charAt(0).toUpperCase() + stage.slice(1).replace('_', ' ')}</TableCell>
-                            <TableCell>
+                            <TableCell className="font-medium py-2">{stage.charAt(0).toUpperCase() + stage.slice(1).replace('_', ' ')}</TableCell>
+                            <TableCell className="py-2">
                               <Badge variant="outline" className={getStatusClassNames(stat?.status)}>
                                 {stat?.status || 'enqueued'}
                               </Badge>
                             </TableCell>
-                            <TableCell className="text-right font-mono">{duration}</TableCell>
+                            <TableCell className="text-right font-mono py-2">{duration}</TableCell>
                           </TableRow>
                         );
                       })}

@@ -229,6 +229,38 @@ export default function CsvMonitorPage() {
     }
   }, [csvData, toast]);
 
+  const handleBeDownload = useCallback(async (filename: string) => {
+    const entry = csvData.find(e => e.filename === filename);
+    if (!entry) {
+      toast({
+        title: "Download Error",
+        description: "File not found",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      const blob = await apiClient.downloadBeProcessedFile(entry.id);
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `be_normalized_${entry.filename.replace(/\..+$/, '')}.7z`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+      
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Download failed';
+      toast({
+        title: "Download Error",
+        description: errorMessage,
+        variant: "destructive",
+      });
+    }
+  }, [csvData, toast]);
+
   const handleRetry = useCallback(async (id: string) => {
     const entryToRetry = csvData.find(entry => entry.id === id);
     if (!entryToRetry) return;
@@ -296,13 +328,7 @@ export default function CsvMonitorPage() {
         formData.append('priority', priority.toString());
         
         // Use apiClient for upload
-        await apiClient.request(`/api/upload`, {
-          method: 'POST',
-          body: formData,
-          headers: {
-            'Content-Type': 'multipart/form-data'
-          }
-        });
+        await apiClient.uploadFile(formData);
       }
       toast({
         title: "Upload Successful",
@@ -1120,6 +1146,7 @@ export default function CsvMonitorPage() {
                     onRowClick={handleShowFileDetails}
                     onRetry={handleRetry}
                     onPriorityChange={handlePriorityChange}
+                    onBeDownload={handleBeDownload}
                   />
                 )}
               </CardContent>

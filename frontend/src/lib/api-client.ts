@@ -57,6 +57,24 @@ class ApiClient {
     return response.blob();
   }
 
+  async downloadBeProcessedFile(runId: string): Promise<Blob> {
+    const response = await fetch(`${this.baseUrl}/runs/${runId}/download_be`);
+    if (!response.ok) {
+      throw new Error(`Download failed: ${response.statusText}`);
+    }
+    return response.blob();
+  }
+
+  async uploadFile(formData : FormData){
+    return this.request('/api/upload',
+      {
+          method: 'POST',
+          body: formData
+      }
+    );
+
+  }
+
   async getStats(): Promise<{
     total: number;
     processing: number;
@@ -72,7 +90,7 @@ class ApiClient {
 
   async updatePriority(runId: string, priority: number): Promise<any> {
     // Use FormData to avoid setting Content-Type manually
-
+    console.log(`🔧 Updating priority for run ${runId} to ${priority}`);
     const formData = new FormData();
     formData.append('priority', priority.toString());
 

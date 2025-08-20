@@ -38,6 +38,7 @@ interface CsvStatusTableProps {
   onRetry: (id: string) => void;
   onRowClick: (entry: CsvProcessingEntry) => void;
   onPriorityChange: (entryId: string, newPriority: number) => void;
+  onBeDownload: (entryId: string) => void;
   density?: 'comfort' | 'dense';
 }
 
@@ -95,7 +96,7 @@ const PriorityLabel = ({ priority = 3, entryId, onPriorityChange }: { priority: 
   );
 };
 
-export function CsvStatusTable({ data, sortConfig, requestSort, now, onDownload, onRetry, onRowClick, onPriorityChange, density = 'comfort' }: CsvStatusTableProps) {
+export function CsvStatusTable({ data, sortConfig, requestSort, now, onDownload, onRetry, onRowClick, onPriorityChange, onBeDownload, density = 'comfort' }: CsvStatusTableProps) {
   const getSortIndicator = (key: keyof CsvProcessingEntry) => {
     if (sortConfig.key === key) {
       return sortConfig.direction === 'ascending' ? ' ▲' : ' ▼';
@@ -402,6 +403,10 @@ export function CsvStatusTable({ data, sortConfig, requestSort, now, onDownload,
                           <DropdownMenuItem onSelect={() => onDownload(entry.filename)} disabled={!isFullyCompleted}>
                             <Download className="mr-2 h-4 w-4" />
                             <span>Download</span>
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onSelect={() => onBeDownload(entry.filename)} disabled={!isFullyCompleted}>
+                            <Download className="mr-2 h-4 w-4" />
+                            <span>Download BE Format</span>
                           </DropdownMenuItem>
                           <DropdownMenuItem onSelect={() => handleOpenLogDialog(entry)} disabled={entry.status === 'enqueued'}>
                             <LogsIcon className="mr-2 h-4 w-4" />

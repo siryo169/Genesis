@@ -12,6 +12,7 @@ from ..config.settings import settings
 import json
 from pathlib import Path
 from .tabular_utils import read_excel_file
+import py7zr
 
 logger = logging.getLogger(__name__)
 
@@ -345,6 +346,12 @@ class Normalizer:
         
         # Post-processing analysis: Check for repetitive substrings in each column
         self._analyze_repetitive_patterns(output_path, new_headers)
+        
+        output_archive = be_output_path.with_suffix('.7z')
+
+        with py7zr.SevenZipFile(output_archive, 'w') as archive:
+            archive.write(be_output_path, arcname=be_output_path.name)
+
         
         output_file_size = 0
         be_output_file_size = 0

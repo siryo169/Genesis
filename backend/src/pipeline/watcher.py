@@ -181,17 +181,23 @@ class CSVHandler(FileSystemEventHandler):
                     continue
                 # Check for priority metadata file for extracted file
                 priority = 3  # Default priority for extracted files
-                extracted_priority_file = extract_dir / (ef_abs.name + ".priority")
-                if extracted_priority_file.exists():
+                compressed_priority_file = inbound_dir / (file_path.name+".priority")
+                logger.debug(f"Checking for priority file: {compressed_priority_file}")
+                if compressed_priority_file.exists():
+                    logger.debug(f"Found priority file: {compressed_priority_file}")
                     try:
-                        with open(extracted_priority_file, 'r') as f:
+                        with open(compressed_priority_file, 'r') as f:
                             priority = int(f.read().strip())
-                        extracted_priority_file.unlink()
-                        logger.info(f"Found priority {priority} for extracted file {ef_abs.name}")
                     except Exception as e:
-                        logger.warning(f"Error reading priority file for extracted {ef_abs.name}: {e}, using default priority 3")
+                        logger.warning(f"Error reading priority file for {compressed_priority_file}: {e}, using default priority 3")
                         priority = 3
-                
+
+
+                extracted_priority_file = inbound_dir / (ef_abs.name + ".priority")
+                with open(extracted_priority_file, "w") as f:
+                    f.write(str(priority))
+                    logger.info(f"Created priority file {extracted_priority_file} with priority {priority}")
+
                 db = self.orchestrator.db_session_factory()
                 try:
                     existing = db.query(PipelineRun).filter_by(filename=dest_path.name).first()

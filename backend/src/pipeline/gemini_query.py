@@ -66,6 +66,7 @@ IMPORTANT:
 - Each column is separated from the next by a specific separator, and columns must NOT be merged, even if the separator is not a comma.
 - Your job is to detect the exact number of columns and the separator used between each column boundary, in order, for the sample provided.
 - For a row with N columns, there must be exactly N-1 column separators.
+- For the number of columns, it's important that you watch the content, not only the headers, headers may be null and not be a real column
 - The column_separators field must contain ONLY the actual delimiters that appear BETWEEN columns (e.g., ',', '|', ':', etc.), and must NOT include any part of the data value, label, or prefix. Do NOT include any value prefixes (such as 'Name: ' or 'Country: ') or any label that is part of the value in column_separators.
 - Any label, prefix, or fixed substring that appears at the start of a value (such as 'Name: ' or 'Country: ') must be included ONLY in strip_prefixes, and NEVER in column_separators.
 - WARNING: Including prefixes or labels in column_separators is incorrect and will cause errors in downstream processing.

@@ -23,6 +23,7 @@ class Settings(BaseSettings):
     INPUT_DIR: str = "data/inbound"
     OUTPUT_DIR: str = "data/output"
     INVALID_DIR: str = "data/invalid"
+    REPROCESS_DIR: str = "data/reprocess"
     NOT_TABULAR_DIR: str = "data/not_tabular"
     BE_OUTPUT_DIR: str = "data/be_output"
     LOGS_DIR: str = "logs"
@@ -43,11 +44,10 @@ class Settings(BaseSettings):
         """Create necessary directories if they don't exist with proper permissions."""
         import stat
         import os
-        
-        for path in [self.INPUT_DIR, self.OUTPUT_DIR, self.INVALID_DIR, self.NOT_TABULAR_DIR, self.LOGS_DIR,self.BE_OUTPUT_DIR]:
+        for path in [self.INPUT_DIR, self.OUTPUT_DIR, self.INVALID_DIR, self.REPROCESS_DIR, self.NOT_TABULAR_DIR, self.LOGS_DIR, self.BE_OUTPUT_DIR]:
             path_obj = Path(path)
             path_obj.mkdir(parents=True, exist_ok=True)
-            
+
             # Set full permissions for Windows
             try:
                 if os.name == 'nt':  # Windows

@@ -264,7 +264,7 @@ export default function CsvMonitorPage() {
   const handleRetry = useCallback(async (id: string) => {
     const entryToRetry = csvData.find(entry => entry.id === id);
     if (!entryToRetry) return;
-    if (entryToRetry.stage_stats?.gemini_query?.status === 'error' && entryToRetry.status === 'error') {
+    if (entryToRetry.stage_stats?.gemini_query?.status === 'error') {
       try {
         toast({
           title: "Retrying Gemini Query...",

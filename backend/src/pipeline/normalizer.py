@@ -270,7 +270,14 @@ class Normalizer:
                 output_written_rows += 1  # header written
                 invalid_file.write(f"Row_Number,Reason,Original_Line\n")
                 row_iter = enumerate(infile, start=1)
-                reprocess_file.write(','.join(new_headers) + '\n')
+
+                # Manejar la cabecera para el archivo reprocess
+                if self.input_has_header:
+                    # Si tiene cabecera, usar la primera línea como cabecera para reprocess
+                    header_line = next(infile)
+                    reprocess_file.write(header_line)
+                    # Retroceder el archivo para que row_iter siga funcionando
+                    infile.seek(0)
                 if self.input_has_header:
                     next(row_iter)
                     input_processed_rows += 1  # header processed
@@ -325,7 +332,21 @@ class Normalizer:
                 writer.writerow(new_headers)
                 output_written_rows += 1  # header written
                 invalid_file.write(f"Row_Number,Reason,Original_Line\n")
-                reprocess_file.write(','.join(new_headers) + '\n')
+                
+                # Usar la cabecera original para el archivo reprocess si el input tiene cabecera
+                if self.input_has_header:
+                    if input_path_str.lower().endswith(excel_exts):
+                        # Para Excel, usar la primera fila como cabecera
+                        original_headers = list(df.columns)
+                        reprocess_file.write(','.join(original_headers) + '\n')
+                    else:
+                        # Para CSV, usar la primera fila que ya leímos
+                        with open(input_path, 'r', encoding=encoding or 'utf-8') as input_file:
+                            original_headers = next(csv.reader(input_file))
+                            reprocess_file.write(','.join(original_headers) + '\n')
+                else:
+                    # Si no tiene cabecera, no escribir ninguna
+                    pass
                 row_iter = df.iterrows()
                 if self.input_has_header:
                     next(row_iter)

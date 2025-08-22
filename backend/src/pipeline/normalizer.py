@@ -249,7 +249,7 @@ class Normalizer:
             new_base = f"{input_base}_it1"
 
         # Construir el nuevo path en REPROCESS_DIR siempre con .csv
-        reprocess_path = Path(settings.REPROCESS_DIR) / f"{new_base}.csv"
+        reprocess_path = Path(settings.REPROCESS_DIR) / f"{new_base}.csv.uploading"
 
         logger.info(f"Nuevo archivo a crear: {reprocess_path}")
 
@@ -270,15 +270,13 @@ class Normalizer:
                 output_written_rows += 1  # header written
                 invalid_file.write(f"Row_Number,Reason,Original_Line\n")
                 row_iter = enumerate(infile, start=1)
-
-                # Manejar la cabecera para el archivo reprocess
+                    
                 if self.input_has_header:
                     # Si tiene cabecera, usar la primera línea como cabecera para reprocess
                     header_line = next(infile)
                     reprocess_file.write(header_line)
                     # Retroceder el archivo para que row_iter siga funcionando
                     infile.seek(0)
-                if self.input_has_header:
                     next(row_iter)
                     input_processed_rows += 1  # header processed
                 for row_num, line in row_iter:
@@ -386,6 +384,30 @@ class Normalizer:
         else:
             return False, "Unsupported file type for normalization", warnings, 0, 0, [], 0
         
+        percentage = round((output_written_rows / input_processed_rows) * 100,2)
+        rename = True
+        if "_it" in input_base:
+            prefix, possible_num = input_base.rsplit("_it", 1)
+            if possible_num.isdigit() and int(possible_num) > 0:
+                if percentage < 10:
+                    #delete reprocess file
+                    if reprocess_path.exists():
+                        reprocess_path.unlink()
+                    return (False, f"Low percentage of rows written: {percentage}%", warnings, 0, 0, [], 0)
+                if percentage == 100:
+                    reprocess_path.unlink()
+                    rename = False
+        if rename:
+            # Close the file before renaming
+            reprocess_file.close()
+            # Rename from .csv.uploading to .csv
+            new_reprocess_path = reprocess_path.with_suffix('')
+            try:
+                reprocess_path.rename(new_reprocess_path)
+                logger.info(f"Successfully created reprocess file: {new_reprocess_path}")
+            except Exception as e:
+                logger.error(f"Failed to rename reprocess file: {e}")
+
         # Post-processing analysis: Check for repetitive substrings in each column
         self._analyze_repetitive_patterns(output_path, new_headers)
         logger.info(f"File to compress : {be_output_path}")

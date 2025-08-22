@@ -86,7 +86,33 @@ def queue_processor(orchestrator):
     while True:
         db_session = SessionLocal()
         try:
-            # Only process one file at a time (simple queue)
+            # First check reprocess directory for any files
+            reprocess_dir = Path(settings.REPROCESS_DIR)
+            if reprocess_dir.exists():
+                for reprocess_file in reprocess_dir.glob('*.csv'):
+                    try:
+                        logger.info(f"Found file for reprocessing: {reprocess_file.name}")
+                        # Move file to input directory
+                        input_path = Path(settings.INPUT_DIR) / reprocess_file.name
+                        reprocess_file.rename(input_path)
+                        
+                        # Create new pipeline run
+                        run = PipelineRun(
+                            filename=reprocess_file.name,
+                            status=Status.ENQUEUED.value,
+                            priority=1  # High priority for reprocessed files
+                        )
+                        db_session.add(run)
+                        db_session.commit()
+                        
+                        logger.info(f"Processing reprocessed file: {reprocess_file.name}")
+                        orchestrator.process_file(input_path, db_session)
+                        break  # Process one reprocessed file at a time
+                    except Exception as e:
+                        logger.error(f"Error processing reprocessed file {reprocess_file.name}: {e}", exc_info=True)
+                        continue
+
+            # Then check the regular queue
             run = db_session.query(PipelineRun).filter_by(status='enqueued').order_by(PipelineRun.priority.asc(),PipelineRun.insertion_date.asc()).first()
             if run:
                 try:

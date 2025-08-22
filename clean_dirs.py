@@ -26,19 +26,28 @@ import shutil
 import sys
 from pathlib import Path
 
-# Add the backend src directory to the path so we can import the database models
-sys.path.append(str(Path(__file__).parent / 'backend' / 'src'))
+# Add src directory to the path so we can import the database models
+current_dir = Path(__file__).parent
+if (current_dir / 'src').exists():
+    # Running from backend directory
+    sys.path.append(str(current_dir / 'src'))
+    DATA_DIR = Path('data')
+    LOGS_DIR = Path('logs')
+    DB_FILE = Path('pipeline.db')
+else:
+    # Running from root directory
+    sys.path.append(str(current_dir / 'backend' / 'src'))
+    DATA_DIR = Path('backend/data')
+    LOGS_DIR = Path('backend/logs')
+    DB_FILE = Path('backend/pipeline.db')
 
 try:
     from models.pipeline_run import init_db
     DB_AVAILABLE = True
 except ImportError as e:
     print(f"Warning: Could not import database models: {e}")
+    print(f"Python path: {sys.path}")
     DB_AVAILABLE = False
-
-DATA_DIR = Path('backend/data')
-LOGS_DIR = Path('backend/logs')
-DB_FILE = Path('backend/pipeline.db')
 
 DATA_SUBDIRS = [d.name for d in DATA_DIR.iterdir() if d.is_dir()] if DATA_DIR.exists() else []
 

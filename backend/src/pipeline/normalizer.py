@@ -236,6 +236,23 @@ class Normalizer:
         new_headers = [self.header_mapping.get(str(i), f"unknown_column_{i}") for i in range(num_columns)]
         input_base = Path(input_path).stem
         invalid_file_path = Path(settings.INVALID_DIR) / f"invalid_rows_{input_base}.csv"
+        # If the name of the file ends with _itN, create reprocess file with _itn+1, else, do it with _it1
+        iteration_suffix = None
+        if "_it" in input_base:
+            prefix, possible_num = input_base.rsplit("_it", 1)
+            if possible_num.isdigit() and int(possible_num) > 0:
+                iteration_suffix = int(possible_num)
+
+        if iteration_suffix is not None:
+            new_base = f"{prefix}_it{iteration_suffix + 1}"
+        else:
+            new_base = f"{input_base}_it1"
+
+        # Construir el nuevo path en REPROCESS_DIR siempre con .csv
+        reprocess_path = Path(settings.REPROCESS_DIR) / f"{new_base}.csv.uploading"
+
+        logger.info(f"Nuevo archivo a crear: {reprocess_path}")
+
         import os
         text_exts = ('.csv', '.tsv', '.psv', '.dat', '.data', '.txt')
         excel_exts = ('.xlsx', '.xls', '.ods')
@@ -245,21 +262,26 @@ class Normalizer:
             with open(input_path, 'r', **input_open_kwargs, errors='replace') as infile, \
                  open(output_path, 'w', encoding='utf-8', newline='') as outfile, \
                  open(invalid_file_path, 'w', encoding='utf-8') as invalid_file, \
-                 open(be_output_path, 'w', encoding='utf-8') as be_output_file:
+                 open(be_output_path, 'w', encoding='utf-8') as be_output_file, \
+                 open(reprocess_path, 'w', encoding='utf-8', newline='') as reprocess_file:
                 import csv
                 writer = csv.writer(outfile, quoting=csv.QUOTE_ALL)
                 writer.writerow(new_headers)
                 output_written_rows += 1  # header written
                 invalid_file.write(f"Row_Number,Reason,Original_Line\n")
                 row_iter = enumerate(infile, start=1)
-
+                    
                 if self.input_has_header:
+                    # Si tiene cabecera, usar la primera línea como cabecera para reprocess
+                    header_line = next(infile)
+                    reprocess_file.write(header_line)
+                    # Retroceder el archivo para que row_iter siga funcionando
+                    infile.seek(0)
                     next(row_iter)
                     input_processed_rows += 1  # header processed
                 for row_num, line in row_iter:
                     orig_line = line.rstrip('\n')
                     if not orig_line.strip():
-                        # logger.debug(f"Row {row_num} is empty or whitespace. Skipping.")
                         skipped_line_numbers.append(row_num)
                         continue
                     if self.column_separators:
@@ -279,6 +301,7 @@ class Normalizer:
                             safe_line = repr(orig_line)  # Use repr as fallback
                         logger.warning(f"Row {row_num} has {len(row)} columns, expected {num_columns}. Discarding row: {safe_line}")
                         invalid_file.write(f"{row_num},{reason},\"{orig_line}\"\n")
+                        reprocess_file.write(orig_line + '\n')
                         skipped_line_numbers.append(row_num)
                         continue
                     processed_row = self._process_row(row, new_headers)
@@ -301,11 +324,27 @@ class Normalizer:
             df = read_excel_file(input_path, encoding=encoding)
             with open(output_path, 'w', encoding='utf-8', newline='') as outfile, \
                  open(invalid_file_path, 'w', encoding='utf-8') as invalid_file, \
-                 open(be_output_path, 'w', encoding='utf-8') as be_output_file:
+                 open(be_output_path, 'w', encoding='utf-8') as be_output_file, \
+                 open(reprocess_path, 'w', encoding='utf-8') as reprocess_file:
                 writer = csv.writer(outfile, quoting=csv.QUOTE_ALL)
                 writer.writerow(new_headers)
                 output_written_rows += 1  # header written
                 invalid_file.write(f"Row_Number,Reason,Original_Line\n")
+                
+                # Usar la cabecera original para el archivo reprocess si el input tiene cabecera
+                if self.input_has_header:
+                    if input_path_str.lower().endswith(excel_exts):
+                        # Para Excel, usar la primera fila como cabecera
+                        original_headers = list(df.columns)
+                        reprocess_file.write(','.join(original_headers) + '\n')
+                    else:
+                        # Para CSV, usar la primera fila que ya leímos
+                        with open(input_path, 'r', encoding=encoding or 'utf-8') as input_file:
+                            original_headers = next(csv.reader(input_file))
+                            reprocess_file.write(','.join(original_headers) + '\n')
+                else:
+                    # Si no tiene cabecera, no escribir ninguna
+                    pass
                 row_iter = df.iterrows()
                 if self.input_has_header:
                     next(row_iter)
@@ -326,6 +365,7 @@ class Normalizer:
                             safe_row = repr(row_list)
                         logger.warning(f"Row {row_num} has {len(row_list)} columns, expected {num_columns}. Discarding row: {safe_row}")
                         invalid_file.write(f"{row_num},{reason},\"{row_list}\"\n")
+                        reprocess_file.write(','.join(str(cell) for cell in row_list) + '\n')
                         skipped_line_numbers.append(row_num)
                         continue
                     processed_row = self._process_row(row_list, new_headers)
@@ -344,15 +384,36 @@ class Normalizer:
         else:
             return False, "Unsupported file type for normalization", warnings, 0, 0, [], 0
         
+        percentage = round((output_written_rows / input_processed_rows) * 100,2)
+        rename = True
+        if "_it" in input_base:
+            prefix, possible_num = input_base.rsplit("_it", 1)
+            if possible_num.isdigit() and int(possible_num) > 0:
+                if percentage < 10:
+                    #delete reprocess file
+                    if reprocess_path.exists():
+                        reprocess_path.unlink()
+                    return (False, f"Low percentage of rows written: {percentage}%", warnings, 0, 0, [], 0)
+                if percentage == 100:
+                    reprocess_path.unlink()
+                    rename = False
+        if rename:
+            # Close the file before renaming
+            reprocess_file.close()
+            # Rename from .csv.uploading to .csv
+            new_reprocess_path = reprocess_path.with_suffix('')
+            try:
+                reprocess_path.rename(new_reprocess_path)
+                logger.info(f"Successfully created reprocess file: {new_reprocess_path}")
+            except Exception as e:
+                logger.error(f"Failed to rename reprocess file: {e}")
+
         # Post-processing analysis: Check for repetitive substrings in each column
         self._analyze_repetitive_patterns(output_path, new_headers)
-        
+        logger.info(f"File to compress : {be_output_path}")
         output_archive = be_output_path.with_suffix('.7z')
-
         with py7zr.SevenZipFile(output_archive, 'w') as archive:
             archive.write(be_output_path, arcname=be_output_path.name)
-
-        
         output_file_size = 0
         be_output_file_size = 0
         try:

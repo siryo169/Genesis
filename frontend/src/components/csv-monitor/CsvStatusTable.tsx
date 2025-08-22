@@ -331,13 +331,35 @@ export function CsvStatusTable({ data, sortConfig, requestSort, now, onDownload,
                     </TableCell>
                     <TableCell className={cn("text-center", cellPaddingClass)}>
                       <div className="flex items-center justify-center">
-                        <StatusBadge 
-                          status={entry.stage_stats?.gemini_query?.status || 'not_started'}
-                          startTime={entry.stage_stats?.gemini_query?.start_time ? new Date(entry.stage_stats.gemini_query.start_time).getTime() : undefined}
-                          endTime={entry.stage_stats?.gemini_query?.end_time ? new Date(entry.stage_stats.gemini_query.end_time).getTime() : undefined}
-                          error_message={entry.stage_stats?.gemini_query?.error_message}
-                          now={now}
-                        />
+                        {entry.stage_stats?.gemini_query?.status === 'error' ? (
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <div>
+                                <StatusBadge 
+                                  status={entry.stage_stats?.gemini_query?.status || 'not_started'}
+                                  startTime={entry.stage_stats?.gemini_query?.start_time ? new Date(entry.stage_stats.gemini_query.start_time).getTime() : undefined}
+                                  endTime={entry.stage_stats?.gemini_query?.end_time ? new Date(entry.stage_stats.gemini_query.end_time).getTime() : undefined}
+                                  error_message={entry.stage_stats?.gemini_query?.error_message}
+                                  now={now}
+                                />
+                              </div>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="center" onClick={(e) => e.stopPropagation()}>
+                              <DropdownMenuItem onSelect={() => onRetry(entry.id)}>
+                                <RefreshCcw className="mr-2 h-4 w-4" />
+                                <span>Retry</span>
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        ) : (
+                          <StatusBadge 
+                            status={entry.stage_stats?.gemini_query?.status || 'not_started'}
+                            startTime={entry.stage_stats?.gemini_query?.start_time ? new Date(entry.stage_stats.gemini_query.start_time).getTime() : undefined}
+                            endTime={entry.stage_stats?.gemini_query?.end_time ? new Date(entry.stage_stats.gemini_query.end_time).getTime() : undefined}
+                            error_message={entry.stage_stats?.gemini_query?.error_message}
+                            now={now}
+                          />
+                        )}
                       </div>
                     </TableCell>
                     <TableCell className={cn("text-sm text-muted-foreground", cellPaddingClass)} title={entry.extracted_fields ? entry.extracted_fields.join(", ") : "No fields extracted"}>

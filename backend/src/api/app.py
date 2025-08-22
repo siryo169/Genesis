@@ -9,7 +9,7 @@ from fastapi import FastAPI, HTTPException, BackgroundTasks, WebSocket, WebSocke
 from fastapi.responses import FileResponse
 from ..models.pipeline_run import init_db, PipelineRun
 from ..pipeline.watcher import FileWatcher
-from ..pipeline.orchestrator import PipelineOrchestrator
+from ..pipeline.orchestrator import PipelineOrchestrator, Stage, Status
 from ..config.settings import settings
 from fastapi.middleware.cors import CORSMiddleware
 import asyncio
@@ -86,12 +86,45 @@ def queue_processor(orchestrator):
     while True:
         db_session = SessionLocal()
         try:
-            # Only process one file at a time (simple queue)
+            # First check reprocess directory for any files
+            reprocess_dir = Path(settings.REPROCESS_DIR)
+            if reprocess_dir.exists():
+                for reprocess_file in reprocess_dir.glob('*.csv'):
+                    try:
+                        logger.info(f"Found file for reprocessing: {reprocess_file.name}")
+                        # Move file to input directory
+                        input_path = Path(settings.INPUT_DIR) / reprocess_file.name
+                        reprocess_file.rename(input_path)
+                        
+                        # Create new pipeline run
+                        run = PipelineRun(
+                            filename=reprocess_file.name,
+                            status=Status.ENQUEUED.value,
+                            priority=1  # High priority for reprocessed files
+                        )
+                        db_session.add(run)
+                        db_session.commit()
+                        
+                        logger.info(f"Processing reprocessed file: {reprocess_file.name}")
+                        orchestrator.process_file(input_path, db_session)
+                        break  # Process one reprocessed file at a time
+                    except Exception as e:
+                        logger.error(f"Error processing reprocessed file {reprocess_file.name}: {e}", exc_info=True)
+                        continue
+
+            # Then check the regular queue
             run = db_session.query(PipelineRun).filter_by(status='enqueued').order_by(PipelineRun.priority.asc(),PipelineRun.insertion_date.asc()).first()
             if run:
                 try:
                     logger.info(f"Processing file from queue: {run.filename} (priority {run.priority}, run {run.id})")
-                    orchestrator.process_file(Path(settings.INPUT_DIR) / run.filename, db_session)
+                    if run.stage_stats:
+                        stats = json.loads(run.stage_stats)
+                        if (stats.get("gemini_query", {}).get("status") == Status.ERROR.value):
+                            orchestrator.process_file(Path(settings.INPUT_DIR) / run.filename, db_session, start_from_stage=Stage.GEMINI_QUERY, run_id=run.id)
+                        else:
+                            orchestrator.process_file(Path(settings.INPUT_DIR) / run.filename, db_session)
+                    else:
+                        orchestrator.process_file(Path(settings.INPUT_DIR) / run.filename, db_session)
                 except Exception as e:
                     logger.error(f"Error processing file {run.filename} from queue: {e}", exc_info=True)
             else:
@@ -665,9 +698,26 @@ async def update_run_priority(run_id: str, priority: int = Form(...), db: Sessio
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/runs/{run_id}/retry_gemini_query")
-async def retry_gemini_query(run_id: str):
-    #TODO: Implement retry_gemini_query
-    raise HTTPException(status_code=500, detail="Not implemented")
+async def retry_gemini_query(run_id: str, db: Session = Depends(get_db)):
+    """
+    Enqueue a Gemini query retry that will execute when no other runs are processing.
+    """
+    try:
+        run = db.query(PipelineRun).filter_by(id=run_id).first()
+        if not run:
+            raise HTTPException(status_code=404, detail="Run not found")
+
+        run.status = Status.ENQUEUED.value
+        db.commit()
+
+        return {
+            "status": "success",
+            "message": "Run enqueued for retry",
+            "run_id": run_id
+        }
+    except Exception as e:
+        logger.error(f"Error during pipeline restart: {str(e)}", exc_info=True)
+        raise HTTPException(status_code=500, detail=str(e))
 
 @app.get("/runs/{run_id}/download_be")
 async def download_be(run_id: str, db: Session = Depends(get_db)):

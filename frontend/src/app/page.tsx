@@ -264,7 +264,7 @@ export default function CsvMonitorPage() {
   const handleRetry = useCallback(async (id: string) => {
     const entryToRetry = csvData.find(entry => entry.id === id);
     if (!entryToRetry) return;
-    if (entryToRetry.stage_stats?.gemini_query?.status === 'error' && entryToRetry.status === 'error') {
+    if (entryToRetry.stage_stats?.gemini_query?.status === 'error') {
       try {
         toast({
           title: "Retrying Gemini Query...",
@@ -413,41 +413,52 @@ export default function CsvMonitorPage() {
     }
 
 
-    if (sortConfig.key !== null) {
+      if (sortConfig.key !== null) {
       sortableItems.sort((a, b) => {
-        // Primary sort: by the selected column
-        const valA = a[sortConfig.key!];
-        const valB = b[sortConfig.key!];
-        
-        let comparison = 0;
-        if (sortConfig.key === 'priority') {
-            if (priorityFilter.length > 0) {
-                const priorityA = priorityFilter.includes(a.priority) ? 0 : 1;
-                const priorityB = priorityFilter.includes(b.priority) ? 0 : 1;
-                comparison = priorityA - priorityB;
-            }
-            if (comparison === 0) {
-                const isRunningA = a.status === 'running' ? 1 : 0;
-                const isRunningB = b.status === 'running' ? 1 : 0;
-                comparison = isRunningB - isRunningA;
-            }
-            if (comparison === 0) {
-                comparison = (a.priority || 3) - (b.priority || 3);
-            }
-            if (comparison === 0) {
-                const dateA = a.insertion_date ? new Date(a.insertion_date).getTime() : 0;
-                const dateB = b.insertion_date ? new Date(b.insertion_date).getTime() : 0;
-                comparison = dateB - dateA; // Most recent first
-            }
-        } else if (sortConfig.key === 'insertion_date') {
-          const dateA = valA ? new Date(valA as string).getTime() : 0;
-          const dateB = valB ? new Date(valB as string).getTime() : 0;
-          comparison = dateA - dateB;
+        let result = 0;
+        const statusA = getOverallStatus(a);
+        const statusB = getOverallStatus(b);
+
+        // 1. RUNNING PRIMERO: Si uno está running y el otro no, running va primero
+        if (statusA === 'running' && statusB !== 'running') return -1;
+        if (statusB === 'running' && statusA !== 'running') return 1;
+
+        // 2. ORDEN DE ESTADOS: enqueued > ok > error
+        const getStatusPriority = (status: ProcessingStatus): number => {
+          switch(status) {
+            case 'running': return 0;  // No debería llegar aquí por la condición anterior
+            case 'enqueued': return 1;
+            case 'ok': return 2;
+            case 'error': return 3;
+            default: return 4;
+          }
+        };
+
+        const statusPriorityA = getStatusPriority(statusA);
+        const statusPriorityB = getStatusPriority(statusB);
+        if (statusPriorityA !== statusPriorityB) {
+          result = statusPriorityA - statusPriorityB;
         } else {
-          comparison = String(valA).localeCompare(String(valB));
+          // 3. SUB-ORDENAMIENTO (igual para todos los estados)
+          // 3.1 Por prioridad (número más bajo = prioridad más alta)
+          const priorityA = a.priority || 3;
+          const priorityB = b.priority || 3;
+          if (priorityA !== priorityB) {
+            result = priorityA - priorityB;
+          } else {
+            // 3.2 Si misma prioridad, por fecha de inserción (más antiguos primero)
+            const dateA = a.insertion_date ? new Date(a.insertion_date).getTime() : 0;
+            const dateB = b.insertion_date ? new Date(b.insertion_date).getTime() : 0;
+            if (dateA !== dateB) {
+              result = dateA - dateB;
+            } else {
+              // 3.3 Si misma fecha, orden alfabético por nombre de archivo
+              result = a.filename.localeCompare(b.filename);
+            }
+          }
         }
         
-        return sortConfig.direction === 'ascending' ? comparison : -comparison;
+        return sortConfig.direction === 'ascending' ? result : -result;
       });
     }
     return sortableItems;

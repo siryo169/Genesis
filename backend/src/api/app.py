@@ -719,6 +719,7 @@ async def retry_gemini_query(run_id: str, db: Session = Depends(get_db)):
         logger.error(f"Error during pipeline restart: {str(e)}", exc_info=True)
         raise HTTPException(status_code=500, detail=str(e))
 
+
 @app.get("/runs/{run_id}/download_be")
 async def download_be(run_id: str, db: Session = Depends(get_db)):
     """

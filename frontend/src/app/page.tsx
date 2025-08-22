@@ -413,6 +413,7 @@ export default function CsvMonitorPage() {
     }
 
 
+
       if (sortConfig.key !== null) {
       sortableItems.sort((a, b) => {
         let result = 0;
@@ -438,6 +439,7 @@ export default function CsvMonitorPage() {
         const statusPriorityB = getStatusPriority(statusB);
         if (statusPriorityA !== statusPriorityB) {
           result = statusPriorityA - statusPriorityB;
+
         } else {
           // 3. SUB-ORDENAMIENTO (igual para todos los estados)
           // 3.1 Por prioridad (número más bajo = prioridad más alta)

@@ -38,6 +38,8 @@ export function FileUpload({ onFileUpload, className }: FileUploadProps) {
       'application/x-tar': ['.tar'],
       'application/gzip': ['.gz', '.tar.gz', '.tgz'],
       'application/x-rar-compressed': ['.rar'],
+      'application/json': ['.json'],
+      'application/sql': ['.sql']
     },
   });
 
@@ -59,7 +61,7 @@ export function FileUpload({ onFileUpload, className }: FileUploadProps) {
               <span className="font-semibold text-primary">Click to upload</span> or drag and drop
             </p>
             <p className="text-xs text-muted-foreground">
-              <span className="block">Supported files: <b>CSV, TSV, PSV, DAT, DATA, TXT, XLS, XLSX, ODS</b></span>
+              <span className="block">Supported files: <b>CSV, TSV, PSV, DAT, DATA, TXT, XLS, XLSX, ODS, JSON, SQL</b></span>
               <span className="block">Compressed: <b>ZIP, 7Z, TAR, TAR.GZ, TGZ, GZ, RAR</b></span>
             </p>
           </>

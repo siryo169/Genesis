@@ -352,7 +352,6 @@ class Normalizer:
                 for row_num, (_, row) in enumerate(row_iter, start=1):
                     row_list = list(row.values)
                     if not any(str(cell).strip() for cell in row_list):
-                        # logger.debug(f"Row {row_num} is empty or whitespace. Skipping.")
                         skipped_line_numbers.append(row_num)
                         continue
                     if len(row_list) != num_columns:
@@ -394,9 +393,9 @@ class Normalizer:
                     if reprocess_path.exists():
                         reprocess_path.unlink()
                     return (False, f"Low percentage of rows written: {percentage}%", warnings, 0, 0, [], 0)
-                if percentage == 100:
-                    reprocess_path.unlink()
-                    rename = False
+        if percentage == 100:
+            reprocess_path.unlink()
+            rename = False      
         if rename:
             # Close the file before renaming
             reprocess_file.close()

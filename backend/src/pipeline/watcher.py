@@ -12,7 +12,7 @@ from ..models.pipeline_run import PipelineRun, init_db
 from .orchestrator import Status
 import tarfile
 import gzip
-
+from .separa import sql_to_csv
 try:
     import py7zr
 except ImportError:
@@ -28,7 +28,7 @@ def extract_archive_recursive(file_path, extract_dir, depth=0, max_depth=3, logg
     """
     Recursively extract supported archives up to max_depth. Returns a list of extracted files.
     """
-    supported_archives = {'.zip', '.7z', '.tar', '.gz', '.tgz', '.tar.gz', '.rar'}
+    from .constants import ARCHIVE_EXTENSIONS
     extracted_files = []
     if depth > max_depth:
         if logger:
@@ -38,7 +38,7 @@ def extract_archive_recursive(file_path, extract_dir, depth=0, max_depth=3, logg
     # Handle .tar.gz and .tgz
     if file_path.name.endswith('.tar.gz') or file_path.name.endswith('.tgz'):
         ext = '.tar.gz'
-    if ext not in supported_archives:
+    if ext not in ARCHIVE_EXTENSIONS:
         return [file_path]
     try:
         if ext == '.zip':
@@ -87,7 +87,7 @@ def extract_archive_recursive(file_path, extract_dir, depth=0, max_depth=3, logg
     # Recursively extract any archives found inside
     all_files = []
     for ef in extracted_files:
-        if ef.suffix.lower() in supported_archives or ef.name.endswith('.tar.gz') or ef.name.endswith('.tgz'):
+        if ef.suffix.lower() in ARCHIVE_EXTENSIONS or ef.name.endswith('.tar.gz') or ef.name.endswith('.tgz'):
             sub_extract_dir = ef.parent / f"extracted_{ef.stem}"
             sub_extract_dir.mkdir(exist_ok=True)
             all_files.extend(extract_archive_recursive(ef, sub_extract_dir, depth+1, max_depth, logger))
@@ -119,11 +119,15 @@ class CSVHandler(FileSystemEventHandler):
         # Small delay to avoid permission issues while OS is moving/writing the file
         time.sleep(0.5)
             
+        from .constants import SUPPORTED_EXTENSIONS, ARCHIVE_EXTENSIONS
         ext = file_path.suffix.lower()
-        supported_exts = {'.csv', '.tsv', '.psv', '.dat', '.data', '.txt', '.xls', '.xlsx', '.ods'}
-        archive_exts = {'.zip', '.7z', '.tar', '.gz', '.tgz', '.tar.gz', '.rar'}
-        
-        if ext in supported_exts:
+        if ext == '.sql':
+            sql_to_csv(str(file_path), str(file_path.parent))
+            #delete after getting csv
+            file_path.unlink()
+            return
+
+        if ext in SUPPORTED_EXTENSIONS:
             # Check for priority metadata file
             priority = 3  # Default priority
             priority_file = file_path.parent / (file_path.name + ".priority")
@@ -157,14 +161,14 @@ class CSVHandler(FileSystemEventHandler):
             return
             
         # Handle archives (recursive, multi-format)
-        if ext in archive_exts:
+        if ext in ARCHIVE_EXTENSIONS:
             logger.info(f"Archive detected: {file_path}. Extracting...")
             extract_dir = file_path.parent / f"extracted_{file_path.stem}"
             extract_dir.mkdir(exist_ok=True)
             extracted_files = extract_archive_recursive(file_path, extract_dir, logger=logger)
             for ef in extracted_files:
                 ef_ext = ef.suffix.lower()
-                if ef_ext in archive_exts or ef.name.endswith('.tar.gz') or ef.name.endswith('.tgz'):
+                if ef_ext in ARCHIVE_EXTENSIONS or ef.name.endswith('.tar.gz') or ef.name.endswith('.tgz'):
                     logger.info(f"Skipped nested archive: {ef}")
                     continue
                 inbound_dir = Path(settings.INPUT_DIR).resolve()

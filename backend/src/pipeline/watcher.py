@@ -13,6 +13,7 @@ from .orchestrator import Status
 import tarfile
 import gzip
 from .separa import sql_to_csv
+from .JsonToCsv import aplana
 try:
     import py7zr
 except ImportError:
@@ -122,11 +123,32 @@ class CSVHandler(FileSystemEventHandler):
         from .constants import SUPPORTED_EXTENSIONS, ARCHIVE_EXTENSIONS
         ext = file_path.suffix.lower()
         if ext == '.sql':
-            sql_to_csv(str(file_path), str(file_path.parent))
+            sql_to_csv(file_path, file_path.parent)
             #delete after getting csv
             file_path.unlink()
             return
-
+        if ext == '.json' or ext == '.jsonl':
+            output_path = file_path.with_suffix('.csv')
+            aplana(str(file_path), str(output_path))
+            output_priority_file = file_path.parent / (output_path.name + ".priority")
+            output_parent_priority_file = file_path.parent / (file_path.name + ".priority")
+            priority = 3
+            if output_parent_priority_file.exists():
+                try:
+                    with open(output_parent_priority_file, 'r') as f:
+                        priority = int(f.read().strip())
+                    output_parent_priority_file.unlink()
+                except Exception as e:
+                    logger.warning(f"Error reading priority file for {output_parent_priority_file.name}: {e}, using default priority 3")
+                    priority = 3
+            try:
+                with open(output_priority_file, 'w') as f:
+                    f.write(str(priority))
+            except Exception as e:
+                logger.warning(f"Error writing priority file for {output_priority_file.name}: {e}")
+            #delete after getting csv
+            file_path.unlink()
+            return
         if ext in SUPPORTED_EXTENSIONS:
             # Check for priority metadata file
             priority = 3  # Default priority
@@ -202,21 +224,6 @@ class CSVHandler(FileSystemEventHandler):
                     f.write(str(priority))
                     logger.info(f"Created priority file {extracted_priority_file} with priority {priority}")
 
-                db = self.orchestrator.db_session_factory()
-                try:
-                    existing = db.query(PipelineRun).filter_by(filename=dest_path.name).first()
-                    if not existing:
-                        run = PipelineRun(filename=dest_path.name, status=Status.ENQUEUED.value, priority=priority)
-                        db.add(run)
-                        db.commit()
-                        logger.info(f"Enqueued extracted file: {dest_path.name} with priority {priority}")
-                    else:
-                        logger.info(f"Extracted file {dest_path.name} already exists in database, skipping")
-                except Exception as e:
-                    logger.error(f"Database error while enqueueing extracted file {dest_path.name}: {e}")
-                    db.rollback()
-                finally:
-                    db.close()
             # Clean up extracted subdirectory
             try:
                 import shutil

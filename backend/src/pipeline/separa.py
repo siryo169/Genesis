@@ -1,18 +1,22 @@
+from pathlib import Path
 import re
 import csv
 import os
 from collections import defaultdict
 from charset_normalizer import from_path
+import logging
 
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
-def sql_to_csv(sql_path: str, output_dir: str):
+def sql_to_csv(sql_path: Path, output_dir: Path):
     """
     Convierte un dump SQL en múltiples CSVs (uno por tabla).
     Detecta automáticamente los nombres de las tablas y columnas.
 
     Args:
-        sql_path (str): Ruta al archivo .sql de entrada
-        output_dir (str): Carpeta donde guardar los CSVs
+        sql_path (Path): Ruta al archivo .sql de entrada
+        output_dir (Path): Carpeta donde guardar los CSVs
     """
     os.makedirs(output_dir, exist_ok=True)
 
@@ -41,9 +45,10 @@ def sql_to_csv(sql_path: str, output_dir: str):
 
                 # Inicializar CSV si es la primera vez que se ve esta tabla
                 if "writer" not in tablas[tabla_actual]:
-                    csv_path = os.path.join(output_dir, f"{tabla_actual}.csv")
-                    tmp_csv_path = csv_path + ".uploading"
-                    f_csv = open(tmp_csv_path, 'w', newline='', encoding='utf-8')
+                    # Use Path objects so we can access .name later when creating priority files
+                    csv_path = Path(output_dir) / f"{tabla_actual}.csv"
+                    tmp_csv_path = Path(str(csv_path) + ".uploading")
+                    f_csv = tmp_csv_path.open('w', newline='', encoding='utf-8')
                     tablas[tabla_actual] = {
                         "csv_path": csv_path,
                         "tmp_path": tmp_csv_path,
@@ -79,8 +84,29 @@ def sql_to_csv(sql_path: str, output_dir: str):
 
                     bloque_insert = ''
 
+    sql_priority_path = sql_path.parent / (sql_path.name + '.priority')
     # Cerrar y renombrar todos los CSVs
     for tabla, info in tablas.items():
         info["file"].close()
         os.replace(info["tmp_path"], info["csv_path"])
         print(f"[+] CSV generado: {info['csv_path']}")
+        sql_priority_path = sql_path.parent / (sql_path.name + '.priority')
+        output_priority_path = sql_path.parent / (info['csv_path'].name + '.priority')
+        priority = 3
+
+        if sql_priority_path.exists():
+            try:
+                with open(sql_priority_path, 'r') as f_prio:
+                    priority = int(f_prio.read().strip())
+            except Exception as e:
+                logger.warning(f"Error leyendo prioridad de {sql_priority_path}: {e}, usando prioridad por defecto 3")
+                priority = 3
+        
+        try:
+            with open(output_priority_path, 'w') as f_out_prio:
+                f_out_prio.write(str(priority))
+        except Exception as e:
+            logger.warning(f"Error escribiendo archivo de prioridad para {output_priority_path.name}: {e}")
+
+    if sql_priority_path.exists():
+        sql_priority_path.unlink()  # Eliminar archivo de prioridad original

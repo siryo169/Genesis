@@ -204,7 +204,7 @@ class Normalizer:
         # logger.debug(f"[SPLIT] Final result: {fields} (count: {len(fields)})")
         return fields
 
-    def normalize_file(self, input_path: Path, output_path: Path, be_output_path: Path, encoding: str = None) -> Tuple[bool, str, list, int, int, list, int]:
+    def normalize_file(self, input_path: Path, output_path: Path, be_output_path: Path, encoding: str = None) -> Tuple[bool, str, list, int, int, list, int, int]:
         """
         Single-pass normalization: verifies and normalizes in one go.
         - If matched_columns_count < 1, raise error and stop.
@@ -218,17 +218,18 @@ class Normalizer:
             input_processed_rows (int): Number of input rows processed, including header if present.
             skipped_line_numbers (list): List of row numbers skipped/discarded.
             output_file_size (int): Size in bytes of the normalized output file.
+            be_output_file_size (int): Size in bytes of the backend JSON output file.
         Note: Both output_written_rows and input_processed_rows now always include the header row if present.
         """
         warnings = []
         if self.header_mapping is None or self.normalization_map is None or self.total_columns is None:
             logger.error("Normalizer not properly initialized with Gemini result.")
-            return False, "Normalizer not properly initialized with Gemini result.", warnings, 0, 0, [], 0
+            return False, "Normalizer not properly initialized with Gemini result.", warnings, 0, 0, [], 0, 0
         known_header_keys = set(known_headers.keys())
         matched_columns_count = sum(1 for v in self.header_mapping.values() if v in known_header_keys)
         if matched_columns_count < 1:
             logger.error("No known headers matched in the file. At least one known header must be present to process the file. Aborting normalization.")
-            return False, "No known headers matched in the file. At least one known header must be present to process the file.", warnings, 0, 0, [], 0
+            return False, "No known headers matched in the file. At least one known header must be present to process the file.", warnings, 0, 0, [], 0, 0
         skipped_line_numbers = []
         output_written_rows = 0
         input_processed_rows = 0
@@ -271,6 +272,7 @@ class Normalizer:
                 output_written_rows += 1  # header written
                 invalid_file.write(f"Row_Number,Reason,Original_Line\n")
                 row_iter = enumerate(infile, start=1)
+
                 if self.input_has_header:
                     # Si tiene cabecera, usar la primera línea como cabecera para reprocess
                     header_line = next(infile)
@@ -326,7 +328,7 @@ class Normalizer:
                  open(invalid_file_path, 'w', encoding='utf-8') as invalid_file, \
                  open(be_output_path, 'w', encoding='utf-8') as be_output_file, \
                  open(reprocess_path, 'w', encoding='utf-8') as reprocess_file:
-              
+
                 writer = csv.writer(outfile, quoting=csv.QUOTE_ALL)
                 writer.writerow(new_headers)
                 output_written_rows += 1  # header written
@@ -353,7 +355,6 @@ class Normalizer:
                 for row_num, (_, row) in enumerate(row_iter, start=1):
                     row_list = list(row.values)
                     if not any(str(cell).strip() for cell in row_list):
-                        # logger.debug(f"Row {row_num} is empty or whitespace. Skipping.")
                         skipped_line_numbers.append(row_num)
                         continue
                     if len(row_list) != num_columns:
@@ -383,7 +384,7 @@ class Normalizer:
                     be_output_file.write(json.dumps(be_row, ensure_ascii=False) + "\n")
                     output_written_rows += 1
         else:
-            return False, "Unsupported file type for normalization", warnings, 0, 0, [], 0
+            return False, "Unsupported file type for normalization", warnings, 0, 0, [], 0, 0
         
         percentage = round((output_written_rows / input_processed_rows) * 100,2)
         rename = True
@@ -394,10 +395,11 @@ class Normalizer:
                     #delete reprocess file
                     if reprocess_path.exists():
                         reprocess_path.unlink()
-                    return (False, f"Low percentage of rows written: {percentage}%", warnings, 0, 0, [], 0)
-                if percentage == 100:
-                    reprocess_path.unlink()
-                    rename = False
+                    return (False, f"Low percentage of rows written: {percentage}%", warnings, 0, 0, [], 0, 0)
+        if percentage == 100:
+            reprocess_path.unlink()
+            rename = False      
+
         if rename:
             # Close the file before renaming
             reprocess_file.close()
@@ -408,9 +410,9 @@ class Normalizer:
                 logger.info(f"Successfully created reprocess file: {new_reprocess_path}")
             except Exception as e:
                 logger.error(f"Failed to rename reprocess file: {e}")
-
-        # Post-processing analysis: Check for repetitive substrings in each column
-        self._analyze_repetitive_patterns(output_path, new_headers)
+        if output_written_rows < 90000:
+            # Post-processing analysis: Check for repetitive substrings in each column
+            self._analyze_repetitive_patterns(output_path, new_headers)
         logger.info(f"File to compress : {be_output_path}")
         output_archive = be_output_path.with_suffix('.7z')
         with py7zr.SevenZipFile(output_archive, 'w') as archive:

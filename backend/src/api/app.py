@@ -117,14 +117,7 @@ def queue_processor(orchestrator):
             if run:
                 try:
                     logger.info(f"Processing file from queue: {run.filename} (priority {run.priority}, run {run.id})")
-                    if run.stage_stats:
-                        stats = json.loads(run.stage_stats)
-                        if (stats.get("gemini_query", {}).get("status") == Status.ERROR.value):
-                            orchestrator.process_file(Path(settings.INPUT_DIR) / run.filename, db_session, start_from_stage=Stage.GEMINI_QUERY, run_id=run.id)
-                        else:
-                            orchestrator.process_file(Path(settings.INPUT_DIR) / run.filename, db_session)
-                    else:
-                        orchestrator.process_file(Path(settings.INPUT_DIR) / run.filename, db_session)
+                    orchestrator.process_file(Path(settings.INPUT_DIR) / run.filename, db_session)
                 except Exception as e:
                     logger.error(f"Error processing file {run.filename} from queue: {e}", exc_info=True)
             else:
@@ -158,7 +151,35 @@ async def startup_event():
 
 @app.on_event("shutdown")
 async def shutdown_event():
-    """Stop the file watcher on app shutdown."""
+    db_session = SessionLocal()
+    try:
+        running_runs  = db_session.query(PipelineRun).filter(PipelineRun.status == 'running').all()
+        for run in running_runs:
+            run.status = 'error'
+            run.error_message = 'Processing interrupted due to server shutdown'
+            try:
+                stats = json.loads(run.stage_stats) if run.stage_stats else {}
+            except Exception:
+                stats = {}
+            for stage_name, stage_obj in stats.items():
+                if stage_obj.get('status') == 'running':
+                    logger.debug(f"Marking stage {stage_name} as error for run {run.id} due to shutdown")
+                    stage_obj['status'] = 'error'
+                    stage_obj['error_message'] = 'Processing interrupted due to server shutdown'
+            run.stage_stats = json.dumps(stats)
+            db_session.add(run)
+        db_session.commit()
+    except Exception as e:
+        try:
+            db_session.rollback()
+        except Exception:
+            pass
+        logger.error(f"Error marking running runs as error during shutdown: {e}", exc_info=True)
+    finally:
+        try:
+            db_session.close()
+        except Exception:
+            pass
     try:
         watcher.stop()
     except Exception as e:
@@ -697,10 +718,10 @@ async def update_run_priority(run_id: str, priority: int = Form(...), db: Sessio
         logger.error(f"Error updating priority for run {run_id}: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
-@app.post("/runs/{run_id}/retry_gemini_query")
-async def retry_gemini_query(run_id: str, db: Session = Depends(get_db)):
+@app.post("/runs/{run_id}/retry")
+async def retry(run_id: str, db: Session = Depends(get_db)):
     """
-    Enqueue a Gemini query retry that will execute when no other runs are processing.
+    Enqueue a retry that will execute when no other runs are processing.
     """
     try:
         run = db.query(PipelineRun).filter_by(id=run_id).first()

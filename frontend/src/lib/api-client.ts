@@ -84,8 +84,8 @@ class ApiClient {
     return this.request('/api/pipeline/stats');
   }
 
-  async retryGeminiQuery(runId: string): Promise<any> {
-    return this.request(`/runs/${runId}/retry_gemini_query`, { method: 'POST' });
+  async retry(runId: string): Promise<any> {
+    return this.request(`/runs/${runId}/retry`, { method: 'POST' });
   }
 
   async updatePriority(runId: string, priority: number): Promise<any> {

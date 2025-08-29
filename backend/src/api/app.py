@@ -753,3 +753,25 @@ async def download_be(run_id: str, db: Session = Depends(get_db)):
     except Exception as e:
         logger.error(f"Error downloading JSON for run {run_id}: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
+
+@app.delete("/runs/{run_id}")
+async def delete_run(run_id: str, db: Session = Depends(get_db)):
+    """
+    Delete a pipeline run.
+    """
+    try:
+        run = db.query(PipelineRun).filter(PipelineRun.id == run_id).first()
+        if not run:
+            raise HTTPException(status_code=404, detail="Run not found")
+
+        db.delete(run)
+        db.commit()
+
+        return {
+            "status": "success",
+            "message": "Run deleted",
+            "run_id": run_id
+        }
+    except Exception as e:
+        logger.error(f"Error deleting run {run_id}: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))

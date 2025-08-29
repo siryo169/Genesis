@@ -104,6 +104,11 @@ class ApiClient {
     }
     return response.json();
   }
+
+  async deleteRun(runId: string): Promise<any> {
+    return this.request(`/runs/${runId}`, { method: 'DELETE' });
+  }
+
 }
 
 export const apiClient = new ApiClient(); 

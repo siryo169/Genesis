@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/table";
 import { StatusBadge } from "./StatusBadge";
 import { Button } from "@/components/ui/button";
-import { ArrowUpDown, Download, CheckCircle2, XCircle, Circle, RefreshCcw, LogsIcon, Wand2, MoreVertical, ArrowUp, ArrowRight, ArrowDown, ChevronsUp, ChevronsDown, Minus, Loader } from "lucide-react"; 
+import { ArrowUpDown, Download, CheckCircle2, XCircle, Circle, RefreshCcw, LogsIcon, Wand2, MoreVertical, ArrowUp, ArrowRight, ArrowDown, ChevronsUp, ChevronsDown, Minus, Loader, Trash } from "lucide-react"; 
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import React, { useState } from "react";
@@ -38,6 +38,7 @@ interface CsvStatusTableProps {
   onRetry: (id: string) => void;
   onRowClick: (entry: CsvProcessingEntry) => void;
   onPriorityChange: (entryId: string, newPriority: number) => void;
+  onDelete: (entryId: string) => void;
   onBeDownload: (entryId: string) => void;
   density?: 'comfort' | 'dense';
 }
@@ -96,7 +97,7 @@ const PriorityLabel = ({ priority = 3, entryId, onPriorityChange }: { priority: 
   );
 };
 
-export function CsvStatusTable({ data, sortConfig, requestSort, now, onDownload, onRetry, onRowClick, onPriorityChange, onBeDownload, density = 'comfort' }: CsvStatusTableProps) {
+export function CsvStatusTable({ data, sortConfig, requestSort, now, onDownload, onRetry, onRowClick, onPriorityChange, onDelete, onBeDownload, density = 'comfort' }: CsvStatusTableProps) {
   const getSortIndicator = (key: keyof CsvProcessingEntry) => {
     if (sortConfig.key === key) {
       return sortConfig.direction === 'ascending' ? ' ▲' : ' ▼';
@@ -434,11 +435,16 @@ export function CsvStatusTable({ data, sortConfig, requestSort, now, onDownload,
                             <LogsIcon className="mr-2 h-4 w-4" />
                             <span>Logs</span>
                           </DropdownMenuItem>
-                           {hasError && entry.stage_stats?.gemini_query?.status === 'error' && (
+                          <DropdownMenuItem onSelect={() => onDelete(entry.id)}>
+                            <Trash className="mr-2 h-4 w-4" />
+                            <span>Delete</span>
+                          </DropdownMenuItem>
+                          {hasError && entry.stage_stats?.gemini_query?.status === 'error' && (
                             <DropdownMenuItem onSelect={() => onRetry(entry.id)}>
                                <RefreshCcw className="mr-2 h-4 w-4" />
                                <span>Retry</span>
                             </DropdownMenuItem>
+
                            )}
                         </DropdownMenuContent>
                       </DropdownMenu>

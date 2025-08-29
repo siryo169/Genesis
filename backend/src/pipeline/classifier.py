@@ -276,12 +276,10 @@ def classify_file(file_path: str | Path) -> dict:
     known_headers = load_known_headers()
     
     # Check for supported file types first
-    supported_exts = {'.csv', '.tsv', '.psv', '.dat', '.data', '.txt', '.xls', '.xlsx', '.ods'}
-    text_exts = {'.csv', '.tsv', '.psv', '.dat', '.data', '.txt'}
-    excel_exts = {'.xls', '.xlsx', '.ods'}
+    from .constants import SUPPORTED_EXTENSIONS, TEXT_EXTENSIONS, EXCEL_EXTENSIONS
     file_ext = file_path.suffix.lower()
 
-    if file_ext not in supported_exts:
+    if file_ext not in SUPPORTED_EXTENSIONS:
         return {
             'encoding': None, 'file_size': None, 'row_count': 0, 'is_tabular': False,
             'error_message': f'Unsupported file type: {file_path.suffix}',
@@ -310,7 +308,7 @@ def classify_file(file_path: str | Path) -> dict:
     known_per = 0
     
     # Branch logic based on file type for more accurate content validation
-    if file_ext in excel_exts:
+    if file_ext in EXCEL_EXTENSIONS:
         try:
             df = tabular_utils.read_excel_file(file_path)
             

@@ -261,6 +261,39 @@ export default function CsvMonitorPage() {
     }
   }, [csvData, toast]);
 
+  const handleDelete = useCallback(async (entryId: string) => {
+    const entry = csvData.find(e => e.id === entryId);
+    if (!entry) {
+      toast({
+        title: "Delete Error",
+        description: "File not found",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    //Pregunta para seguridad
+    const confirmed = window.confirm(`¿Estás seguro de que deseas eliminar el archivo ${entry.filename}? \n Una vez eliminado no se podrá recuperar y habrá que hacer el proceso de nuevo`);
+    if (!confirmed) return;
+
+    try {
+      await apiClient.deleteRun(entryId);
+      setCsvData(prevData => prevData.filter(e => e.id !== entryId));
+      toast({
+        title: "Delete Successful",
+        description: `File ${entry.filename} deleted successfully.`,
+        variant: "default",
+      });
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Delete failed';
+      toast({
+        title: "Delete Error",
+        description: errorMessage,
+        variant: "destructive",
+      });
+    }
+  }, [csvData, toast]);
+
   const handleRetry = useCallback(async (id: string) => {
     const entryToRetry = csvData.find(entry => entry.id === id);
     if (!entryToRetry) return;
@@ -411,9 +444,6 @@ export default function CsvMonitorPage() {
         entry.insertion_date && new Date(entry.insertion_date) <= date.to!
       );
     }
-
-
-
       if (sortConfig.key !== null) {
       sortableItems.sort((a, b) => {
         let result = 0;
@@ -439,7 +469,6 @@ export default function CsvMonitorPage() {
         const statusPriorityB = getStatusPriority(statusB);
         if (statusPriorityA !== statusPriorityB) {
           result = statusPriorityA - statusPriorityB;
-
         } else {
           // 3. SUB-ORDENAMIENTO (igual para todos los estados)
           // 3.1 Por prioridad (número más bajo = prioridad más alta)
@@ -1159,6 +1188,7 @@ export default function CsvMonitorPage() {
                     onRowClick={handleShowFileDetails}
                     onRetry={handleRetry}
                     onPriorityChange={handlePriorityChange}
+                    onDelete={handleDelete}
                     onBeDownload={handleBeDownload}
                   />
                 )}

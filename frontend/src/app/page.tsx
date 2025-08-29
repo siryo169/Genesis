@@ -445,7 +445,6 @@ export default function CsvMonitorPage() {
       );
     }
 
-
       if (sortConfig.key !== null) {
       sortableItems.sort((a, b) => {
         let result = 0;

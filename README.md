@@ -355,7 +355,7 @@ Open a **new terminal window** (keep the backend running) and start the frontend
 **All Platforms:**
 ```bash
 # Navigate to project root (if not already there)
-cd CSV_Pipeline
+cd Genesis
 
 # Start the Next.js development server
 npm run dev
@@ -363,16 +363,20 @@ npm run dev
 
 **Expected Output:**
 ```
-▲ Next.js 15.3.3
-- Local:        http://localhost:9002
-- Environments: .env
+> nextn@0.1.0 dev
+> node dev.js
 
-✓ Starting...
-✓ Ready in 2.1s
+   ▲ Next.js 15.3.3 (Turbopack)
+   - Local:        http://localhost:3000
+   - Network:      http://0.0.0.0:3000
+   - Environments: .env.local
+
+ ✓ Starting...
+ ✓ Ready in 1456ms
 ```
 
 **Verify Frontend is Running:**
-- Open your browser and go to: http://localhost:9002
+- Open your browser and go to: http://localhost:3000
 - You should see the Genesis dashboard interface
 - The dashboard will initially show "No files processed yet" or similar
 
@@ -396,7 +400,7 @@ cp /path/to/your/file.csv backend/data/inbound/
 
 **Method 2: Manual File Addition**
 1. Navigate to `backend/data/inbound/` in your file manager
-2. Copy or move your tabular files (CSV, XLS, XLSX) into this directory
+2. Copy or move your tabular files (CSV, XLS, XLSX) or compressed files (.7z, .zip, ...) into this directory
 3. Files will be processed automatically within seconds
 
 **Supported File Types:**
@@ -409,7 +413,7 @@ cp /path/to/your/file.csv backend/data/inbound/
 #### Step 4: Monitor Processing
 
 **Real-time Dashboard:**
-- Go to http://localhost:9002 to watch processing in real-time
+- Go to http://localhost:3000 to watch processing in real-time
 - The dashboard shows:
   - File status (Enqueued → Running → Completed/Error)
   - Processing stages and duration
@@ -559,26 +563,31 @@ Genesis is built as a modern, full-stack application with a clear separation bet
 ┌─────────────────────────────────────────────────────────────────┐
 │                    BACKEND (FastAPI)                           │
 ├─────────────────────────────────────────────────────────────────┤
-│  API Layer                                                     │
-│  ┌─────────────────┐    ┌─────────────────┐                    │
-│  │   REST Routes   │    │   WebSocket     │                    │
-│  │   (/runs, etc.) │    │   (Real-time)   │                    │
-│  └─────────────────┘    └─────────────────┘                    │
-│           │                       │                            │
-│           ▼                       ▼                            │
-│  ┌─────────────────────────────────────────────────────────┐  │
-│  │              Processing Pipeline                        │  │
-│  │  ┌─────────┐ ┌─────────┐ ┌─────────┐ ┌─────────────┐   │  │
-│  │  │ Watcher │→│Classify │→│ Sample  │→│ Normalize   │   │  │
-│  │  └─────────┘ └─────────┘ └─────────┘ └─────────────┘   │  │
-│  └─────────────────────────────────────────────────────────┘  │
-│           │                       │                            │
-│           ▼                       ▼                            │
-│  ┌─────────────────┐    ┌─────────────────┐                    │
-│  │   SQLite DB     │    │   Gemini AI     │                    │
-│  │   (Pipeline     │    │   (Analysis)    │                    │
-│  │    Tracking)    │    │                 │                    │
-│  └─────────────────┘    └─────────────────┘                    │
+│  API Layer                                                      │
+│  ┌─────────────────┐    ┌─────────────────┐                     │
+│  │   REST Routes   │    │   WebSocket     │                     │
+│  │   (/runs, etc.) │    │   (Real-time)   │                     │
+│  └─────────────────┘    └─────────────────┘                     │
+│           │                       │                             │
+│           ▼                       ▼                             │
+│  ┌─────────────────────────────────────────────────────────┐    │
+│  │              Processing Pipeline                        │    │
+│  │  ┌─────────┐ ┌─────────┐ ┌─────────┐ ┌──────────────┐   │    │
+│  │  │ Watcher │→│Classify │→│ Sample  │→│ Gemini Query │   │    |
+│  │  └─────────┘ └────┬────┘ └─────────┘ └───────┬──────┘   │    │
+│  │                   │                          │          │    │
+│  │         (skipped) │                          ▼          │    │
+│  |                   |                          ┌─────────┐|    |
+|  │                   └────────────────────>     │Normalize||    |
+│  │                                              └─────────┘|    │
+│  └─────────────────────────────────────────────────────────┘    │
+│           │                       │                             │
+│           ▼                       ▼                             │
+│  ┌─────────────────┐    ┌─────────────────┐                     │
+│  │   SQLite DB     │    │   Gemini AI     │                     │
+│  │   (Pipeline     │    │   (Analysis)    │                     │
+│  │    Tracking)    │    │                 │                     │
+│  └─────────────────┘    └─────────────────┘                     │
 └─────────────────────────────────────────────────────────────────┘
                                │
                                ▼
@@ -637,7 +646,12 @@ app.add_middleware(
 | `GET` | `/runs/{run_id}` | Get detailed run information |
 | `GET` | `/runs/{run_id}/download` | Download processed CSV file |
 | `GET` | `/api/pipeline/status` | Get pipeline status (frontend format) |
-| `POST` | `/upload` | Upload files via API |
+| `GET` | `/api/pipeline/stats` |     Get pipeline statistics. |
+| `GET` | `/api/pipeline/priority-stats` |  Get pipeline statistics by priority level. |
+| `GET` | `/api/pipeline/queue` |  Get current queue status ordered by processing priority. |
+| `GET` | `/api/pipeline/metrics` | Aggregate token consumption and estimated cost per time bucket (hour/day/week), cumulative, for all pipeline runs. |
+| `POST`| `//runs/{run_id}/priority` | Update the priority of an existing pipeline run. |
+| `PATCH`| `/upload` | Upload files via API |
 | `GET` | `/health` | Health check endpoint |
 
 **Example API Response**:

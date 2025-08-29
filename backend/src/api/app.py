@@ -117,14 +117,7 @@ def queue_processor(orchestrator):
             if run:
                 try:
                     logger.info(f"Processing file from queue: {run.filename} (priority {run.priority}, run {run.id})")
-                    if run.stage_stats:
-                        stats = json.loads(run.stage_stats)
-                        if (stats.get("gemini_query", {}).get("status") == Status.ERROR.value):
-                            orchestrator.process_file(Path(settings.INPUT_DIR) / run.filename, db_session, start_from_stage=Stage.GEMINI_QUERY, run_id=run.id)
-                        else:
-                            orchestrator.process_file(Path(settings.INPUT_DIR) / run.filename, db_session)
-                    else:
-                        orchestrator.process_file(Path(settings.INPUT_DIR) / run.filename, db_session)
+                    orchestrator.process_file(Path(settings.INPUT_DIR) / run.filename, db_session)
                 except Exception as e:
                     logger.error(f"Error processing file {run.filename} from queue: {e}", exc_info=True)
             else:
@@ -725,10 +718,10 @@ async def update_run_priority(run_id: str, priority: int = Form(...), db: Sessio
         logger.error(f"Error updating priority for run {run_id}: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
-@app.post("/runs/{run_id}/retry_gemini_query")
-async def retry_gemini_query(run_id: str, db: Session = Depends(get_db)):
+@app.post("/runs/{run_id}/retry")
+async def retry(run_id: str, db: Session = Depends(get_db)):
     """
-    Enqueue a Gemini query retry that will execute when no other runs are processing.
+    Enqueue a retry that will execute when no other runs are processing.
     """
     try:
         run = db.query(PipelineRun).filter_by(id=run_id).first()

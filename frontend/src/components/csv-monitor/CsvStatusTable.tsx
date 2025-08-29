@@ -268,13 +268,33 @@ export function CsvStatusTable({ data, sortConfig, requestSort, now, onDownload,
                       </TableCell>
                     <TableCell className={cn("text-center", cellPaddingClass)}>
                       <div className="flex items-center justify-center">
-                        <StatusBadge 
+                        {entry.stage_stats?.classification?.status === 'error' ? (
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <div>
+                                <StatusBadge 
+                                  status={entry.status === 'enqueued' ? 'not_started' : entry.stage_stats?.classification?.status || 'not_started'}
+                                startTime={entry.stage_stats?.classification?.start_time ? new Date(entry.stage_stats.classification.start_time).getTime() : undefined}
+                                endTime={entry.stage_stats?.classification?.end_time ? new Date(entry.stage_stats.classification.end_time).getTime() : undefined}
+                                error_message={entry.stage_stats?.classification?.error_message}
+                                now={now} 
+                              />
+                            </div>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="center" onClick={(e) => e.stopPropagation()}>
+                            <DropdownMenuItem onSelect={() => onRetry(entry.id)}>
+                              <RefreshCcw className="mr-2 h-4 w-4" />
+                              <span>Retry</span>
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                        ):(<StatusBadge 
                           status={entry.status === 'enqueued' ? 'not_started' : entry.stage_stats?.classification?.status || 'not_started'}
                           startTime={entry.stage_stats?.classification?.start_time ? new Date(entry.stage_stats.classification.start_time).getTime() : undefined}
                           endTime={entry.stage_stats?.classification?.end_time ? new Date(entry.stage_stats.classification.end_time).getTime() : undefined}
                           error_message={entry.stage_stats?.classification?.error_message}
                           now={now} 
-                        />
+                        />)}
                       </div>
                     </TableCell>
                       <TableCell className={cn("text-center text-xs", cellPaddingClass)}>
@@ -308,6 +328,27 @@ export function CsvStatusTable({ data, sortConfig, requestSort, now, onDownload,
                     <TableCell className={cn("align-middle", cellPaddingClass)}>
                       <div className="relative flex flex-col items-center justify-center" style={{ minHeight: 10 }}>
                         <div className="flex items-center justify-center h-full">
+                          {entry.stage_stats?.sampling?.status === 'error' ? (
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <div>
+                                  <StatusBadge
+                                    status={entry.stage_stats?.sampling?.status || 'not_started'}
+                                    startTime={entry.stage_stats?.sampling?.start_time ? new Date(entry.stage_stats.sampling.start_time).getTime() : undefined}
+                                    endTime={entry.stage_stats?.sampling?.end_time ? new Date(entry.stage_stats.sampling.end_time).getTime() : undefined}
+                                    error_message={entry.stage_stats?.sampling?.error_message}
+                                    now={now}
+                                  />
+                                </div>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="center" onClick={(e) => e.stopPropagation()}>
+                                  <DropdownMenuItem onSelect={() => onRetry(entry.id)}>
+                                    <RefreshCcw className="mr-2 h-4 w-4" />
+                                    <span>Retry</span>
+                                  </DropdownMenuItem>
+                                </DropdownMenuContent>
+                            </DropdownMenu>
+                          ):(
                           <StatusBadge
                             status={entry.stage_stats?.sampling?.status || 'not_started'}
                             startTime={entry.stage_stats?.sampling?.start_time ? new Date(entry.stage_stats.sampling.start_time).getTime() : undefined}
@@ -315,6 +356,7 @@ export function CsvStatusTable({ data, sortConfig, requestSort, now, onDownload,
                             error_message={entry.stage_stats?.sampling?.error_message}
                             now={now}
                           />
+                        )}
                         </div>
                         {entry.stage_stats?.sampling?.status === 'ok' && entry.gemini_sample_rows && entry.gemini_sample_rows.length > 0 && (
                           <span
@@ -405,6 +447,27 @@ export function CsvStatusTable({ data, sortConfig, requestSort, now, onDownload,
                     </TableCell>
                     <TableCell className={cn("text-center", cellPaddingClass)}>
                       <div className="flex items-center justify-center">
+                        {entry.stage_stats?.normalization?.status === 'error' ? (
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <div>
+                                <StatusBadge
+                                  status={entry.stage_stats?.normalization?.status || 'not_started'}
+                                  startTime={entry.stage_stats?.normalization?.start_time ? new Date(entry.stage_stats.normalization.start_time).getTime() : undefined}
+                                  endTime={entry.stage_stats?.normalization?.end_time ? new Date(entry.stage_stats.normalization.end_time).getTime() : undefined}
+                                  error_message={entry.stage_stats?.normalization?.error_message}
+                                  now={now}
+                                />
+                              </div>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="center" onClick={(e) => e.stopPropagation()}>
+                              <DropdownMenuItem onSelect={() => onRetry(entry.id)}>
+                                <RefreshCcw className="mr-2 h-4 w-4" />
+                                <span>Retry</span>
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        ):(
                         <StatusBadge
                           status={entry.stage_stats?.normalization?.status || 'not_started'}
                           startTime={entry.stage_stats?.normalization?.start_time ? new Date(entry.stage_stats.normalization.start_time).getTime() : undefined}
@@ -412,6 +475,7 @@ export function CsvStatusTable({ data, sortConfig, requestSort, now, onDownload,
                           error_message={entry.stage_stats?.normalization?.error_message}
                           now={now}
                         />
+                        )}
                       </div>
                     </TableCell>
                     <TableCell className={cn("text-right", cellPaddingClass)}>
@@ -439,7 +503,7 @@ export function CsvStatusTable({ data, sortConfig, requestSort, now, onDownload,
                             <Trash className="mr-2 h-4 w-4" />
                             <span>Delete</span>
                           </DropdownMenuItem>
-                          {hasError && entry.stage_stats?.gemini_query?.status === 'error' && (
+                          {hasError && (entry.stage_stats?.gemini_query?.status === 'error' || entry.stage_stats?.normalization?.status === 'error' || entry.stage_stats?.classification?.status === 'error' || entry.stage_stats?.sampling?.status === 'error') && (
                             <DropdownMenuItem onSelect={() => onRetry(entry.id)}>
                                <RefreshCcw className="mr-2 h-4 w-4" />
                                <span>Retry</span>

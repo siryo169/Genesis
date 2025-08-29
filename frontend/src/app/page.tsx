@@ -297,17 +297,17 @@ export default function CsvMonitorPage() {
   const handleRetry = useCallback(async (id: string) => {
     const entryToRetry = csvData.find(entry => entry.id === id);
     if (!entryToRetry) return;
-    if (entryToRetry.stage_stats?.gemini_query?.status === 'error') {
+    if (entryToRetry.stage_stats?.gemini_query?.status === 'error' || entryToRetry.stage_stats?.normalization?.status === 'error' || entryToRetry.stage_stats?.classification?.status === 'error' || entryToRetry.stage_stats?.sampling?.status === 'error') {
       try {
         toast({
-          title: "Retrying Gemini Query...",
-          description: `Retrying Gemini Query for ${entryToRetry.filename}`,
+          title: "Retrying Run",
+          description: `Retrying run for ${entryToRetry.filename}`,
           variant: "default",
         });
-        await apiClient.retryGeminiQuery(entryToRetry.id);
+        await apiClient.retry(entryToRetry.id);
         toast({
           title: "Retry Successful",
-          description: `Gemini Query and subsequent stages retried for ${entryToRetry.filename}`,
+          description: `Stages retried for ${entryToRetry.filename}`,
           variant: "default",
         });
         await handleRefresh(true);
@@ -322,7 +322,7 @@ export default function CsvMonitorPage() {
     } else {
       toast({
         title: "Retry Not Available",
-        description: "Retry is only available for files that failed at the Gemini Query stage.",
+        description: "Retry is only available for files that failed.",
         variant: "default",
       });
     }

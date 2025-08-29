@@ -444,7 +444,6 @@ export default function CsvMonitorPage() {
         entry.insertion_date && new Date(entry.insertion_date) <= date.to!
       );
     }
-
       if (sortConfig.key !== null) {
       sortableItems.sort((a, b) => {
         let result = 0;

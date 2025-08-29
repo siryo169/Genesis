@@ -272,7 +272,6 @@ class Normalizer:
                 output_written_rows += 1  # header written
                 invalid_file.write(f"Row_Number,Reason,Original_Line\n")
                 row_iter = enumerate(infile, start=1)
-
                 if self.input_has_header:
                     # Si tiene cabecera, usar la primera línea como cabecera para reprocess
                     header_line = next(infile)
@@ -328,7 +327,6 @@ class Normalizer:
                  open(invalid_file_path, 'w', encoding='utf-8') as invalid_file, \
                  open(be_output_path, 'w', encoding='utf-8') as be_output_file, \
                  open(reprocess_path, 'w', encoding='utf-8') as reprocess_file:
-
                 writer = csv.writer(outfile, quoting=csv.QUOTE_ALL)
                 writer.writerow(new_headers)
                 output_written_rows += 1  # header written
@@ -399,7 +397,6 @@ class Normalizer:
         if percentage == 100:
             reprocess_path.unlink()
             rename = False      
-
         if rename:
             # Close the file before renaming
             reprocess_file.close()

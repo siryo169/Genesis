@@ -40,6 +40,7 @@ interface CsvStatusTableProps {
   onPriorityChange: (entryId: string, newPriority: number) => void;
   onDelete: (entryId: string) => void;
   onBeDownload: (entryId: string) => void;
+  onNormalizeClick: (entryId: string, entryFileName : string) => void;
   density?: 'comfort' | 'dense';
 }
 
@@ -97,7 +98,7 @@ const PriorityLabel = ({ priority = 3, entryId, onPriorityChange }: { priority: 
   );
 };
 
-export function CsvStatusTable({ data, sortConfig, requestSort, now, onDownload, onRetry, onRowClick, onPriorityChange, onDelete, onBeDownload, density = 'comfort' }: CsvStatusTableProps) {
+export function CsvStatusTable({ data, sortConfig, requestSort, now, onDownload, onRetry, onRowClick, onPriorityChange, onDelete, onBeDownload, onNormalizeClick, density = 'comfort' }: CsvStatusTableProps) {
   const getSortIndicator = (key: keyof CsvProcessingEntry) => {
     if (sortConfig.key === key) {
       return sortConfig.direction === 'ascending' ? ' ▲' : ' ▼';
@@ -468,6 +469,14 @@ export function CsvStatusTable({ data, sortConfig, requestSort, now, onDownload,
                             </DropdownMenuContent>
                           </DropdownMenu>
                         ):(
+                          <div
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              if (entry.stage_stats?.normalization?.status === 'ok') {
+                                onNormalizeClick(entry.id, entry.filename);
+                              }
+                            }}
+                          >
                         <StatusBadge
                           status={entry.stage_stats?.normalization?.status || 'not_started'}
                           startTime={entry.stage_stats?.normalization?.start_time ? new Date(entry.stage_stats.normalization.start_time).getTime() : undefined}
@@ -475,6 +484,7 @@ export function CsvStatusTable({ data, sortConfig, requestSort, now, onDownload,
                           error_message={entry.stage_stats?.normalization?.error_message}
                           now={now}
                         />
+                        </div>
                         )}
                       </div>
                     </TableCell>

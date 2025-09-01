@@ -109,6 +109,44 @@ class ApiClient {
     return this.request(`/runs/${runId}`, { method: 'DELETE' });
   }
 
+async getOriginalSample(runId: string): Promise<{
+  run_id: string;
+  file_name: string;
+  original_lines: string[];
+}> {
+  // Decirle a TypeScript que la respuesta es un objeto con estas propiedades
+  const res = await this.request(`/runs/${runId}/sample/original`) as {
+    "Run Id": string;
+    Filename: string;
+    "Original Lines": string[];
+  };
+
+  return {
+    run_id: res["Run Id"],
+    file_name: res.Filename,
+    original_lines: res["Original Lines"] ?? [],
+  };
+}
+
+async getNormalizedSample(runId: string): Promise<{
+  run_id: string;
+  file_name: string;
+  normalized_lines: string[];
+}> {
+  const res = await this.request(`/runs/${runId}/sample/normalized`) as {
+    "Run Id": string;
+    Filename: string;
+    "Normalized Lines": string[];
+  };
+
+  return {
+    run_id: res["Run Id"],
+    file_name: res.Filename,
+    normalized_lines: res["Normalized Lines"] ?? [],
+  };
+}
+
+
 }
 
 export const apiClient = new ApiClient(); 

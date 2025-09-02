@@ -237,6 +237,7 @@ async def download_csv(run_id: str, db: Session = Depends(get_db)):
     """
     Download the normalized CSV file for a completed run.
     """
+    
     try:
         run = db.query(PipelineRun).filter(PipelineRun.id == run_id).first()
         if not run:

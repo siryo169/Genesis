@@ -3,6 +3,7 @@
 import {Dialog, DialogContent, DialogHeader, DialogTitle} from "@/components/ui/dialog";
 import { apiClient } from "@/lib/api-client";
 import { useEffect, useState } from "react";
+import { toast, useToast } from "@/hooks/use-toast";
 
 interface CompareNormDialogProps {
   isOpen: boolean;
@@ -69,7 +70,9 @@ export function CompareNormDialog({ isOpen, onOpenChange, entry_ID, entry_FileNa
                 originalLines.map((line, i) => (
                   <div key={i} className="grid grid-cols-[2rem,1fr] gap-4">
                     <span className="text-muted-foreground select-none">{(i + 1).toString().padStart(2, '0')}</span>
-                    <span>{line.replace(/[\r\n]+/g, ' ')}</span> {/* Aquí eliminamos los saltos de línea */}
+                    <span className="whitespace-pre">
+                      {line.replace(/[\r\n]+/g, ' ')}
+                    </span> 
                   </div>
                 ))
               )}
@@ -86,7 +89,9 @@ export function CompareNormDialog({ isOpen, onOpenChange, entry_ID, entry_FileNa
                 normalizedLines.map((line, i) => (
                   <div key={i} className="grid grid-cols-[2rem,1fr] gap-4">
                     <span className="text-muted-foreground select-none">{(i + 1).toString().padStart(2, '0')}</span>
-                    <span>{line.replace(/[\r\n]+/g, ' ')}</span> {/* Eliminamos saltos aquí también */}
+                    <span className="whitespace-pre">
+                      {line.replace(/[\r\n]+/g, ' ')}
+                    </span> 
                   </div>
                 ))
               )}
@@ -94,7 +99,13 @@ export function CompareNormDialog({ isOpen, onOpenChange, entry_ID, entry_FileNa
           </div>
         </div>
 
-        <button className="mt-4" onClick={() => onDownload(entry_FileName, new Blob())}>
+        <button className="mt-4 p-4 bg-muted" onClick={() => {
+          toast({
+            title: "Download Started",
+            description: `Downloading ${entry_FileName}...`,
+          });
+          onDownload(entry_FileName, new Blob());
+        }}>
           Download Normalized
         </button>
       </DialogContent>

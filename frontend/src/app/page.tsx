@@ -38,6 +38,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import Link from "next/link";
 import { MultiSelectFilter } from "@/components/csv-monitor/MultiSelectFilter";
 import { StatusBadge } from "@/components/csv-monitor/StatusBadge";
+import { CompareNormDialog } from "@/components/csv-monitor/CompareNormDialog";
 
 
 // Mock logs for analysis
@@ -85,8 +86,10 @@ export default function CsvMonitorPage() {
   const [modelFilter, setModelFilter] = useState<string[]>([]);
   const [fieldsFilter, setFieldsFilter] = useState("");
   const [selectedFileId, setSelectedFileId] = useState<string | null>(null);
+  const [selectedFileName, setSelectedFileName] = useState<string>("");
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
-  
+  const [isCompareDialogOpen, setIsCompareDialogOpen] = useState(false);
+
   // Add ref for Processing Status table
   const processingStatusRef = useRef<HTMLDivElement>(null);
 
@@ -260,6 +263,12 @@ export default function CsvMonitorPage() {
       });
     }
   }, [csvData, toast]);
+
+  const handleNormalizeClick = useCallback((entryId: string, entryFilename: string) => {
+    setSelectedFileId(entryId);
+    setSelectedFileName(entryFilename);
+    setIsCompareDialogOpen(true);
+  }, []);
 
   const handleDelete = useCallback(async (entryId: string) => {
     const entry = csvData.find(e => e.id === entryId);
@@ -1190,6 +1199,7 @@ export default function CsvMonitorPage() {
                     onPriorityChange={handlePriorityChange}
                     onDelete={handleDelete}
                     onBeDownload={handleBeDownload}
+                    onNormalizeClick={handleNormalizeClick}
                   />
                 )}
               </CardContent>
@@ -1214,8 +1224,8 @@ export default function CsvMonitorPage() {
       </footer>
 
       <FileDetailDialog entry={selectedFile} isOpen={isDetailModalOpen} onOpenChange={setIsDetailModalOpen} />
-      
-       <Dialog open={isUploadDialogOpen} onOpenChange={setIsUploadDialogOpen}>
+      <CompareNormDialog isOpen={isCompareDialogOpen} onOpenChange={setIsCompareDialogOpen} entry_ID={selectedFileId} entry_FileName={selectedFileName} onDownload={handleDownload}/>
+      <Dialog open={isUploadDialogOpen} onOpenChange={setIsUploadDialogOpen}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Upload Files</DialogTitle>

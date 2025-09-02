@@ -237,6 +237,7 @@ async def download_csv(run_id: str, db: Session = Depends(get_db)):
     """
     Download the normalized CSV file for a completed run.
     """
+    
     try:
         run = db.query(PipelineRun).filter(PipelineRun.id == run_id).first()
         if not run:
@@ -675,6 +676,73 @@ async def upload_file(file: UploadFile = File(...), priority: int = Form(3)):
     except Exception as e:
         logger.error(f"Error uploading file: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/runs/{run_id}/sample/original")
+async def get_original_sample(run_id:str, db: Session = Depends(get_db)):
+    try:
+        run = db.query(PipelineRun).filter(PipelineRun.id == run_id).first()
+        if not run:
+            raise HTTPException(status_code=404, detail="Run not found")
+        
+        original_lines = []
+        input_file = Path(settings.INPUT_DIR) / run.filename
+        if not input_file.exists():
+            logger.error(f"Original sample file not found for run {run_id}")
+            raise HTTPException(status_code=404, detail="Original file not found")
+
+        try:
+            # Read only the first 10 lines to keep payload small
+            with open(input_file, "r", encoding="utf-8", errors="replace") as f:
+                for i, line in enumerate(f):
+                    if i >= 10:
+                        break
+                    original_lines.append(line.rstrip("\n"))
+        except Exception as ex:
+            logger.error(f"Error reading original file for run {run_id}: {ex}")
+            raise HTTPException(status_code=500, detail="Error reading original file")
+
+        return{
+            "Run Id": run.id,
+            "Filename": run.filename,
+            "Original Lines": original_lines
+        }
+    except Exception as e:
+        logger.error(f"Error fetching original sample for run {run_id}: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+    
+@app.get("/runs/{run_id}/sample/normalized")
+async def get_normalized_sample(run_id:str, db: Session = Depends(get_db)):
+    try:
+        run = db.query(PipelineRun).filter(PipelineRun.id == run_id).first()
+        if not run:
+            raise HTTPException(status_code=404, detail="Run not found")
+        
+        original_lines = []
+        input_file = Path(settings.OUTPUT_DIR) / f"normalized_{run.filename}"
+        if not input_file.exists():
+            logger.error(f"Original sample file not found for run {run_id}")
+            raise HTTPException(status_code=404, detail="Normalized file not found")
+
+        try:
+            # Read only the first 10 lines to keep payload small
+            with open(input_file, "r", encoding="utf-8", errors="replace") as f:
+                for i, line in enumerate(f):
+                    if i >= 10:
+                        break
+                    original_lines.append(line.rstrip("\n"))
+        except Exception as ex:
+            logger.error(f"Error reading normalized file for run {run_id}: {ex}")
+            raise HTTPException(status_code=500, detail="Error reading normalized file")
+
+        return{
+            "Run Id": run.id,
+            "Filename": f"normalized_{run.filename}",
+            "Normalized Lines": original_lines
+        }
+    except Exception as e:
+        logger.error(f"Error fetching normalized sample for run {run_id}: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
 
 @app.patch("/runs/{run_id}/priority")
 async def update_run_priority(run_id: str, priority: int = Form(...), db: Session = Depends(get_db)):

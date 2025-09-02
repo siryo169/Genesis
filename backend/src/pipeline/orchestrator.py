@@ -195,6 +195,7 @@ class PipelineOrchestrator:
                 # Store the sampled rows for frontend access immediately after sampling
                 try:
                     run.gemini_sample_rows = json.dumps(sample_data)
+                    logger.info(f"Gemini sample rows for {run.id}: {run.gemini_sample_rows}")
                 except Exception as e:
                     error_msg = f"Failed to serialize gemini_sample_rows: {str(e)}"
                     self._update_stage(run, Stage.SAMPLING, Status.ERROR, error_message=error_msg, warning='; '.join(sample_warnings) if sample_warnings else None, db_session=db_session)

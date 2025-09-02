@@ -280,6 +280,7 @@ class Normalizer:
                     infile.seek(0)
                     next(row_iter)
                     input_processed_rows += 1  # header processed
+                    reasons = {}
                 for row_num, line in row_iter:
                     orig_line = line.rstrip('\n')
                     if not orig_line.strip():
@@ -300,7 +301,11 @@ class Normalizer:
                             safe_line = orig_line.encode('utf-8', errors='replace').decode('utf-8')
                         except Exception:
                             safe_line = repr(orig_line)  # Use repr as fallback
-                        logger.warning(f"Row {row_num} has {len(row)} columns, expected {num_columns}. Discarding row: {safe_line}")
+                        if reason not in reasons:
+                            reasons[reason] = {}
+                            reasons[reason]['example'] = safe_line
+                            reasons[reason]['rows'] = []
+                        reasons[reason]['rows'].append(row_num)
                         invalid_file.write(f"{row_num},{reason},\"{orig_line}\"\n")
                         reprocess_file.write(orig_line + '\n')
                         skipped_line_numbers.append(row_num)
@@ -318,7 +323,25 @@ class Normalizer:
                     be_row["unclassified"] = unclassified_row
                     be_output_file.write(json.dumps(be_row, ensure_ascii=False) + "\n")
                     output_written_rows += 1
-
+                for reason, info in reasons.items():
+                    if len(info['rows']) == 1:
+                        logger.warning(f"Discarded 1 row: {info['rows'][0]} -> {reason}. Discarding row: {info['example']}")
+                    else:
+                        anterior = info['rows'][0]
+                        primero = info['rows'][0]
+                        string_rows = f"{primero}"
+                        for row in info['rows'][1:]:
+                            if row == anterior + 1:
+                                anterior = row
+                            else:
+                                if anterior != primero:
+                                    string_rows += f" - {anterior}"
+                                primero = row
+                                anterior = row
+                                string_rows += f", {primero}"
+                            if row == info['rows'][-1] and anterior != primero:
+                                string_rows += f" - {anterior}"
+                    logger.warning(f"Discarding {len(info['rows'])} rows: {string_rows} -> {reason}. Example of discarding row: {info['example']}")
         elif input_path_str.lower().endswith(excel_exts):
             import csv
             import pandas as pd

@@ -44,7 +44,6 @@ def extract_sample(file_path: str | Path, encoding: str = None) -> Tuple[List[Li
                     logger.warning(warning_msg)
                     warnings.append(warning_msg)
                     continue  # skip lines that can't be parsed
-            
             logger.info(f"Extracted {len(data)} lines from {file_name} for sampling.")
             return data, "", warnings
 

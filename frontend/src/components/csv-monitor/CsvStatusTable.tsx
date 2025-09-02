@@ -624,29 +624,47 @@ export function CsvStatusTable({ data, sortConfig, requestSort, now, onDownload,
         </DialogContent>
       </Dialog>
       {/* Add the new Gemini Subsample Rows dialog */}
-      <Dialog open={!!sampleRowsDialogEntry} onOpenChange={open => setSampleRowsDialogId(open ? sampleRowsDialogId : null)}>
-        <DialogContent className="max-w-3xl">
-          <DialogHeader>
-            <DialogTitle>Gemini Subsample Rows</DialogTitle>
-            <DialogDescription>Sample of the rows sent to Gemini for this file.</DialogDescription>
-          </DialogHeader>
-          {sampleRowsDialogEntry && sampleRowsDialogEntry.gemini_sample_rows && sampleRowsDialogEntry.gemini_sample_rows.length > 0 ? (
-            <div className="mt-2 border rounded bg-muted w-full" style={{ minWidth: 400, maxHeight: 320, overflowY: 'auto', overflowX: 'auto' }}>
-              {sampleRowsDialogEntry.gemini_sample_rows.slice(0, 10).map((line, ridx) => (
-                <pre
-                  key={ridx}
-                  className="font-mono text-xs px-2 py-1 border-b border-border last:border-b-0 whitespace-pre"
-                  style={{ margin: 0 }}
-                >
-                  {line}
-                </pre>
+      
+      <Dialog
+      open={!!sampleRowsDialogEntry}
+      onOpenChange={open => setSampleRowsDialogId(open ? sampleRowsDialogId : null)}
+    >
+      <DialogContent className="max-w-3xl">
+        <DialogHeader>
+          <DialogTitle>Gemini Subsample Rows</DialogTitle>
+          <DialogDescription>
+            Sample of the rows sent to Gemini for this file.
+          </DialogDescription>
+        </DialogHeader>
+
+        {(sampleRowsDialogEntry &&
+          sampleRowsDialogEntry.gemini_sample_rows &&
+          sampleRowsDialogEntry.gemini_sample_rows.length > 0) ? (
+          
+          <div
+            className="mt-2 border rounded bg-muted w-full"
+            style={{ minWidth: 400, maxHeight: 320, overflowY: 'auto', overflowX: 'auto' }}
+          >
+            {(sampleRowsDialogEntry.gemini_sample_rows as unknown as string[][])
+              .slice(0, 10)
+              .map((row, i) => (
+                <div key={i} className="grid grid-cols-[2rem,1fr] gap-4">
+                  {/* Número de línea */}
+                  <span className="text-muted-foreground select-none">
+                    {(i + 1).toString().padStart(2, '0')}
+                  </span>
+                  <span className="whitespace-pre">
+                    {row.join(', ')}
+                  </span>
+                </div>
               ))}
-            </div>
-          ) : (
-            <p className="text-sm text-muted-foreground">No sample rows available.</p>
-          )}
-        </DialogContent>
-      </Dialog>
+          </div>
+
+        ) : (
+          <p className="text-sm text-muted-foreground">No sample rows available.</p>
+        )}
+      </DialogContent>
+    </Dialog>
     </>
   );
 }

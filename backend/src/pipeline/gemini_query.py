@@ -269,6 +269,7 @@ def run_gemini(sample_data: List[List[str]]) -> Tuple[Dict, str, list, int, int,
         except genai.errors.ClientError as e:
             if "RESOURCE_EXHAUSTED" in str(e):
                 logger.warning(f"Quota exceeded on attempt {attempt+1}. Error: {e}")
+
                 last_exception = str(e)
                 # Manejo de retry y reducción de sample
                 new_size = len(current_sample) // 2

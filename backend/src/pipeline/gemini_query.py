@@ -11,17 +11,30 @@ from ..config.settings import settings
 import concurrent.futures
 import time
 import ast
-
+import asyncio
+from multiprocessing import Process, Queue
+from typing import List, Dict, Tuple
 logger = logging.getLogger(__name__)
+
+
+
 
 # Configure Gemini API
 if not settings.GEMINI_API_KEY:
     raise ValueError("GEMINI_API_KEY must be set in environment variables")
 client = genai.Client(api_key=settings.GEMINI_API_KEY)
-
 # Use a model that is good at following JSON format instructions
 MODEL_NAME = 'gemini-2.5-flash'
 
+
+# --- Multiprocessing wrapper ---
+def gemini_worker(queue: Queue, model, prompt):
+    client = genai.Client(api_key=settings.GEMINI_API_KEY)
+    try:
+        resp = client.models.generate_content(model=model, contents=prompt)
+        queue.put(resp)
+    except Exception as e:
+        queue.put(e)
 
 def load_known_headers() -> Dict:
     """Loads the known headers from the JSON file."""
@@ -120,189 +133,161 @@ Analyze the provided data and return ONLY the JSON object.
 """
 
 
+from multiprocessing import Process, Queue
+import time
+import json
+import ast
+from typing import List, Dict, Tuple
+
 def run_gemini(sample_data: List[List[str]]) -> Tuple[Dict, str, list, int, int, int]:
     """
     Sends sample CSV data to Gemini API for analysis and header mapping.
-
-    Args:
-        sample_data: List of CSV rows (may or may not include header)
-
-    Returns:
-        Tuple[Dict, str, list, int, int, int]:
-        - Dictionary containing the structured response from Gemini.
-        - Error message (empty string if successful)
-        - List of warnings (always empty)
-        - Input token count estimate
-        - Output token count
-        - Total token count
     """
+
     warnings = []
     if not sample_data:
         return {}, "No sample data provided", warnings, 0, 0, 0
 
-    # Define a conservative token limit to stay under the API's hard limit
     TOKEN_LIMIT = 180000 
-    
-    # Adaptive sampling loop
     current_sample = sample_data
     known_headers = load_known_headers()
     if not known_headers:
         return {}, "Failed to load known_headers.json", warnings, 0, 0, 0
 
+    # Reduce sample to fit token limit
     while True:
         if not current_sample:
-            return {}, "Sample data is empty after attempting to reduce token count.", warnings, 0, 0, 0
+            return {}, "Sample data is empty after reducing token count.", warnings, 0, 0, 0
 
         prompt = format_prompt_for_gemini(current_sample, known_headers)
         try:
             input_token_count_estimate = client.models.count_tokens(model=MODEL_NAME, contents=prompt).total_tokens
         except Exception as e:
-            error_msg = f"Failed to estimate token count: {e}"
-            logger.error(error_msg, exc_info=True)
-            return {}, error_msg, warnings, 0, 0, 0
+            logger.error(f"Failed to estimate token count: {e}", exc_info=True)
+            return {}, f"Failed to estimate token count: {e}", warnings, 0, 0, 0
 
         logger.info(f"Gemini prompt input token estimate: {input_token_count_estimate} with {len(current_sample)} rows.")
-        
         if input_token_count_estimate <= TOKEN_LIMIT:
-            break  # The sample is within the limit
+            break
 
-        # If over the limit, reduce the sample size and try again
-        new_size = int(len(current_sample) * 0.8) # Reduce by 20%
+        new_size = int(len(current_sample) * 0.8)
         if new_size < 1:
             return {}, f"Cannot reduce sample size further to meet token limit of {TOKEN_LIMIT}.", warnings, 0, 0, 0
-        
-        logger.warning(
-            f"Token estimate ({input_token_count_estimate}) exceeds limit ({TOKEN_LIMIT}). "
-            f"Reducing sample from {len(current_sample)} to {new_size} rows."
-        )
-        # Preserve header if it exists
+
+        logger.warning(f"Token estimate ({input_token_count_estimate}) exceeds limit ({TOKEN_LIMIT}). "
+                       f"Reducing sample from {len(current_sample)} to {new_size} rows.")
         header = [current_sample[0]] if current_sample else []
         rows = current_sample[1:] if len(current_sample) > 1 else []
         current_sample = header + rows[:new_size-1]
 
     max_retries = 2
-    timeout_seconds = 180  # 3 minutes
+    timeout_seconds = 180
     attempt = 0
     last_exception = None
     prompt_token_count = 0
     candidates_token_count = 0
     total_token_count = 0
+    last_start_time = 0
 
-    try:
-        # logger.debug(f"Final Gemini prompt (using {len(current_sample)} rows): {prompt}")
 
-        while attempt <= max_retries:
-            logger.info(f"Gemini API attempt {attempt+1} of {max_retries+1}")
-            start_time = time.time()
+    def call_gemini_with_timeout(model, prompt, timeout_seconds):
+        queue = Queue()
+        p = Process(target=gemini_worker, args=(queue, model, prompt))
+        p.start()
+        p.join(timeout_seconds)
+
+        if p.is_alive():
+            p.terminate()
+            p.join()
+            raise TimeoutError(f"Gemini API call timed out after {timeout_seconds} seconds")
+
+        result = queue.get()
+        if isinstance(result, Exception):
+            raise result
+        return result
+
+    # --- Main retry loop ---
+    while attempt <= max_retries:
+        # Garantizar 3 minutos entre inicios de requests
+        if attempt > 0:
+            sleep_time = last_start_time + timeout_seconds - time.time()
+            if sleep_time > 0:
+                logger.info(f"Waiting {sleep_time:.2f}s before next attempt...")
+                time.sleep(sleep_time)
+
+        last_start_time = time.time()
+        logger.info(f"Gemini API attempt {attempt+1} of {max_retries+1}")
+
+        try:
+            response = call_gemini_with_timeout(MODEL_NAME, prompt, timeout_seconds)
+            elapsed = time.time() - last_start_time
+            logger.info(f"Gemini API call succeeded in {elapsed:.2f} seconds on attempt {attempt+1}")
+
+            if hasattr(response, 'usage_metadata') and response.usage_metadata:
+                prompt_token_count = response.usage_metadata.prompt_token_count
+                candidates_token_count = response.usage_metadata.candidates_token_count
+            else:
+                prompt_token_count = 0
+                candidates_token_count = 0
+            total_token_count = prompt_token_count + candidates_token_count
+
+            logger.info(f"Gemini token usage: Input={prompt_token_count}, Output={candidates_token_count}, Total={total_token_count}")
+
+            if not response or not getattr(response, 'text', None):
+                logger.error("No response from Gemini API")
+                raise ValueError("No response from Gemini API")
+
+            response_text = response.text.strip()
+            json_start = response_text.find('{')
+            json_end = response_text.rfind('}') + 1
+
+            if json_start == -1 or json_end == 0:
+                logger.error(f"No JSON object found in Gemini response: {response_text}")
+                raise ValueError("No JSON object found in Gemini response")
+
+            json_str = response_text[json_start:json_end]
+
             try:
-                with concurrent.futures.ThreadPoolExecutor(max_workers=1) as executor:
-                    future = executor.submit(
-                        lambda: client.models.generate_content(model=MODEL_NAME, contents=prompt)
-                    )
-                    response = future.result(timeout=timeout_seconds)
-                elapsed = time.time() - start_time
-                logger.info(f"Gemini API call succeeded in {elapsed:.2f} seconds on attempt {attempt+1}")
+                gemini_result = json.loads(json_str)
+            except json.JSONDecodeError as e:
+                logger.error(f"Failed to parse Gemini response as JSON: {json_str}. Error: {e}")
+                raise ValueError(f"Failed to parse Gemini response as JSON: {str(e)}")
 
-                if hasattr(response, 'usage_metadata') and response.usage_metadata:
-                    prompt_token_count = response.usage_metadata.prompt_token_count
-                    candidates_token_count = response.usage_metadata.candidates_token_count
-                else:
-                    prompt_token_count = 0
-                    candidates_token_count = 0
-                total_token_count = prompt_token_count + candidates_token_count
-                
-                logger.info(f"Gemini token usage: Input={prompt_token_count}, Output={candidates_token_count}, Total={total_token_count}")
-                logger.info(f"Estimate vs. Actual Input Tokens: {input_token_count_estimate} vs. {prompt_token_count}")
+            required_keys = ["header_mapping", "normalization_map", "matched_columns_count", "input_has_header", "total_columns"]
+            missing_keys = [key for key in required_keys if key not in gemini_result]
+            if missing_keys:
+                logger.error(f"Invalid mapping format from Gemini - missing keys: {missing_keys}. Got: {gemini_result.keys()}")
+                raise ValueError("Invalid mapping format from Gemini - missing required keys")
+            
+            logger.info(f"Gemini response content:\n {json.dumps(gemini_result, indent=2)}")
+            return gemini_result, "", warnings, prompt_token_count, candidates_token_count, total_token_count
 
-                if not response or not getattr(response, 'text', None):
-                    logger.error("No response from Gemini API")
-                    raise ValueError("No response from Gemini API")
+        except TimeoutError as e:
+            logger.error(f"Gemini API call timed out on attempt {attempt+1}: {e}")
+            last_exception = str(e)
 
-                response_text = response.text.strip()
-                json_start = response_text.find('{')
-                json_end = response_text.rfind('}') + 1
+        except genai.errors.ClientError as e:
+            if "RESOURCE_EXHAUSTED" in str(e):
+                logger.warning(f"Quota exceeded on attempt {attempt+1}. Error: {e}")
 
-                if json_start == -1 or json_end == 0:
-                    logger.error(f"No JSON object found in Gemini response: {response_text}")
-                    raise ValueError("No JSON object found in Gemini response")
-
-                json_str = response_text[json_start:json_end]
-
-                try:
-                    gemini_result = json.loads(json_str)
-                except json.JSONDecodeError as e:
-                    logger.error(f"Failed to parse Gemini response as JSON: {json_str}. Error: {e}")
-                    raise ValueError(f"Failed to parse Gemini response as JSON: {str(e)}")
-
-                required_keys = ["header_mapping", "normalization_map", "matched_columns_count", "input_has_header", "total_columns"]
-                missing_keys = [key for key in required_keys if key not in gemini_result]
-                if missing_keys:
-                    logger.error(f"Invalid mapping format from Gemini - missing keys: {missing_keys}. Got: {gemini_result.keys()}")
-                    raise ValueError("Invalid mapping format from Gemini - missing required keys")
-
-                if "column_separators" in gemini_result:
-                    logger.info(f"Detected column separators: {gemini_result['column_separators']}")
-
-                logger.info(f"Successfully received and parsed mapping from Gemini. {gemini_result.get('matched_columns_count')} columns matched. Total columns: {gemini_result.get('total_columns')}")
-                logger.info(f"Gemini response content:\n {json.dumps(gemini_result, indent=2)}")
-                return gemini_result, "", warnings, prompt_token_count, candidates_token_count, total_token_count
-            except concurrent.futures.TimeoutError:
-                logger.error(f"Gemini API call timed out after {timeout_seconds} seconds on attempt {attempt+1}")
-                last_exception = f"Timeout after {timeout_seconds} seconds"
-            except genai.errors.ClientError as e:
-                if "RESOURCE_EXHAUSTED" in str(e):
-                    logger.warning(f"Quota exceeded on attempt {attempt+1}. Error: {e}")
-                    last_exception = e
-                    retry_delay = 0
-
-                    try:
-                        # The error message from the SDK is not a clean JSON, so we find the start of the JSON blob.
-                        error_str = str(e)
-                        dict_start = error_str.find('{')
-                        if dict_start != -1:
-                            dict_str = error_str[dict_start:]
-                            error_data = ast.literal_eval(dict_str)
-                            details = error_data.get('error', {}).get('details', [])
-                            for detail in details:
-                                if detail.get('@type') == 'type.googleapis.com/google.rpc.RetryInfo':
-                                    delay_str = detail.get('retryDelay', '0s')
-                                    retry_delay = int(delay_str.rstrip('s'))
-                                    break
-                    except (SyntaxError, ValueError) as eval_e:
-                        logger.warning(f"Could not parse retry delay from quota error: {eval_e}")
-
-                    # Halve the sample size for the next attempt
-                    new_size = len(current_sample) // 2
-                    if new_size < 1:
-                        logger.error("Cannot reduce sample size further. Aborting retry for quota error.")
-                        break
-                    
-                    logger.warning(f"Quota error. Halving sample from {len(current_sample)} to {new_size} rows.")
-                    current_sample = current_sample[:new_size]
-                    prompt = format_prompt_for_gemini(current_sample, known_headers)
-
-                    try:
-                        new_token_estimate = client.models.count_tokens(model=MODEL_NAME, contents=prompt).total_tokens
-                        logger.info(f"New estimated token count after halving sample: {new_token_estimate}")
-                    except Exception as count_e:
-                        logger.warning(f"Could not count tokens after halving sample: {count_e}")
-
-                    if retry_delay > 0:
-                        logger.info(f"Retrying after {retry_delay} seconds.")
-                        time.sleep(retry_delay)
-                else:
-                    logger.error(f"Gemini API call failed on attempt {attempt+1} with a non-quota client error:\n{e}", exc_info=True)
-                    last_exception = str(e)
-                    break # Stop retrying for other client errors
-
-            except Exception as e:
-                logger.error(f"Gemini API call failed on attempt {attempt+1}:\n{e}", exc_info=True)
                 last_exception = str(e)
-            attempt += 1
-        # All attempts failed
-        logger.error(f"All {max_retries+1} attempts to call Gemini API failed. Last error: {last_exception}")
-        return {}, f"Gemini API failed after {max_retries+1} attempts. Last error: {last_exception}", warnings, prompt_token_count, candidates_token_count, total_token_count
-    except Exception as e:
-        error_msg = f"Error querying Gemini API: {str(e)}"
-        logger.error(error_msg, exc_info=True)
-        return {}, str(e), warnings, 0, 0, 0
+                # Manejo de retry y reducción de sample
+                new_size = len(current_sample) // 2
+                if new_size < 1:
+                    logger.error("Cannot reduce sample size further. Aborting retry.")
+                    break
+                current_sample = current_sample[:new_size]
+                prompt = format_prompt_for_gemini(current_sample, known_headers)
+            else:
+                logger.error(f"Gemini API call failed on attempt {attempt+1}: {e}", exc_info=True)
+                last_exception = str(e)
+                break
+
+        except Exception as e:
+            logger.error(f"Gemini API call failed on attempt {attempt+1}: {e}", exc_info=True)
+            last_exception = str(e)
+
+        attempt += 1
+
+    logger.error(f"All {max_retries+1} attempts to call Gemini API failed. Last error: {last_exception}")
+    return {}, f"Gemini API failed after {max_retries+1} attempts. Last error: {last_exception}", warnings, prompt_token_count, candidates_token_count, total_token_count

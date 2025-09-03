@@ -20,7 +20,7 @@ export function CompareNormDialog({ isOpen, onOpenChange, entry_ID, entry_FileNa
   const [loadingNormalized, setLoadingNormalized] = useState(false);
 
   useEffect(() => {
-    if (!entry_ID) return;
+    if (!entry_ID || !isOpen) return;
 
     const fetchOriginal = async () => {
       setLoadingOriginal(true);

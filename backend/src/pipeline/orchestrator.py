@@ -195,7 +195,6 @@ class PipelineOrchestrator:
                 # Store the sampled rows for frontend access immediately after sampling
                 try:
                     run.gemini_sample_rows = json.dumps(sample_data)
-                    logger.info(f"Gemini sample rows for {run.id}: {run.gemini_sample_rows}")
                 except Exception as e:
                     error_msg = f"Failed to serialize gemini_sample_rows: {str(e)}"
                     self._update_stage(run, Stage.SAMPLING, Status.ERROR, error_message=error_msg, warning='; '.join(sample_warnings) if sample_warnings else None, db_session=db_session)
@@ -369,35 +368,33 @@ class PipelineOrchestrator:
         if close_session:
             db_session.close()
         
-    def _setup_logging(self, log_file: Path):
-        """Setup file logging for this pipeline run. Ensure logs go to both file and stdout, and both outputs are identical."""
-        # Remove all existing handlers to avoid duplicates or conflicts
-        root_logger = logging.getLogger()
-        for handler in list(root_logger.handlers):
-            root_logger.removeHandler(handler)
-        
-        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-        
-        # File handler
-        file_handler = logging.FileHandler(log_file)
-        file_handler.setFormatter(formatter)
-        file_handler.setLevel(logging.DEBUG)
-        root_logger.addHandler(file_handler)
-        
-        # Stream handler (console) with UTF-8 encoding
-        import sys
-        stream_handler = logging.StreamHandler(sys.stdout)
-        stream_handler.setFormatter(formatter)
-        stream_handler.setLevel(logging.DEBUG)
-        # Force UTF-8 encoding for the stream handler
-        if hasattr(stream_handler.stream, 'reconfigure'):
-            try:
-                stream_handler.stream.reconfigure(encoding='utf-8', errors='replace')
-            except Exception:
-                pass
-        root_logger.addHandler(stream_handler)
-        
-        # Set root logger level
+    def _setup_logging(self, log_file: Path): 
+        # Remove all existing handlers to avoid duplicates or conflicts 
+        root_logger = logging.getLogger() 
+        for handler in list(root_logger.handlers): 
+            root_logger.removeHandler(handler) 
+        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s') 
+        # File handler 
+        file_handler = logging.FileHandler(log_file) 
+        file_handler.setFormatter(formatter) 
+        file_handler.setLevel(logging.DEBUG) 
+        root_logger.addHandler(file_handler) 
+        # Stream handler (console) with UTF-8 encoding 
+        import sys 
+        stream_handler = logging.StreamHandler(sys.stdout) 
+        stream_handler.setFormatter(formatter) 
+        stream_handler.setLevel(logging.DEBUG) 
+        # Force UTF-8 encoding for the stream handler 
+        if hasattr(stream_handler.stream, 'reconfigure'): 
+            try: 
+                stream_handler.stream.reconfigure(encoding='utf-8', errors='replace') 
+            except Exception: 
+                pass 
+        root_logger.addHandler(stream_handler) 
+        # Set root logger level 
         root_logger.setLevel(logging.DEBUG)
-        
+
+        httpcore_logger = logging.getLogger("httpcore")
+        httpcore_logger.setLevel(logging.CRITICAL + 1)  # bloquea todo
+        httpcore_logger.propagate = False               # no propaga a root handlers
         return file_handler

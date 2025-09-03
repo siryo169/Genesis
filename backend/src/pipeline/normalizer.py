@@ -251,9 +251,6 @@ class Normalizer:
 
         # Construir el nuevo path en REPROCESS_DIR siempre con .csv
         reprocess_path = Path(settings.REPROCESS_DIR) / f"{new_base}.csv.uploading"
-
-        logger.info(f"Nuevo archivo a crear: {reprocess_path}")
-
         import os
         text_exts = ('.csv', '.tsv', '.psv', '.dat', '.data', '.txt')
         excel_exts = ('.xlsx', '.xls', '.ods')
@@ -433,7 +430,6 @@ class Normalizer:
         if output_written_rows < 90000:
             # Post-processing analysis: Check for repetitive substrings in each column
             self._analyze_repetitive_patterns(output_path, new_headers)
-        logger.info(f"File to compress : {be_output_path}")
         output_archive = be_output_path.with_suffix('.7z')
         with py7zr.SevenZipFile(output_archive, 'w') as archive:
             archive.write(be_output_path, arcname=be_output_path.name)

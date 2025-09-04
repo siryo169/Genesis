@@ -1,12 +1,16 @@
 """
 SQLAlchemy model for tracking pipeline runs and their statuses.
 """
-from datetime import datetime, timezone
+from datetime import datetime
 import uuid
 from sqlalchemy import Column, String, DateTime, Integer, create_engine, Text, Float, Index
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 import json
+import pytz
+
+# Define la zona horaria de Madrid
+madrid_tz = pytz.timezone('Europe/Madrid')
 
 Base = declarative_base()
 
@@ -45,7 +49,7 @@ class PipelineRun(Base):
     id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
     filename = Column(String, nullable=False)
     status = Column(String, nullable=False, default='enqueued')
-    insertion_date = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
+    insertion_date = Column(DateTime(timezone=True), default=lambda: madrid_tz.localize(datetime.now()))
     start_time = Column(DateTime(timezone=True), nullable=True)
     end_time = Column(DateTime(timezone=True), nullable=True)
     duration_ms = Column(Integer, nullable=True)
@@ -82,9 +86,9 @@ class PipelineRun(Base):
             if not dt:
                 return None
             if dt.tzinfo is None:
-                # Assume naive datetimes are UTC (as per DB)
-                return dt.replace(tzinfo=timezone.utc).isoformat().replace('+00:00', 'Z')
-            return dt.isoformat().replace('+00:00', 'Z')
+                # Assume naive datetimes are in Madrid timezone
+                return madrid_tz.localize(dt).isoformat()
+            return dt.isoformat()
         result = {
             'id': str(self.id),
             'filename': self.filename,

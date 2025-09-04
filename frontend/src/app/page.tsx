@@ -77,9 +77,15 @@ export default function CsvMonitorPage() {
   const { toast } = useToast();
   const [sortConfig, setSortConfig] = useState<{ key: keyof CsvProcessingEntry | null; direction: 'ascending' | 'descending' }>({ key: 'priority', direction: 'ascending' });
   const [currentTime, setCurrentTime] = useState<number | undefined>(undefined);
-  const [date, setDate] = React.useState<DateRange | undefined>(undefined);
-  const [timeFrom, setTimeFrom] = useState<string>('00:00');
-  const [timeTo, setTimeTo] = useState<string>('23:59');
+  const [graphDateRange, setGraphDateRange] = React.useState<DateRange>(() => {
+    const today = new Date();
+    return {
+      from: today,
+      to: today,
+    };
+  });
+  const [tableFilterDate, setTableFilterDate] = React.useState<DateRange | undefined>(undefined);
+
   const [statusFilter, setStatusFilter] = useState<string[]>([]);
   const [priorityFilter, setPriorityFilter] = useState<number[]>([]);
   const [fileTypeFilter, setFileTypeFilter] = useState<string[]>([]);
@@ -407,7 +413,7 @@ export default function CsvMonitorPage() {
     setFileTypeFilter([]);
     setModelFilter([]);
     setFieldsFilter("");
-    setDate(undefined);
+    setTableFilterDate(undefined);
   }, []);
 
   const filteredData = useMemo(() => {
@@ -443,14 +449,14 @@ export default function CsvMonitorPage() {
       );
     }
     
-    if (date?.from) {
+    if (tableFilterDate?.from) {
       sortableItems = sortableItems.filter(entry => 
-        entry.insertion_date && new Date(entry.insertion_date) >= date.from!
+        entry.insertion_date && new Date(entry.insertion_date) >= tableFilterDate.from!
       );
     }
-    if (date?.to) {
+    if (tableFilterDate?.to) {
       sortableItems = sortableItems.filter(entry => 
-        entry.insertion_date && new Date(entry.insertion_date) <= date.to!
+        entry.insertion_date && new Date(entry.insertion_date) <= tableFilterDate.to!
       );
     }
       if (sortConfig.key !== null) {
@@ -502,7 +508,7 @@ export default function CsvMonitorPage() {
       });
     }
     return sortableItems;
-  }, [csvData, filterText, statusFilter, priorityFilter, fileTypeFilter, modelFilter, fieldsFilter, date, sortConfig, getOverallStatus]);
+  }, [csvData, filterText, statusFilter, priorityFilter, fileTypeFilter, modelFilter, fieldsFilter, tableFilterDate, sortConfig, getOverallStatus]);
 
   const paginatedData = useMemo(() => {
     const start = pageIndex * pageSize;
@@ -567,7 +573,7 @@ export default function CsvMonitorPage() {
   }, [csvData, currentTime, getOverallStatus]);
 
   const throughputChartData = useMemo(() => {
-    if (!currentTime || !date?.from) return [];
+    if (!currentTime || !graphDateRange?.from) return [];
     const getFinalProcessingInfo = (entry: CsvProcessingEntry): { time: number | undefined; isSuccess: boolean } => {
       const isFullySuccessful = getOverallStatus(entry) === 'ok';
       let finalTime: number | undefined = undefined;
@@ -587,9 +593,9 @@ export default function CsvMonitorPage() {
     };
 
     const data = [];
-    const startDate = new Date(date.from);
+    const startDate = new Date(graphDateRange.from);
     startDate.setHours(0, 0, 0, 0);
-    const endDate = date.to ? new Date(date.to) : new Date(startDate);
+    const endDate = graphDateRange.to ? new Date(graphDateRange.to) : new Date(startDate);
     endDate.setHours(23, 59, 59, 999);
 
     const numDays = differenceInDays(endDate, startDate) + 1;
@@ -667,7 +673,7 @@ export default function CsvMonitorPage() {
         }
     }
     return data;
-  }, [csvData, currentTime, date, getOverallStatus]);
+  }, [csvData, currentTime, graphDateRange, getOverallStatus]);
 
   const errorAnalysisData = useMemo(() => {
     const errorCounts: Record<string, number> = {};
@@ -722,120 +728,158 @@ export default function CsvMonitorPage() {
 
 
   const [tokenMetricType, setTokenMetricType] = useState<'total' | 'input' | 'output'>('total');
-  const [metricsData, setMetricsData] = useState<any>(null);
 
-  function combineDateTime(date: Date | undefined, time: string): Date | undefined {
-    if (!date) return undefined;
-    const [h, m] = time.split(":").map(Number);
-    const d = new Date(date);
-    d.setUTCHours(h, m, 0, 0);
-    return d;
-  }
-
-  const fetchMetricsData = useCallback(async () => {
-    let range = 'auto';
-    let bucketParam = 'auto';
-    let from = combineDateTime(date?.from, timeFrom);
-    let to = combineDateTime(date?.to, timeTo);
-    if (from && to) {
-      const ms = to.getTime() - from.getTime();
-      const days = Math.ceil(ms / (24*60*60*1000));
-      const oneHour = 60 * 60 * 1000;
-      if (ms <= 2 * oneHour) bucketParam = '15min';
-      else if (ms <= 4 * oneHour) bucketParam = '30min';
-      else if (ms <= 24 * oneHour) bucketParam = 'hour';
-      else if (days <= 7) bucketParam = 'day';
-      else bucketParam = 'week';
-      range = `${from.toISOString()},${to.toISOString()}`;
-    }
-    try {
-      const res = await fetch(`${config.apiBaseUrl}/api/pipeline/metrics?range=${range}&bucket=${bucketParam}`);
-      if (!res.ok) throw new Error('Failed to fetch metrics');
-      const data = await res.json();
-      setMetricsData(data);
-    } catch (err) {
-      setMetricsData(null);
-    }
-  }, [date, timeFrom, timeTo]);
-
-  useEffect(() => {
-    fetchMetricsData();
-    const interval = setInterval(fetchMetricsData, config.pollingInterval);
-    return () => clearInterval(interval);
-  }, [fetchMetricsData]);
-
-  function getDynamicBuckets(buckets: string[]) {
-    if (!buckets || buckets.length === 0) return { bucketLabels: [], bucketIndices: [] };
-    const times = buckets.map(b => new Date(b).getTime());
-    const minTime = Math.min(...times);
-    const maxTime = Math.max(...times);
-    const totalMs = maxTime - minTime;
-    const oneMin = 60 * 1000;
-    const fifteenMin = 15 * oneMin;
-    const thirtyMin = 30 * oneMin;
-    const oneHour = 60 * oneMin;
-    const oneDay = 24 * oneHour;
-    let bucketSizeMs = oneDay;
-    let labelFormat = (d: Date) => d.toLocaleDateString('en-US', { timeZone: 'UTC' });
-    if (totalMs <= 2 * oneHour) {
-      bucketSizeMs = fifteenMin;
-      labelFormat = (d: Date) => `${d.getUTCHours()}:${d.getUTCMinutes().toString().padStart(2, '0')}`;
-    } else if (totalMs <= 4 * oneHour) {
-      bucketSizeMs = thirtyMin;
-      labelFormat = (d: Date) => `${d.getUTCHours()}:${d.getUTCMinutes().toString().padStart(2, '0')}`;
-    } else if (totalMs <= oneDay) {
-      bucketSizeMs = oneHour;
-      labelFormat = (d: Date) => d.getUTCHours() + ':00';
-    } else if (totalMs <= 3 * oneDay) {
-      bucketSizeMs = 6 * oneHour;
-      labelFormat = (d: Date) => `${d.getUTCMonth()+1}/${d.getUTCDate()} ${d.getUTCHours()}:00`;
-    } else if (totalMs <= 7 * oneDay) {
-      bucketSizeMs = 12 * oneHour;
-      labelFormat = (d: Date) => `${d.getUTCMonth()+1}/${d.getUTCDate()} ${d.getUTCHours()}:00`;
-    } else {
-      bucketSizeMs = oneDay;
-      labelFormat = (d: Date) => d.toLocaleDateString('en-US', { timeZone: 'UTC' });
-    }
-    const bucketLabels: string[] = [];
-    const bucketIndices: number[][] = [];
-    let bucketStart = minTime;
-    let i = 0;
-    while (bucketStart <= maxTime) {
-      const bucketEnd = bucketStart + bucketSizeMs;
-      const indices: number[] = [];
-      for (; i < times.length; i++) {
-        if (times[i] >= bucketStart && times[i] < bucketEnd) {
-          indices.push(i);
-        } else if (times[i] >= bucketEnd) {
-          break;
-        }
-      }
-      bucketLabels.push(labelFormat(new Date(bucketStart)));
-      bucketIndices.push(indices);
-      bucketStart = bucketEnd;
-    }
-    return { bucketLabels, bucketIndices };
-  }
+  const getTimeRangeDetails = (startDate: Date, endDate: Date) => {
+    const ms = endDate.getTime() - startDate.getTime();
+    const days = Math.ceil(ms / (24*60*60*1000));
+    const oneHour = 60 * 60 * 1000;
+    
+    if (days >= 7) return { interval: 'day', format: (d: Date) => formatDate(d, 'MMM d') };
+    if (days > 1) return { interval: '4hour', format: (d: Date) => formatDate(d, 'MMM d, HH:mm') };
+    return { interval: '2hour', format: (d: Date) => `${formatDate(d, 'HH:mm')}-${formatDate(new Date(d.getTime() + 2 * 60 * 60 * 1000), 'HH:mm')}` };
+  };
 
   const tokenChartData = useMemo(() => {
-    if (!metricsData) return [];
-    const { bucketLabels, bucketIndices } = getDynamicBuckets(metricsData.buckets);
-    return bucketLabels.map((label, idx) => {
-      const indices = bucketIndices[idx];
-      const sum = indices.reduce((acc, i) => acc + (metricsData.token_consumption[tokenMetricType][i] || 0), 0);
-      return { time: label, value: sum };
-    });
-  }, [metricsData, tokenMetricType]);
+    if (!currentTime || !graphDateRange?.from) return [];
+    
+    const data = [];
+    const startDate = new Date(graphDateRange.from);
+    startDate.setHours(0, 0, 0, 0);
+    const endDate = graphDateRange.to ? new Date(graphDateRange.to) : new Date(startDate);
+    endDate.setHours(23, 59, 59, 999);
+
+    const numDays = differenceInDays(endDate, startDate) + 1;
+
+    if (numDays >= 7) { // Agrupación diaria
+        for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
+            const startOfDay = new Date(d);
+            startOfDay.setHours(0, 0, 0, 0);
+            const endOfDay = new Date(d);
+            endOfDay.setHours(23, 59, 59, 999);
+
+            const dayString = formatDate(d, 'MMM d');
+            
+            let totalTokens = 0;
+
+            csvData.forEach(entry => {
+                const finishTime = entry.stage_stats?.gemini_query?.end_time ? new Date(entry.stage_stats.gemini_query.end_time).getTime() : undefined;
+                if (finishTime && finishTime >= startOfDay.getTime() && finishTime <= endOfDay.getTime()) {
+                    if (tokenMetricType === 'input') {
+                        totalTokens += entry.gemini_input_tokens || 0;
+                    } else if (tokenMetricType === 'output') {
+                        totalTokens += entry.gemini_output_tokens || 0;
+                    } else {
+                        totalTokens += entry.gemini_total_tokens || 0;
+                    }
+                }
+            });
+            data.push({ time: dayString, value: totalTokens });
+        }
+    } else if (numDays > 1) { // Bloques de 4 horas para 2-6 días
+        let currentChunkStart = new Date(startDate);
+        while(currentChunkStart <= endDate) {
+            const currentChunkEnd = new Date(currentChunkStart);
+            currentChunkEnd.setHours(currentChunkEnd.getHours() + 4);
+
+            const chunkLabel = formatDate(currentChunkStart, 'MMM d, HH:mm');
+            
+            let totalTokens = 0;
+
+            csvData.forEach(entry => {
+                const finishTime = entry.stage_stats?.gemini_query?.end_time ? new Date(entry.stage_stats.gemini_query.end_time).getTime() : undefined;
+                if (finishTime && finishTime >= currentChunkStart.getTime() && finishTime < currentChunkEnd.getTime()) {
+                    if (tokenMetricType === 'input') {
+                        totalTokens += entry.gemini_input_tokens || 0;
+                    } else if (tokenMetricType === 'output') {
+                        totalTokens += entry.gemini_output_tokens || 0;
+                    } else {
+                        totalTokens += entry.gemini_total_tokens || 0;
+                    }
+                }
+            });
+            data.push({ time: chunkLabel, value: totalTokens });
+            currentChunkStart = currentChunkEnd;
+        }
+    } else { // Bloques de 2 horas para 1 día
+        let currentChunkStart = new Date(startDate);
+        while(currentChunkStart < endDate) {
+            const currentChunkEnd = new Date(currentChunkStart);
+            currentChunkEnd.setHours(currentChunkEnd.getHours() + 2);
+
+            const startHour = formatDate(currentChunkStart, 'HH:mm');
+            const endHour = formatDate(currentChunkEnd, 'HH:mm');
+            const chunkLabel = `${startHour}-${endHour}`;
+            
+            let totalTokens = 0;
+
+            csvData.forEach(entry => {
+                const finishTime = entry.stage_stats?.gemini_query?.end_time ? new Date(entry.stage_stats.gemini_query.end_time).getTime() : undefined;
+                if (finishTime && finishTime >= currentChunkStart.getTime() && finishTime < currentChunkEnd.getTime()) {
+                    if (tokenMetricType === 'input') {
+                        totalTokens += entry.gemini_input_tokens || 0;
+                    } else if (tokenMetricType === 'output') {
+                        totalTokens += entry.gemini_output_tokens || 0;
+                    } else {
+                        totalTokens += entry.gemini_total_tokens || 0;
+                    }
+                }
+            });
+            data.push({ time: chunkLabel, value: totalTokens });
+            currentChunkStart = currentChunkEnd;
+        }
+    }
+    return data;
+  }, [csvData, currentTime, graphDateRange, tokenMetricType]);
+
+
 
   const costChartData = useMemo(() => {
-    if (!metricsData) return [];
-    const { bucketLabels, bucketIndices } = getDynamicBuckets(metricsData.buckets);
-    return bucketLabels.map((label, idx) => {
-      const indices = bucketIndices[idx];
-      const sum = indices.reduce((acc, i) => acc + (metricsData.cost[i] || 0), 0);
-      return { time: label, value: sum };
-    });
-  }, [metricsData]);
+    if (!currentTime || !graphDateRange?.from) return [];
+    
+    const data = [];
+    const startDate = new Date(graphDateRange.from);
+    startDate.setHours(0, 0, 0, 0);
+    const endDate = graphDateRange.to ? new Date(graphDateRange.to) : new Date(startDate);
+    endDate.setHours(23, 59, 59, 999);
+
+    const timeRange = getTimeRangeDetails(startDate, endDate);
+    let currentChunkStart = new Date(startDate);
+
+    // Definir el tamaño del chunk basado en el intervalo
+    const getChunkSize = () => {
+      switch (timeRange.interval) {
+        case 'day': return 24 * 60 * 60 * 1000;
+        case '4hour': return 4 * 60 * 60 * 1000;
+        case '2hour': return 2 * 60 * 60 * 1000;
+        default: return 24 * 60 * 60 * 1000;
+      }
+    };
+
+    const chunkSize = getChunkSize();
+
+    // Calcular el coste estimado por token
+    const COST_PER_1K_TOKENS = 0.000125; // Coste estimado por cada 1000 tokens
+
+    while (currentChunkStart <= endDate) {
+      const currentChunkEnd = new Date(currentChunkStart.getTime() + chunkSize);
+      const chunkLabel = timeRange.format(currentChunkStart);
+      
+      let totalCost = 0;
+
+      csvData.forEach(entry => {
+        const finishTime = entry.stage_stats?.gemini_query?.end_time ? new Date(entry.stage_stats.gemini_query.end_time).getTime() : undefined;
+        if (finishTime && finishTime >= currentChunkStart.getTime() && finishTime < currentChunkEnd.getTime()) {
+          const totalTokens = entry.gemini_total_tokens || 0;
+          totalCost += (totalTokens / 1000) * COST_PER_1K_TOKENS;
+        }
+      });
+
+      data.push({ time: chunkLabel, value: totalCost });
+      currentChunkStart = currentChunkEnd;
+    }
+
+    return data;
+  }, [csvData, currentTime, graphDateRange]);
 
   const selectedFile = useMemo(
     () => csvData.find(e => e.id === selectedFileId) || null,
@@ -892,6 +936,32 @@ export default function CsvMonitorPage() {
                         <div>
                           <CardTitle>Throughput</CardTitle>
                           <CardDescription>Files processed and successful over time.</CardDescription>
+                        </div>
+                        <div className="relative">
+                          <Popover>
+                            <PopoverTrigger asChild>
+                              <Button
+                                variant={"outline"}
+                                className={cn(
+                                  "w-auto justify-start text-left font-normal",
+                                  "text-sm"
+                                )}
+                              >
+                                <CalendarIcon className="mr-2 h-4 w-4" />
+                                {graphDateRange?.from ? formatDate(graphDateRange.from, "LLL dd, y") : "Today"}
+                              </Button>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-auto p-0" align="start">
+                              <Calendar
+                                initialFocus
+                                mode="range"
+                                defaultMonth={graphDateRange.from}
+                                selected={graphDateRange}
+                                onSelect={(range) => range?.from && setGraphDateRange({ ...range, to: range.to || range.from })}
+                                numberOfMonths={2}
+                              />
+                            </PopoverContent>
+                          </Popover>
                         </div>
                       </div>
                     </CardHeader>
@@ -989,15 +1059,26 @@ export default function CsvMonitorPage() {
                     <CardContent className="pl-2">
                       {tokenChartData.length > 0 ? (
                         <ChartContainer config={{}} className="h-[250px] w-full">
-                            <ResponsiveContainer>
+                          <ResponsiveContainer width="100%" height="100%">
                             <LineChart data={tokenChartData} margin={{ top: 5, right: 30, left: 0, bottom: 5 }}>
-                                <CartesianGrid strokeDasharray="3 3" vertical={false}/>
-                                <XAxis dataKey="time" tickLine={false} axisLine={false} tickMargin={8} stroke="hsl(var(--muted-foreground))" fontSize={12} />
-                                <YAxis tickLine={false} axisLine={false} tickMargin={8} stroke="hsl(var(--muted-foreground))" fontSize={12} />
-                                <RechartsTooltip content={<ChartTooltipContent />} />
-                                <Line dataKey="value" type="monotone" strokeWidth={2} stroke="var(--color-chart-1)" />
+                              <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                              <XAxis dataKey="time" tickLine={false} axisLine={false} tickMargin={8} stroke="hsl(var(--muted-foreground))" fontSize={12} />
+                              <YAxis tickLine={false} axisLine={false} tickMargin={8} stroke="hsl(var(--muted-foreground))" fontSize={12} />
+                              <RechartsTooltip
+                                cursor={{strokeDasharray: '3 3'}}
+                                content={<ChartTooltipContent indicator="dot" />}
+                              />
+                              <Line 
+                                type="monotone" 
+                                dataKey="value" 
+                                stroke="var(--color-chart-1, #60a5fa)" 
+                                strokeWidth={2} 
+                                activeDot={{ r: 8 }} 
+                                dot={{ r: 4, stroke: 'var(--color-processed, #60a5fa)', strokeWidth: 2, fill: 'white' }} 
+                                connectNulls={true} 
+                              />
                             </LineChart>
-                            </ResponsiveContainer>
+                          </ResponsiveContainer>
                         </ChartContainer>
                       ) : (
                         <div className="flex flex-col items-center justify-center h-[250px] text-center text-muted-foreground">
@@ -1017,15 +1098,26 @@ export default function CsvMonitorPage() {
                     <CardContent className="pl-2">
                       {costChartData.length > 0 ? (
                         <ChartContainer config={{}} className="h-[250px] w-full">
-                            <ResponsiveContainer>
+                          <ResponsiveContainer width="100%" height="100%">
                             <LineChart data={costChartData} margin={{ top: 5, right: 30, left: 0, bottom: 5 }}>
-                                <CartesianGrid strokeDasharray="3 3" vertical={false}/>
-                                <XAxis dataKey="time" tickLine={false} axisLine={false} tickMargin={8} stroke="hsl(var(--muted-foreground))" fontSize={12} />
-                                <YAxis tickLine={false} axisLine={false} tickMargin={8} stroke="hsl(var(--muted-foreground))" fontSize={12} dataKey="value" tickFormatter={(v) => `$${v.toFixed(3)}`} />
-                                <RechartsTooltip content={<ChartTooltipContent formatter={(v) => `$${Number(v).toFixed(4)}`} />} />
-                                <Line dataKey="value" type="monotone" strokeWidth={2} stroke="var(--color-chart-2)" />
+                              <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                              <XAxis dataKey="time" tickLine={false} axisLine={false} tickMargin={8} stroke="hsl(var(--muted-foreground))" fontSize={12} />
+                              <YAxis tickLine={false} axisLine={false} tickMargin={8} stroke="hsl(var(--muted-foreground))" fontSize={12} dataKey="value" tickFormatter={(v) => `$${v.toFixed(3)}`} />
+                              <RechartsTooltip
+                                cursor={{strokeDasharray: '3 3'}}
+                                content={<ChartTooltipContent indicator="dot" formatter={(v) => `$${Number(v).toFixed(4)}`} />}
+                              />
+                              <Line 
+                                type="monotone" 
+                                dataKey="value" 
+                                stroke="var(--color-chart-2, #4ade80)" 
+                                strokeWidth={2} 
+                                activeDot={{ r: 8 }} 
+                                dot={{ r: 4, stroke: 'var(--color-successfully, #4ade80)', strokeWidth: 2, fill: 'white' }} 
+                                connectNulls={true} 
+                              />
                             </LineChart>
-                            </ResponsiveContainer>
+                          </ResponsiveContainer>
                         </ChartContainer>
                       ) : (
                         <div className="flex flex-col items-center justify-center h-[250px] text-center text-muted-foreground">
@@ -1036,6 +1128,7 @@ export default function CsvMonitorPage() {
                       )}
                     </CardContent>
                   </Card>
+
                 </div>
               </AccordionContent>
             </AccordionItem>
@@ -1114,22 +1207,22 @@ export default function CsvMonitorPage() {
                         variant={"outline"}
                         className={cn(
                           "w-auto justify-start text-left font-normal pr-8",
-                          !date && "text-muted-foreground",
-                          !!(date?.from || date?.to) && "border-foreground"
+                          !tableFilterDate && "text-muted-foreground",
+                          !!(tableFilterDate?.from || tableFilterDate?.to) && "border-foreground"
                         )}
                       >
                         <CalendarIcon className="mr-2 h-4 w-4" />
-                        {date?.from ? (
-                          date.to ? (
+                        {tableFilterDate?.from ? (
+                          tableFilterDate.to ? (
                             <>
-                              {formatDate(date.from, "LLL dd, y")} -{" "}
-                              {formatDate(date.to, "LLL dd, y")}
+                              {formatDate(tableFilterDate.from, "LLL dd, y")} -{" "}
+                              {formatDate(tableFilterDate.to, "LLL dd, y")}
                             </>
                           ) : (
-                            formatDate(date.from, "LLL dd, y")
+                            formatDate(tableFilterDate.from, "LLL dd, y")
                           )
                         ) : (
-                          <span>Pick a date</span>
+                          <span>Filter by date</span>
                         )}
                       </Button>
                     </PopoverTrigger>
@@ -1137,19 +1230,19 @@ export default function CsvMonitorPage() {
                       <Calendar
                         initialFocus
                         mode="range"
-                        defaultMonth={date?.from}
-                        selected={date}
-                        onSelect={setDate}
+                        defaultMonth={tableFilterDate?.from}
+                        selected={tableFilterDate}
+                        onSelect={setTableFilterDate}
                         numberOfMonths={2}
                       />
                     </PopoverContent>
                   </Popover>
-                   {!!(date?.from || date?.to) && (
+                   {!!(tableFilterDate?.from || tableFilterDate?.to) && (
                     <Button
                       variant="ghost"
                       size="icon"
                       className="absolute right-1 top-1/2 -translate-y-1/2 h-6 w-6"
-                      onClick={() => setDate(undefined)}
+                      onClick={() => setTableFilterDate(undefined)}
                     >
                       <X className="h-4 w-4" />
                     </Button>

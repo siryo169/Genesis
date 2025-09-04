@@ -3,12 +3,16 @@ Pipeline Orchestrator module for coordinating tabular file processing stages (CS
 """
 import logging
 from pathlib import Path
-from datetime import datetime, timezone
+from datetime import datetime
 import shutil
 from uuid import UUID
 import json
 import re
 from enum import Enum
+import pytz
+
+# Define la zona horaria de Madrid
+madrid_tz = pytz.timezone('Europe/Madrid')
 
 from ..models.pipeline_run import PipelineRun
 from ..config.settings import settings
@@ -33,7 +37,7 @@ def ensure_aware(dt):
     if dt is None:
         return None
     if dt.tzinfo is None:
-        return dt.replace(tzinfo=timezone.utc)
+        return madrid_tz.localize(dt)
     return dt
 
 class PipelineOrchestrator:
@@ -216,7 +220,7 @@ class PipelineOrchestrator:
             )
             if all_ok:
                 run.status = Status.OK.value
-                run.end_time = datetime.now(timezone.utc)
+                run.end_time = madrid_tz.localize(datetime.now())
                 start = ensure_aware(run.start_time)
                 end = ensure_aware(run.end_time)
                 run.duration_ms = int((end - start).total_seconds() * 1000)
@@ -245,7 +249,7 @@ class PipelineOrchestrator:
             db_session.rollback()
             logger.error(f"Pipeline failed for {filename}: {str(e)}")
             run.status = Status.ERROR.value
-            run.end_time = datetime.now(timezone.utc)
+            run.end_time = madrid_tz.localize(datetime.now())
             start = ensure_aware(run.start_time)
             end = ensure_aware(run.end_time)
             run.duration_ms = int((end - start).total_seconds() * 1000)
@@ -289,7 +293,7 @@ class PipelineOrchestrator:
 
         stage_value = stage.value if isinstance(stage, Enum) else stage
         status_value = status.value if isinstance(status, Enum) else status
-        now = datetime.now(timezone.utc)
+        now = datetime.now(madrid_tz)
         # Load or initialize stage_stats
         if not run.stage_stats:
             stage_stats = {}

@@ -9,7 +9,7 @@ import { formatDuration } from "@/lib/utils";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import knownHeaders from "@/known_headers.json"; 
-import React, from "react";
+import React from "react";
 import { Calendar, Clock, Hourglass, Database, Hash, ShieldAlert, Bot, FileText, DollarSign, BadgePercent, BrainCircuit, Scaling } from 'lucide-react';
 
 interface FileDetailDialogProps {
@@ -85,9 +85,9 @@ function formatUTCDate(dateString?: string): string {
       hour: '2-digit',
       minute: '2-digit',
       second: '2-digit',
-      hour12: true,
-      timeZone: 'UTC'
-    }) + ' UTC';
+      hour12: false,
+      timeZone: 'Europe/Madrid'
+    });
   } catch (e) {
     return 'Invalid Date';
   }

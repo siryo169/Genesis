@@ -18,6 +18,9 @@ class Settings(BaseSettings):
     # API Keys
     GEMINI_API_KEY: str = None
 
+    # Time Configuration
+    TIMEZONE: str = "Europe/Madrid"  # Default timezone for date operations
+
     # Pipeline Configuration
     SAMPLE_THRESHOLD: int = 600
     INPUT_DIR: str = "data/inbound"

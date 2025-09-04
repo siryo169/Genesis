@@ -192,7 +192,7 @@ def run_gemini(sample_data: List[List[str]]) -> Tuple[Dict, str, list, int, int,
 
     def call_gemini_with_timeout(model, prompt, timeout_seconds):
         queue = Queue()
-        p = Process(target=gemini_worker, args=(queue, model, prompt))
+        p = Process(target=gemini_worker, args=(queue, model, prompt), daemon=True)
         p.start()
         p.join(timeout_seconds)
 

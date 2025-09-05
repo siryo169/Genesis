@@ -9,7 +9,7 @@ from fastapi import FastAPI, HTTPException, BackgroundTasks, WebSocket, WebSocke
 from fastapi.responses import FileResponse
 from ..models.pipeline_run import init_db, PipelineRun
 from ..pipeline.watcher import FileWatcher
-from ..pipeline.orchestrator import PipelineOrchestrator, Stage, Status
+from ..pipeline.orchestrator import PipelineOrchestrator
 from ..config.settings import settings
 from fastapi.middleware.cors import CORSMiddleware
 import asyncio
@@ -86,33 +86,7 @@ def queue_processor(orchestrator):
     while True:
         db_session = SessionLocal()
         try:
-            # First check reprocess directory for any files
-            reprocess_dir = Path(settings.REPROCESS_DIR)
-            if reprocess_dir.exists():
-                for reprocess_file in reprocess_dir.glob('*.csv'):
-                    try:
-                        logger.info(f"Found file for reprocessing: {reprocess_file.name}")
-                        # Move file to input directory
-                        input_path = Path(settings.INPUT_DIR) / reprocess_file.name
-                        reprocess_file.rename(input_path)
-                        
-                        # Create new pipeline run
-                        run = PipelineRun(
-                            filename=reprocess_file.name,
-                            status=Status.ENQUEUED.value,
-                            priority=1  # High priority for reprocessed files
-                        )
-                        db_session.add(run)
-                        db_session.commit()
-                        
-                        logger.info(f"Processing reprocessed file: {reprocess_file.name}")
-                        orchestrator.process_file(input_path, db_session)
-                        break  # Process one reprocessed file at a time
-                    except Exception as e:
-                        logger.error(f"Error processing reprocessed file {reprocess_file.name}: {e}", exc_info=True)
-                        continue
-
-            # Then check the regular queue
+            # Only process one file at a time (simple queue)
             run = db_session.query(PipelineRun).filter_by(status='enqueued').order_by(PipelineRun.priority.asc(),PipelineRun.insertion_date.asc()).first()
             if run:
                 try:
@@ -151,35 +125,7 @@ async def startup_event():
 
 @app.on_event("shutdown")
 async def shutdown_event():
-    db_session = SessionLocal()
-    try:
-        running_runs  = db_session.query(PipelineRun).filter(PipelineRun.status == 'running').all()
-        for run in running_runs:
-            run.status = 'error'
-            run.error_message = 'Processing interrupted due to server shutdown'
-            try:
-                stats = json.loads(run.stage_stats) if run.stage_stats else {}
-            except Exception:
-                stats = {}
-            for stage_name, stage_obj in stats.items():
-                if stage_obj.get('status') == 'running':
-                    logger.debug(f"Marking stage {stage_name} as error for run {run.id} due to shutdown")
-                    stage_obj['status'] = 'error'
-                    stage_obj['error_message'] = 'Processing interrupted due to server shutdown'
-            run.stage_stats = json.dumps(stats)
-            db_session.add(run)
-        db_session.commit()
-    except Exception as e:
-        try:
-            db_session.rollback()
-        except Exception:
-            pass
-        logger.error(f"Error marking running runs as error during shutdown: {e}", exc_info=True)
-    finally:
-        try:
-            db_session.close()
-        except Exception:
-            pass
+    """Stop the file watcher on app shutdown."""
     try:
         watcher.stop()
     except Exception as e:
@@ -237,7 +183,6 @@ async def download_csv(run_id: str, db: Session = Depends(get_db)):
     """
     Download the normalized CSV file for a completed run.
     """
-    
     try:
         run = db.query(PipelineRun).filter(PipelineRun.id == run_id).first()
         if not run:
@@ -660,8 +605,8 @@ async def upload_file(file: UploadFile = File(...), priority: int = Form(3)):
         if priority != 3:
             with open(priority_path, "w") as f:
                 f.write(str(priority))
-            logger.info(f"Created priority file {priority_path} with priority {priority}")
-
+            logger.info(f"Created priority file for {file.filename} with priority {priority}")
+        
         # Rename to final name (this will trigger FileWatcher)
         temp_path.rename(final_path)
         logger.info(f"File {file.filename} uploaded successfully, FileWatcher will process it")
@@ -676,73 +621,6 @@ async def upload_file(file: UploadFile = File(...), priority: int = Form(3)):
     except Exception as e:
         logger.error(f"Error uploading file: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
-
-@app.get("/runs/{run_id}/sample/original")
-async def get_original_sample(run_id:str, db: Session = Depends(get_db)):
-    try:
-        run = db.query(PipelineRun).filter(PipelineRun.id == run_id).first()
-        if not run:
-            raise HTTPException(status_code=404, detail="Run not found")
-        
-        original_lines = []
-        input_file = Path(settings.INPUT_DIR) / run.filename
-        if not input_file.exists():
-            logger.error(f"Original sample file not found for run {run_id}")
-            raise HTTPException(status_code=404, detail="Original file not found")
-
-        try:
-            # Read only the first 10 lines to keep payload small
-            with open(input_file, "r", encoding="utf-8", errors="replace") as f:
-                for i, line in enumerate(f):
-                    if i >= 10:
-                        break
-                    original_lines.append(line.rstrip("\n"))
-        except Exception as ex:
-            logger.error(f"Error reading original file for run {run_id}: {ex}")
-            raise HTTPException(status_code=500, detail="Error reading original file")
-
-        return{
-            "Run Id": run.id,
-            "Filename": run.filename,
-            "Original Lines": original_lines
-        }
-    except Exception as e:
-        logger.error(f"Error fetching original sample for run {run_id}: {str(e)}")
-        raise HTTPException(status_code=500, detail=str(e))
-    
-@app.get("/runs/{run_id}/sample/normalized")
-async def get_normalized_sample(run_id:str, db: Session = Depends(get_db)):
-    try:
-        run = db.query(PipelineRun).filter(PipelineRun.id == run_id).first()
-        if not run:
-            raise HTTPException(status_code=404, detail="Run not found")
-        
-        original_lines = []
-        input_file = Path(settings.OUTPUT_DIR) / f"normalized_{run.filename}"
-        if not input_file.exists():
-            logger.error(f"Original sample file not found for run {run_id}")
-            raise HTTPException(status_code=404, detail="Normalized file not found")
-
-        try:
-            # Read only the first 10 lines to keep payload small
-            with open(input_file, "r", encoding="utf-8", errors="replace") as f:
-                for i, line in enumerate(f):
-                    if i >= 10:
-                        break
-                    original_lines.append(line.rstrip("\n"))
-        except Exception as ex:
-            logger.error(f"Error reading normalized file for run {run_id}: {ex}")
-            raise HTTPException(status_code=500, detail="Error reading normalized file")
-
-        return{
-            "Run Id": run.id,
-            "Filename": f"normalized_{run.filename}",
-            "Normalized Lines": original_lines
-        }
-    except Exception as e:
-        logger.error(f"Error fetching normalized sample for run {run_id}: {str(e)}")
-        raise HTTPException(status_code=500, detail=str(e))
-
 
 @app.patch("/runs/{run_id}/priority")
 async def update_run_priority(run_id: str, priority: int = Form(...), db: Session = Depends(get_db)):
@@ -786,81 +664,7 @@ async def update_run_priority(run_id: str, priority: int = Form(...), db: Sessio
         logger.error(f"Error updating priority for run {run_id}: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
-@app.post("/runs/{run_id}/retry")
-async def retry(run_id: str, db: Session = Depends(get_db)):
-    """
-    Enqueue a retry that will execute when no other runs are processing.
-    """
-    try:
-        run = db.query(PipelineRun).filter_by(id=run_id).first()
-        if not run:
-            raise HTTPException(status_code=404, detail="Run not found")
-
-        run.status = Status.ENQUEUED.value
-        run.stage_stats = None
-
-        db.commit()
-
-        return {
-            "status": "success",
-            "message": "Run enqueued for retry",
-            "run_id": run_id
-        }
-    except Exception as e:
-        logger.error(f"Error during pipeline restart: {str(e)}", exc_info=True)
-        raise HTTPException(status_code=500, detail=str(e))
-
-@app.get("/runs/{run_id}/download_be")
-async def download_be(run_id: str, db: Session = Depends(get_db)):
-    """
-    Download the normalized json for BE file for a completed run.
-    """
-    try:
-        run = db.query(PipelineRun).filter(PipelineRun.id == run_id).first()
-        if not run:
-            raise HTTPException(status_code=404, detail="Run not found")
-            
-        if run.status != 'ok':
-            raise HTTPException(
-                status_code=400,
-                detail="Cannot download file - processing not complete or failed"
-            )
-            
-        output_file = Path(settings.BE_OUTPUT_DIR) / f"be_normalized_{Path(run.filename).stem}"
-        output_archive = output_file.with_suffix('.7z')
-        if not output_archive.exists():
-            raise HTTPException(status_code=404, detail="Output file not found")
-            
-        return FileResponse(
-            str(output_archive),
-            media_type='application/x-7z-compressed',
-            filename=output_archive.name
-        )
-        
-    except HTTPException:
-        raise
-    except Exception as e:
-        logger.error(f"Error downloading JSON for run {run_id}: {str(e)}")
-        raise HTTPException(status_code=500, detail=str(e))
-
-@app.delete("/runs/{run_id}")
-async def delete_run(run_id: str, db: Session = Depends(get_db)):
-    """
-    Delete a pipeline run.
-    """
-    try:
-        run = db.query(PipelineRun).filter(PipelineRun.id == run_id).first()
-        if not run:
-            raise HTTPException(status_code=404, detail="Run not found")
-
-        db.delete(run)
-        db.commit()
-
-        return {
-            "status": "success",
-            "message": "Run deleted",
-            "run_id": run_id
-        }
-    except Exception as e:
-        logger.error(f"Error deleting run {run_id}: {str(e)}")
-        raise HTTPException(status_code=500, detail=str(e))
+@app.post("/runs/{run_id}/retry_gemini_query")
+async def retry_gemini_query(run_id: str):
+    #TODO: Implement retry_gemini_query
+    raise HTTPException(status_code=500, detail="Not implemented")

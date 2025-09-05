@@ -148,7 +148,7 @@ def calculate_known_headers_percentage(headers: List[str], known_headers: dict) 
     percentage = (known_count / total_count) * 100 if total_count > 0 else 0.0
     
     if matched_headers:
-        logger.info(f"Automatic matched headers: {', '.join(matched_headers)}")
+        logger.info(f"Matched headers: {', '.join(matched_headers)}")
     
     return percentage, known_count, total_count, standardized_headers, normalize_flags
 
@@ -190,12 +190,15 @@ def robust_read_lines(file_path: Path, logger) -> Tuple[List[str], Any, str, int
         lines = [line.replace('\r\n', '\n').replace('\r', '\n') for line in lines]
         non_empty_lines = [line for line in lines if line.strip()]
         row_count = len(lines)
+        logger.info(f"[ENCODING] Successfully read {len(lines)} lines from {file_path.name} using encoding: utf-8 (non-empty: {len(non_empty_lines)})")
         return lines, 'utf-8', None, file_size, row_count, warnings
     except UnicodeDecodeError:
         warning_msg = f"[ENCODING] UTF-8 decode failed for {file_path.name}, trying chardet and other encodings."
+        logger.warning(warning_msg)
         warnings.append(warning_msg)
     except Exception as e:
         warning_msg = f"[ENCODING] Unexpected error reading {file_path.name} as UTF-8: {e}"
+        logger.warning(warning_msg)
         warnings.append(warning_msg)
 
     encodings_to_try = []
@@ -206,10 +209,12 @@ def robust_read_lines(file_path: Path, logger) -> Tuple[List[str], Any, str, int
         detected = chardet.detect(raw)
         detected_encoding = detected['encoding']
         confidence = detected.get('confidence', 0)
+        logger.info(f"[ENCODING] Detected encoding for {file_path.name}: {detected_encoding} (confidence: {confidence})")
         if detected_encoding:
             encodings_to_try.append(detected_encoding)
     except Exception as e:
         warning_msg = f"[ENCODING] Could not detect encoding for {file_path.name}: {e}"
+        logger.warning(warning_msg)
         warnings.append(warning_msg)
     encodings_to_try += ['utf-8-sig', 'utf-16', 'utf-32', 'latin1']
     tried = set()
@@ -225,23 +230,29 @@ def robust_read_lines(file_path: Path, logger) -> Tuple[List[str], Any, str, int
             lines = [line.replace('\r\n', '\n').replace('\r', '\n') for line in lines]
             non_empty_lines = [line for line in lines if line.strip()]
             row_count = len(lines)
+            logger.info(f"[ENCODING] Tried encoding: {enc}, total lines: {len(lines)}, non-empty lines: {len(non_empty_lines)}")
             if len(non_empty_lines) > 0:
+                logger.info(f"[ENCODING] Successfully read {len(lines)} lines from {file_path.name} using encoding: {enc}")
                 return lines, enc, None, file_size, row_count, warnings
             else:
                 warning_msg = f"[ENCODING] Read 0 non-empty lines from {file_path.name} with encoding {enc}. Trying next encoding..."
+                logger.warning(warning_msg)
                 warnings.append(warning_msg)
         except Exception as e:
             warning_msg = f"[ENCODING] Failed to read {file_path.name} with encoding {enc}: {e}"
+            logger.warning(warning_msg)
             warnings.append(warning_msg)
     try:
         with open(file_path, 'rb') as f:
             raw_bytes = f.read(32)
         hex_bytes = ' '.join(f'{b:02x}' for b in raw_bytes)
         error_msg = f"[ENCODING] All encoding attempts failed for {file_path.name}. First 32 bytes (hex): {hex_bytes}"
+        logger.error(error_msg)
         warnings.append(error_msg)
     except Exception as e:
-        error_msg = f"[ENCODING] Could not read raw bytes for {file_path.name}: {e}"
-        warnings.append(error_msg)
+        warning_msg = f"[ENCODING] Could not read raw bytes for {file_path.name}: {e}"
+        logger.error(warning_msg)
+        warnings.append(warning_msg)
     return [], None, f"Could not read file with any known encoding. Tried: {list(tried)}", file_size, row_count, warnings
 
 
@@ -265,10 +276,12 @@ def classify_file(file_path: str | Path) -> dict:
     known_headers = load_known_headers()
     
     # Check for supported file types first
-    from .constants import SUPPORTED_EXTENSIONS, TEXT_EXTENSIONS, EXCEL_EXTENSIONS
+    supported_exts = {'.csv', '.tsv', '.psv', '.dat', '.data', '.txt', '.xls', '.xlsx', '.ods'}
+    text_exts = {'.csv', '.tsv', '.psv', '.dat', '.data', '.txt'}
+    excel_exts = {'.xls', '.xlsx', '.ods'}
     file_ext = file_path.suffix.lower()
 
-    if file_ext not in SUPPORTED_EXTENSIONS:
+    if file_ext not in supported_exts:
         return {
             'encoding': None, 'file_size': None, 'row_count': 0, 'is_tabular': False,
             'error_message': f'Unsupported file type: {file_path.suffix}',
@@ -297,7 +310,7 @@ def classify_file(file_path: str | Path) -> dict:
     known_per = 0
     
     # Branch logic based on file type for more accurate content validation
-    if file_ext in EXCEL_EXTENSIONS:
+    if file_ext in excel_exts:
         try:
             df = tabular_utils.read_excel_file(file_path)
             
@@ -318,6 +331,8 @@ def classify_file(file_path: str | Path) -> dict:
             if not df.empty and len(df.columns) > 0:
                 headers = [str(col) for col in df.columns]
                 known_per, known_columns_count, total_columns_count, standardized_headers, normalize_flags = calculate_known_headers_percentage(headers, known_headers)
+                logger.info(f"Excel file standardized headers: {standardized_headers}")
+                logger.info(f"Excel file normalize flags: {normalize_flags}")
                 
                 # For Excel files, separators are not applicable (columns are already separated)
                 # But we can represent it as empty separators between columns
@@ -397,7 +412,10 @@ def classify_file(file_path: str | Path) -> dict:
             if headers:
                 known_per, known_columns_count, total_columns_count, standardized_headers, normalize_flags = calculate_known_headers_percentage(headers, known_headers)
                 logger.info(f"Known headers: {known_columns_count}/{total_columns_count} ({known_per:.1f}%)")
-
+                logger.info(f"Standardized headers: {standardized_headers}")
+                logger.info(f"Normalize flags: {normalize_flags}")
+                logger.info(f"Detected {total_columns_count} columns with separator '{best_delimiter}'")
+                logger.info(f"Separators list: {separators_list}")
             
         delimiters = [',', ';', '|', '\t', ':']
         min_percent = 0.10

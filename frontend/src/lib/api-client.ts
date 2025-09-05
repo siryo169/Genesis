@@ -57,24 +57,6 @@ class ApiClient {
     return response.blob();
   }
 
-  async downloadBeProcessedFile(runId: string): Promise<Blob> {
-    const response = await fetch(`${this.baseUrl}/runs/${runId}/download_be`);
-    if (!response.ok) {
-      throw new Error(`Download failed: ${response.statusText}`);
-    }
-    return response.blob();
-  }
-
-  async uploadFile(formData : FormData){
-    return this.request('/api/upload',
-      {
-          method: 'POST',
-          body: formData
-      }
-    );
-
-  }
-
   async getStats(): Promise<{
     total: number;
     processing: number;
@@ -84,13 +66,13 @@ class ApiClient {
     return this.request('/api/pipeline/stats');
   }
 
-  async retry(runId: string): Promise<any> {
-    return this.request(`/runs/${runId}/retry`, { method: 'POST' });
+  async retryGeminiQuery(runId: string): Promise<any> {
+    return this.request(`/runs/${runId}/retry_gemini_query`, { method: 'POST' });
   }
 
   async updatePriority(runId: string, priority: number): Promise<any> {
     // Use FormData to avoid setting Content-Type manually
-    console.log(`🔧 Updating priority for run ${runId} to ${priority}`);
+
     const formData = new FormData();
     formData.append('priority', priority.toString());
 
@@ -104,49 +86,6 @@ class ApiClient {
     }
     return response.json();
   }
-
-  async deleteRun(runId: string): Promise<any> {
-    return this.request(`/runs/${runId}`, { method: 'DELETE' });
-  }
-
-async getOriginalSample(runId: string): Promise<{
-  run_id: string;
-  file_name: string;
-  original_lines: string[];
-}> {
-  // Decirle a TypeScript que la respuesta es un objeto con estas propiedades
-  const res = await this.request(`/runs/${runId}/sample/original`) as {
-    "Run Id": string;
-    Filename: string;
-    "Original Lines": string[];
-  };
-
-  return {
-    run_id: res["Run Id"],
-    file_name: res.Filename,
-    original_lines: res["Original Lines"] ?? [],
-  };
-}
-
-async getNormalizedSample(runId: string): Promise<{
-  run_id: string;
-  file_name: string;
-  normalized_lines: string[];
-}> {
-  const res = await this.request(`/runs/${runId}/sample/normalized`) as {
-    "Run Id": string;
-    Filename: string;
-    "Normalized Lines": string[];
-  };
-
-  return {
-    run_id: res["Run Id"],
-    file_name: res.Filename,
-    normalized_lines: res["Normalized Lines"] ?? [],
-  };
-}
-
-
 }
 
 export const apiClient = new ApiClient(); 

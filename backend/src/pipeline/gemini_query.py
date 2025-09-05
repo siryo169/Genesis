@@ -74,7 +74,7 @@ IMPORTANT:
   - For the row: email:password | Name: John Doe | Country: US
   - column_separators: [":", "|", "|"]
   - strip_prefixes: {{2: "Name:", 3: "Country:"}}
-- Remember there can be multiple type of separators, you should watch if they are being used as separator or not, even if the column is empty, it is a column.
+
 Please perform the following steps:
 1. For each column in the sample (indexed from 0), analyze its content to understand what kind of data it represents.
 2. Compare the content of each column to the descriptions of the known headers provided above.
@@ -212,6 +212,7 @@ def run_gemini(sample_data: List[List[str]]) -> Tuple[Dict, str, list, int, int,
                 total_token_count = prompt_token_count + candidates_token_count
                 
                 logger.info(f"Gemini token usage: Input={prompt_token_count}, Output={candidates_token_count}, Total={total_token_count}")
+                logger.info(f"Estimate vs. Actual Input Tokens: {input_token_count_estimate} vs. {prompt_token_count}")
 
                 if not response or not getattr(response, 'text', None):
                     logger.error("No response from Gemini API")
@@ -238,6 +239,11 @@ def run_gemini(sample_data: List[List[str]]) -> Tuple[Dict, str, list, int, int,
                 if missing_keys:
                     logger.error(f"Invalid mapping format from Gemini - missing keys: {missing_keys}. Got: {gemini_result.keys()}")
                     raise ValueError("Invalid mapping format from Gemini - missing required keys")
+
+                if "column_separators" in gemini_result:
+                    logger.info(f"Detected column separators: {gemini_result['column_separators']}")
+
+                logger.info(f"Successfully received and parsed mapping from Gemini. {gemini_result.get('matched_columns_count')} columns matched. Total columns: {gemini_result.get('total_columns')}")
                 logger.info(f"Gemini response content:\n {json.dumps(gemini_result, indent=2)}")
                 return gemini_result, "", warnings, prompt_token_count, candidates_token_count, total_token_count
             except concurrent.futures.TimeoutError:

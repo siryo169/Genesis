@@ -46,15 +46,9 @@ class PipelineOrchestrator:
         """
         self.db_session_factory = db_session_factory
         
-    def process_file(self, file_path: str | Path, db_session=None, start_from_stage: Stage = None, run_id: str = None) -> UUID:
+    def process_file(self, file_path: str | Path, db_session=None) -> UUID:
         """
         Process a single tabular file through all pipeline stages.
-        
-        Args:
-            file_path: Path to the file to process
-            db_session: Optional database session
-            start_from_stage: Optional stage to start processing from
-            run_id: Optional run_id to continue processing an existing run
         """
         close_session = False
         if db_session is None:
@@ -64,53 +58,28 @@ class PipelineOrchestrator:
         file_path = Path(file_path)
         filename = file_path.name
 
-        # Si tenemos un run_id, recuperar ese run específico
-        if run_id:
-            run = db_session.query(PipelineRun).filter_by(id=run_id).first()
-            if not run:
-                raise ValueError(f"Run with id {run_id} not found")
-        else:
-            # Use existing enqueued pipeline run if it exists
-            run = db_session.query(PipelineRun).filter_by(filename=filename, status=Status.ENQUEUED.value).first()
-            if not run:
-                run = PipelineRun(filename=filename, status=Status.ENQUEUED.value)
-                db_session.add(run)
-                db_session.commit()
+        # Use existing enqueued pipeline run if it exists
+        run = db_session.query(PipelineRun).filter_by(filename=filename, status=Status.ENQUEUED.value).first()
+        if not run:
+            run = PipelineRun(filename=filename, status=Status.ENQUEUED.value)
+            db_session.add(run)
+            db_session.commit()
 
         try:
             log_file = Path(settings.LOGS_DIR) / f"{run.id}_{filename}.log"
             file_handler = self._setup_logging(log_file)
             run.log_file_path = str(log_file)
-            
+
             # Set status to RUNNING at the start of actual processing
             run.status = Status.RUNNING.value
             db_session.commit()
-            # Si estamos reiniciando desde una etapa específica, saltamos las etapas anteriores
-            should_run_classification = not start_from_stage or start_from_stage == Stage.CLASSIFICATION
-            
-            if should_run_classification:
-                self._update_stage(run, Stage.CLASSIFICATION, Status.RUNNING, db_session=db_session)
-                class_result = classifier.classify_file(file_path)
-                run.file_encoding = class_result['encoding'].lower() if class_result['encoding'] else None
-                run.original_file_size = class_result['file_size']
-                run.original_row_count = class_result['row_count']
-                automatic = class_result.get('known_per', 0) >= 90
-            else:
-            # Construir class_result con los datos que ya tenemos en el run
-                class_result = {
-                    'is_tabular': True,  # Si llegó más allá de la clasificación, era tabular
-                    'file_size': run.original_file_size,
-                    'row_count': run.original_row_count,
-                    'encoding': run.file_encoding,
-                    'warnings': [],
-                    'error_message': None,
-                }
-                # Verificar en stage_stats si el procesamiento fue automático
-                stage_stats = json.loads(run.stage_stats) if run.stage_stats else {}
-                # Si Gemini y Sampling están marcados como SKIPPED, significa que fue automático
-                automatic = (stage_stats.get('sampling', {}).get('status') == Status.SKIPPED.value and 
-                           stage_stats.get('gemini_query', {}).get('status') == Status.SKIPPED.value)
-                
+
+            self._update_stage(run, Stage.CLASSIFICATION, Status.RUNNING, db_session=db_session)
+            class_result = classifier.classify_file(file_path)
+            run.file_encoding = class_result['encoding'].lower() if class_result['encoding'] else None
+            run.original_file_size = class_result['file_size']
+            run.original_row_count = class_result['row_count']
+            automatic = class_result.get('known_per', 0) >= 90
             if not class_result['is_tabular']:
                 self._update_stage(
                     run, Stage.CLASSIFICATION, Status.ERROR,
@@ -184,14 +153,11 @@ class PipelineOrchestrator:
                     (run.gemini_output_tokens or 0) * 2.50 / 1_000_000
                 )
             else:
-                
-                
                 self._update_stage(run, Stage.SAMPLING, Status.RUNNING, db_session=db_session)
                 sample_data, error_msg, sample_warnings = sampler.extract_sample(file_path, encoding=run.file_encoding)
                 if error_msg:
                     self._update_stage(run, Stage.SAMPLING, Status.ERROR, error_message=error_msg, warning='; '.join(sample_warnings) if sample_warnings else None, db_session=db_session)
                     raise ValueError(error_msg)
-                
                 # Store the sampled rows for frontend access immediately after sampling
                 try:
                     run.gemini_sample_rows = json.dumps(sample_data)
@@ -222,7 +188,7 @@ class PipelineOrchestrator:
             norm = normalizer.Normalizer(mapping)
             output_base = Path(filename).stem
             output_path = Path(settings.OUTPUT_DIR) / f"normalized_{output_base}.csv"
-            be_output_path = Path(settings.BE_OUTPUT_DIR) / f"be_normalized_{output_base}.json"
+            be_output_path = Path(settings.BE_OUTPUT_DIR) / f"be_normalized_{output_base}.csv"
             success, error_msg, norm_warnings, output_written_rows, input_processed_rows, norm_invalid_lines, output_file_size, be_output_file_size = norm.normalize_file(file_path, output_path,be_output_path, encoding=run.file_encoding)
             if not success:
                 self._update_stage(run, Stage.NORMALIZATION, Status.ERROR, error_message=error_msg, warning='; '.join(norm_warnings) if norm_warnings else None, db_session=db_session)
@@ -368,33 +334,35 @@ class PipelineOrchestrator:
         if close_session:
             db_session.close()
         
-    def _setup_logging(self, log_file: Path): 
-        # Remove all existing handlers to avoid duplicates or conflicts 
-        root_logger = logging.getLogger() 
-        for handler in list(root_logger.handlers): 
-            root_logger.removeHandler(handler) 
-        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s') 
-        # File handler 
-        file_handler = logging.FileHandler(log_file) 
-        file_handler.setFormatter(formatter) 
-        file_handler.setLevel(logging.DEBUG) 
-        root_logger.addHandler(file_handler) 
-        # Stream handler (console) with UTF-8 encoding 
-        import sys 
-        stream_handler = logging.StreamHandler(sys.stdout) 
-        stream_handler.setFormatter(formatter) 
-        stream_handler.setLevel(logging.DEBUG) 
-        # Force UTF-8 encoding for the stream handler 
-        if hasattr(stream_handler.stream, 'reconfigure'): 
-            try: 
-                stream_handler.stream.reconfigure(encoding='utf-8', errors='replace') 
-            except Exception: 
-                pass 
-        root_logger.addHandler(stream_handler) 
-        # Set root logger level 
+    def _setup_logging(self, log_file: Path):
+        """Setup file logging for this pipeline run. Ensure logs go to both file and stdout, and both outputs are identical."""
+        # Remove all existing handlers to avoid duplicates or conflicts
+        root_logger = logging.getLogger()
+        for handler in list(root_logger.handlers):
+            root_logger.removeHandler(handler)
+        
+        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        
+        # File handler
+        file_handler = logging.FileHandler(log_file)
+        file_handler.setFormatter(formatter)
+        file_handler.setLevel(logging.DEBUG)
+        root_logger.addHandler(file_handler)
+        
+        # Stream handler (console) with UTF-8 encoding
+        import sys
+        stream_handler = logging.StreamHandler(sys.stdout)
+        stream_handler.setFormatter(formatter)
+        stream_handler.setLevel(logging.DEBUG)
+        # Force UTF-8 encoding for the stream handler
+        if hasattr(stream_handler.stream, 'reconfigure'):
+            try:
+                stream_handler.stream.reconfigure(encoding='utf-8', errors='replace')
+            except Exception:
+                pass
+        root_logger.addHandler(stream_handler)
+        
+        # Set root logger level
         root_logger.setLevel(logging.DEBUG)
-
-        httpcore_logger = logging.getLogger("httpcore")
-        httpcore_logger.setLevel(logging.CRITICAL + 1)  # bloquea todo
-        httpcore_logger.propagate = False               # no propaga a root handlers
-        return file_handler
+        
+        return file_handler 

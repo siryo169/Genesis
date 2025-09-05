@@ -38,7 +38,6 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import Link from "next/link";
 import { MultiSelectFilter } from "@/components/csv-monitor/MultiSelectFilter";
 import { StatusBadge } from "@/components/csv-monitor/StatusBadge";
-import { CompareNormDialog } from "@/components/csv-monitor/CompareNormDialog";
 
 
 // Mock logs for analysis
@@ -86,10 +85,8 @@ export default function CsvMonitorPage() {
   const [modelFilter, setModelFilter] = useState<string[]>([]);
   const [fieldsFilter, setFieldsFilter] = useState("");
   const [selectedFileId, setSelectedFileId] = useState<string | null>(null);
-  const [selectedFileName, setSelectedFileName] = useState<string>("");
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
-  const [isCompareDialogOpen, setIsCompareDialogOpen] = useState(false);
-
+  
   // Add ref for Processing Status table
   const processingStatusRef = useRef<HTMLDivElement>(null);
 
@@ -232,91 +229,20 @@ export default function CsvMonitorPage() {
     }
   }, [csvData, toast]);
 
-  const handleBeDownload = useCallback(async (filename: string) => {
-    const entry = csvData.find(e => e.filename === filename);
-    if (!entry) {
-      toast({
-        title: "Download Error",
-        description: "File not found",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    try {
-      const blob = await apiClient.downloadBeProcessedFile(entry.id);
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `be_normalized_${entry.filename.replace(/\..+$/, '')}.7z`;
-      document.body.appendChild(a);
-      a.click();
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
-      
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Download failed';
-      toast({
-        title: "Download Error",
-        description: errorMessage,
-        variant: "destructive",
-      });
-    }
-  }, [csvData, toast]);
-
-  const handleNormalizeClick = useCallback((entryId: string, entryFilename: string) => {
-    setSelectedFileId(entryId);
-    setSelectedFileName(entryFilename);
-    setIsCompareDialogOpen(true);
-  }, []);
-
-  const handleDelete = useCallback(async (entryId: string) => {
-    const entry = csvData.find(e => e.id === entryId);
-    if (!entry) {
-      toast({
-        title: "Delete Error",
-        description: "File not found",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    //Pregunta para seguridad
-    const confirmed = window.confirm(`¿Estás seguro de que deseas eliminar el archivo ${entry.filename}? \n Una vez eliminado no se podrá recuperar y habrá que hacer el proceso de nuevo`);
-    if (!confirmed) return;
-
-    try {
-      await apiClient.deleteRun(entryId);
-      setCsvData(prevData => prevData.filter(e => e.id !== entryId));
-      toast({
-        title: "Delete Successful",
-        description: `File ${entry.filename} deleted successfully.`,
-        variant: "default",
-      });
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Delete failed';
-      toast({
-        title: "Delete Error",
-        description: errorMessage,
-        variant: "destructive",
-      });
-    }
-  }, [csvData, toast]);
-
   const handleRetry = useCallback(async (id: string) => {
     const entryToRetry = csvData.find(entry => entry.id === id);
     if (!entryToRetry) return;
-    if (entryToRetry.stage_stats?.gemini_query?.status === 'error' || entryToRetry.stage_stats?.normalization?.status === 'error' || entryToRetry.stage_stats?.classification?.status === 'error' || entryToRetry.stage_stats?.sampling?.status === 'error') {
+    if (entryToRetry.stage_stats?.gemini_query?.status === 'error' && entryToRetry.status === 'error') {
       try {
         toast({
-          title: "Retrying Run",
-          description: `Retrying run for ${entryToRetry.filename}`,
+          title: "Retrying Gemini Query...",
+          description: `Retrying Gemini Query for ${entryToRetry.filename}`,
           variant: "default",
         });
-        await apiClient.retry(entryToRetry.id);
+        await apiClient.retryGeminiQuery(entryToRetry.id);
         toast({
           title: "Retry Successful",
-          description: `Stages retried for ${entryToRetry.filename}`,
+          description: `Gemini Query and subsequent stages retried for ${entryToRetry.filename}`,
           variant: "default",
         });
         await handleRefresh(true);
@@ -331,7 +257,7 @@ export default function CsvMonitorPage() {
     } else {
       toast({
         title: "Retry Not Available",
-        description: "Retry is only available for files that failed.",
+        description: "Retry is only available for files that failed at the Gemini Query stage.",
         variant: "default",
       });
     }
@@ -370,7 +296,13 @@ export default function CsvMonitorPage() {
         formData.append('priority', priority.toString());
         
         // Use apiClient for upload
-        await apiClient.uploadFile(formData);
+        await apiClient.request(`/api/upload`, {
+          method: 'POST',
+          body: formData,
+          headers: {
+            'Content-Type': 'multipart/form-data'
+          }
+        });
       }
       toast({
         title: "Upload Successful",
@@ -453,52 +385,43 @@ export default function CsvMonitorPage() {
         entry.insertion_date && new Date(entry.insertion_date) <= date.to!
       );
     }
-      if (sortConfig.key !== null) {
+
+
+    if (sortConfig.key !== null) {
       sortableItems.sort((a, b) => {
-        let result = 0;
-        const statusA = getOverallStatus(a);
-        const statusB = getOverallStatus(b);
-
-        // 1. RUNNING PRIMERO: Si uno está running y el otro no, running va primero
-        if (statusA === 'running' && statusB !== 'running') return -1;
-        if (statusB === 'running' && statusA !== 'running') return 1;
-
-        // 2. ORDEN DE ESTADOS: enqueued > ok > error
-        const getStatusPriority = (status: ProcessingStatus): number => {
-          switch(status) {
-            case 'running': return 0;  // No debería llegar aquí por la condición anterior
-            case 'enqueued': return 1;
-            case 'ok': return 2;
-            case 'error': return 3;
-            default: return 4;
-          }
-        };
-
-        const statusPriorityA = getStatusPriority(statusA);
-        const statusPriorityB = getStatusPriority(statusB);
-        if (statusPriorityA !== statusPriorityB) {
-          result = statusPriorityA - statusPriorityB;
-        } else {
-          // 3. SUB-ORDENAMIENTO (igual para todos los estados)
-          // 3.1 Por prioridad (número más bajo = prioridad más alta)
-          const priorityA = a.priority || 3;
-          const priorityB = b.priority || 3;
-          if (priorityA !== priorityB) {
-            result = priorityA - priorityB;
-          } else {
-            // 3.2 Si misma prioridad, por fecha de inserción (más antiguos primero)
-            const dateA = a.insertion_date ? new Date(a.insertion_date).getTime() : 0;
-            const dateB = b.insertion_date ? new Date(b.insertion_date).getTime() : 0;
-            if (dateA !== dateB) {
-              result = dateA - dateB;
-            } else {
-              // 3.3 Si misma fecha, orden alfabético por nombre de archivo
-              result = a.filename.localeCompare(b.filename);
+        // Primary sort: by the selected column
+        const valA = a[sortConfig.key!];
+        const valB = b[sortConfig.key!];
+        
+        let comparison = 0;
+        if (sortConfig.key === 'priority') {
+            if (priorityFilter.length > 0) {
+                const priorityA = priorityFilter.includes(a.priority) ? 0 : 1;
+                const priorityB = priorityFilter.includes(b.priority) ? 0 : 1;
+                comparison = priorityA - priorityB;
             }
-          }
+            if (comparison === 0) {
+                const isRunningA = a.status === 'running' ? 1 : 0;
+                const isRunningB = b.status === 'running' ? 1 : 0;
+                comparison = isRunningB - isRunningA;
+            }
+            if (comparison === 0) {
+                comparison = (a.priority || 3) - (b.priority || 3);
+            }
+            if (comparison === 0) {
+                const dateA = a.insertion_date ? new Date(a.insertion_date).getTime() : 0;
+                const dateB = b.insertion_date ? new Date(b.insertion_date).getTime() : 0;
+                comparison = dateB - dateA; // Most recent first
+            }
+        } else if (sortConfig.key === 'insertion_date') {
+          const dateA = valA ? new Date(valA as string).getTime() : 0;
+          const dateB = valB ? new Date(valB as string).getTime() : 0;
+          comparison = dateA - dateB;
+        } else {
+          comparison = String(valA).localeCompare(String(valB));
         }
         
-        return sortConfig.direction === 'ascending' ? result : -result;
+        return sortConfig.direction === 'ascending' ? comparison : -comparison;
       });
     }
     return sortableItems;
@@ -1197,9 +1120,6 @@ export default function CsvMonitorPage() {
                     onRowClick={handleShowFileDetails}
                     onRetry={handleRetry}
                     onPriorityChange={handlePriorityChange}
-                    onDelete={handleDelete}
-                    onBeDownload={handleBeDownload}
-                    onNormalizeClick={handleNormalizeClick}
                   />
                 )}
               </CardContent>
@@ -1224,8 +1144,8 @@ export default function CsvMonitorPage() {
       </footer>
 
       <FileDetailDialog entry={selectedFile} isOpen={isDetailModalOpen} onOpenChange={setIsDetailModalOpen} />
-      <CompareNormDialog isOpen={isCompareDialogOpen} onOpenChange={setIsCompareDialogOpen} entry_ID={selectedFileId} entry_FileName={selectedFileName} onDownload={handleDownload}/>
-      <Dialog open={isUploadDialogOpen} onOpenChange={setIsUploadDialogOpen}>
+      
+       <Dialog open={isUploadDialogOpen} onOpenChange={setIsUploadDialogOpen}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Upload Files</DialogTitle>

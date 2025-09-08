@@ -275,7 +275,6 @@ export default function CsvMonitorPage() {
     setSelectedFileName(entryFilename);
     setIsCompareDialogOpen(true);
   }, []);
-
   const handleDelete = useCallback(async (entryId: string) => {
     const entry = csvData.find(e => e.id === entryId);
     if (!entry) {

@@ -41,10 +41,8 @@ def extract_sample(file_path: str | Path, encoding: str = None) -> Tuple[List[Li
                     data.append(row)
                 except Exception as e:
                     warning_msg = f"[SAMPLER] Failed to parse line: {line[:50]}... ({e})"
-                    logger.warning(warning_msg)
                     warnings.append(warning_msg)
                     continue  # skip lines that can't be parsed
-            
             logger.info(f"Extracted {len(data)} lines from {file_name} for sampling.")
             return data, "", warnings
 
@@ -61,6 +59,5 @@ def extract_sample(file_path: str | Path, encoding: str = None) -> Tuple[List[Li
 
     except Exception as e:
         error_msg = f"Error sampling {file_name}: {str(e)}"
-        logger.error(error_msg)
         warnings.append(error_msg)
         return [], error_msg, warnings

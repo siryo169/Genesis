@@ -117,14 +117,7 @@ def queue_processor(orchestrator):
             if run:
                 try:
                     logger.info(f"Processing file from queue: {run.filename} (priority {run.priority}, run {run.id})")
-                    if run.stage_stats:
-                        stats = json.loads(run.stage_stats)
-                        if (stats.get("gemini_query", {}).get("status") == Status.ERROR.value):
-                            orchestrator.process_file(Path(settings.INPUT_DIR) / run.filename, db_session, start_from_stage=Stage.GEMINI_QUERY, run_id=run.id)
-                        else:
-                            orchestrator.process_file(Path(settings.INPUT_DIR) / run.filename, db_session)
-                    else:
-                        orchestrator.process_file(Path(settings.INPUT_DIR) / run.filename, db_session)
+                    orchestrator.process_file(Path(settings.INPUT_DIR) / run.filename, db_session)
                 except Exception as e:
                     logger.error(f"Error processing file {run.filename} from queue: {e}", exc_info=True)
             else:
@@ -158,7 +151,35 @@ async def startup_event():
 
 @app.on_event("shutdown")
 async def shutdown_event():
-    """Stop the file watcher on app shutdown."""
+    db_session = SessionLocal()
+    try:
+        running_runs  = db_session.query(PipelineRun).filter(PipelineRun.status == 'running').all()
+        for run in running_runs:
+            run.status = 'error'
+            run.error_message = 'Processing interrupted due to server shutdown'
+            try:
+                stats = json.loads(run.stage_stats) if run.stage_stats else {}
+            except Exception:
+                stats = {}
+            for stage_name, stage_obj in stats.items():
+                if stage_obj.get('status') == 'running':
+                    logger.debug(f"Marking stage {stage_name} as error for run {run.id} due to shutdown")
+                    stage_obj['status'] = 'error'
+                    stage_obj['error_message'] = 'Processing interrupted due to server shutdown'
+            run.stage_stats = json.dumps(stats)
+            db_session.add(run)
+        db_session.commit()
+    except Exception as e:
+        try:
+            db_session.rollback()
+        except Exception:
+            pass
+        logger.error(f"Error marking running runs as error during shutdown: {e}", exc_info=True)
+    finally:
+        try:
+            db_session.close()
+        except Exception:
+            pass
     try:
         watcher.stop()
     except Exception as e:
@@ -216,6 +237,7 @@ async def download_csv(run_id: str, db: Session = Depends(get_db)):
     """
     Download the normalized CSV file for a completed run.
     """
+    
     try:
         run = db.query(PipelineRun).filter(PipelineRun.id == run_id).first()
         if not run:
@@ -362,109 +384,6 @@ async def get_queue_status(db: Session = Depends(get_db)):
     except Exception as e:
         logger.error(f"Error getting queue status: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
-
-@app.get("/api/pipeline/metrics")
-async def get_pipeline_metrics(range: str = "auto", bucket: str = "auto", db: Session = Depends(get_db)):
-    """
-    Aggregate token consumption and estimated cost per time bucket (hour/day/week), cumulative, for all pipeline runs.
-    Query params:
-      - range: '24h', '7d', '30d', or 'auto'
-      - bucket: 'auto', 'hour', 'day', 'week'
-    """
-    # 1. Determine time range
-    now = datetime.utcnow()
-    if range == "24h":
-        start_time = now - timedelta(hours=24)
-        bucket_size = "hour"
-    elif range == "7d":
-        start_time = now - timedelta(days=7)
-        bucket_size = "day"
-    elif range == "30d":
-        start_time = now - timedelta(days=30)
-        bucket_size = "day"
-    else:
-        # auto: use earliest record to now
-        first_run = db.query(PipelineRun).order_by(PipelineRun.insertion_date.asc()).first()
-        if first_run and first_run.insertion_date:
-            start_time = first_run.insertion_date
-        else:
-            start_time = now - timedelta(days=7)
-        delta = now - start_time
-        if delta.days < 2:
-            bucket_size = "hour"
-        elif delta.days < 60:
-            bucket_size = "day"
-        else:
-            bucket_size = "week"
-    if bucket != "auto":
-        bucket_size = bucket
-
-    # 2. Query all runs in range
-    runs = db.query(PipelineRun).filter(PipelineRun.insertion_date >= start_time).order_by(PipelineRun.insertion_date.asc()).all()
-    if not runs:
-        return {
-            "buckets": [],
-            "token_consumption": {"input": [], "output": [], "total": []},
-            "cost": [],
-            "total_files": []
-        }
-
-    # 3. Build buckets
-    def bucket_start(dt):
-        if bucket_size == "15min":
-            minute = (dt.minute // 15) * 15
-            return dt.replace(minute=minute, second=0, microsecond=0)
-        elif bucket_size == "30min":
-            minute = (dt.minute // 30) * 30
-            return dt.replace(minute=minute, second=0, microsecond=0)
-        elif bucket_size == "hour":
-            return dt.replace(minute=0, second=0, microsecond=0)
-        elif bucket_size == "day":
-            return dt.replace(hour=0, minute=0, second=0, microsecond=0)
-        elif bucket_size == "week":
-            # ISO week start (Monday)
-            return (dt - timedelta(days=dt.weekday())).replace(hour=0, minute=0, second=0, microsecond=0)
-        else:
-            return dt
-
-    # Find all bucket start times
-    bucket_map = {}
-    for run in runs:
-        b = bucket_start(run.insertion_date)
-        if b not in bucket_map:
-            bucket_map[b] = []
-        bucket_map[b].append(run)
-    sorted_buckets = sorted(bucket_map.keys())
-
-    # 4. Aggregate per-bucket (delta) values
-    input_tokens = []
-    output_tokens = []
-    total_tokens = []
-    cost = []
-    total_files = []
-    for b in sorted_buckets:
-        runs_in_bucket = bucket_map[b]
-        bucket_input = sum(run.gemini_input_tokens or 0 for run in runs_in_bucket)
-        bucket_output = sum(run.gemini_output_tokens or 0 for run in runs_in_bucket)
-        bucket_total = bucket_input + bucket_output
-        bucket_cost = sum(run.estimated_cost or 0 for run in runs_in_bucket)
-        bucket_files = len(runs_in_bucket)
-        input_tokens.append(bucket_input)
-        output_tokens.append(bucket_output)
-        total_tokens.append(bucket_total)
-        cost.append(round(bucket_cost, 6))
-        total_files.append(bucket_files)
-
-    return {
-        "buckets": [b.isoformat() + "Z" for b in sorted_buckets],
-        "token_consumption": {
-            "input": input_tokens,
-            "output": output_tokens,
-            "total": total_tokens
-        },
-        "cost": cost,
-        "total_files": total_files
-    }
 
 def convert_run_to_frontend_format(run: PipelineRun) -> Dict[str, Any]:
     """
@@ -655,6 +574,73 @@ async def upload_file(file: UploadFile = File(...), priority: int = Form(3)):
         logger.error(f"Error uploading file: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
+@app.get("/runs/{run_id}/sample/original")
+async def get_original_sample(run_id:str, db: Session = Depends(get_db)):
+    try:
+        run = db.query(PipelineRun).filter(PipelineRun.id == run_id).first()
+        if not run:
+            raise HTTPException(status_code=404, detail="Run not found")
+        
+        original_lines = []
+        input_file = Path(settings.INPUT_DIR) / run.filename
+        if not input_file.exists():
+            logger.error(f"Original sample file not found for run {run_id}")
+            raise HTTPException(status_code=404, detail="Original file not found")
+
+        try:
+            # Read only the first 10 lines to keep payload small
+            with open(input_file, "r", encoding="utf-8", errors="replace") as f:
+                for i, line in enumerate(f):
+                    if i >= 10:
+                        break
+                    original_lines.append(line.rstrip("\n"))
+        except Exception as ex:
+            logger.error(f"Error reading original file for run {run_id}: {ex}")
+            raise HTTPException(status_code=500, detail="Error reading original file")
+
+        return{
+            "Run Id": run.id,
+            "Filename": run.filename,
+            "Original Lines": original_lines
+        }
+    except Exception as e:
+        logger.error(f"Error fetching original sample for run {run_id}: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+    
+@app.get("/runs/{run_id}/sample/normalized")
+async def get_normalized_sample(run_id:str, db: Session = Depends(get_db)):
+    try:
+        run = db.query(PipelineRun).filter(PipelineRun.id == run_id).first()
+        if not run:
+            raise HTTPException(status_code=404, detail="Run not found")
+        
+        original_lines = []
+        input_file = Path(settings.OUTPUT_DIR) / f"normalized_{run.filename}"
+        if not input_file.exists():
+            logger.error(f"Original sample file not found for run {run_id}")
+            raise HTTPException(status_code=404, detail="Normalized file not found")
+
+        try:
+            # Read only the first 10 lines to keep payload small
+            with open(input_file, "r", encoding="utf-8", errors="replace") as f:
+                for i, line in enumerate(f):
+                    if i >= 10:
+                        break
+                    original_lines.append(line.rstrip("\n"))
+        except Exception as ex:
+            logger.error(f"Error reading normalized file for run {run_id}: {ex}")
+            raise HTTPException(status_code=500, detail="Error reading normalized file")
+
+        return{
+            "Run Id": run.id,
+            "Filename": f"normalized_{run.filename}",
+            "Normalized Lines": original_lines
+        }
+    except Exception as e:
+        logger.error(f"Error fetching normalized sample for run {run_id}: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 @app.patch("/runs/{run_id}/priority")
 async def update_run_priority(run_id: str, priority: int = Form(...), db: Session = Depends(get_db)):
     """
@@ -697,10 +683,10 @@ async def update_run_priority(run_id: str, priority: int = Form(...), db: Sessio
         logger.error(f"Error updating priority for run {run_id}: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
-@app.post("/runs/{run_id}/retry_gemini_query")
-async def retry_gemini_query(run_id: str, db: Session = Depends(get_db)):
+@app.post("/runs/{run_id}/retry")
+async def retry(run_id: str, db: Session = Depends(get_db)):
     """
-    Enqueue a Gemini query retry that will execute when no other runs are processing.
+    Enqueue a retry that will execute when no other runs are processing.
     """
     try:
         run = db.query(PipelineRun).filter_by(id=run_id).first()

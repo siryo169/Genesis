@@ -60,6 +60,11 @@ export class DataProvider {
         this.fallbackInterval = null;
       }
 
+      if (this.ws && (this.ws.readyState === WebSocket.OPEN || this.ws.readyState === WebSocket.CONNECTING)) {
+        console.log("WebSocket already active, skipping new connection");
+        return;
+      }
+
       this.ws = new WebSocket(config.wsBaseUrl + '/ws/pipeline');
       
       this.ws.onmessage = (event) => {

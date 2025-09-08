@@ -3,12 +3,16 @@ Pipeline Orchestrator module for coordinating tabular file processing stages (CS
 """
 import logging
 from pathlib import Path
-from datetime import datetime, timezone
+from datetime import datetime
 import shutil
 from uuid import UUID
 import json
 import re
 from enum import Enum
+import pytz
+
+# Define la zona horaria de Madrid
+madrid_tz = pytz.timezone('Europe/Madrid')
 
 from ..models.pipeline_run import PipelineRun
 from ..config.settings import settings
@@ -33,7 +37,7 @@ def ensure_aware(dt):
     if dt is None:
         return None
     if dt.tzinfo is None:
-        return dt.replace(tzinfo=timezone.utc)
+        return madrid_tz.localize(dt)
     return dt
 
 class PipelineOrchestrator:
@@ -250,7 +254,7 @@ class PipelineOrchestrator:
             )
             if all_ok:
                 run.status = Status.OK.value
-                run.end_time = datetime.now(timezone.utc)
+                run.end_time = madrid_tz.localize(datetime.now())
                 start = ensure_aware(run.start_time)
                 end = ensure_aware(run.end_time)
                 run.duration_ms = int((end - start).total_seconds() * 1000)
@@ -279,7 +283,7 @@ class PipelineOrchestrator:
             db_session.rollback()
             logger.error(f"Pipeline failed for {filename}: {str(e)}")
             run.status = Status.ERROR.value
-            run.end_time = datetime.now(timezone.utc)
+            run.end_time = madrid_tz.localize(datetime.now())
             start = ensure_aware(run.start_time)
             end = ensure_aware(run.end_time)
             run.duration_ms = int((end - start).total_seconds() * 1000)
@@ -323,7 +327,7 @@ class PipelineOrchestrator:
 
         stage_value = stage.value if isinstance(stage, Enum) else stage
         status_value = status.value if isinstance(status, Enum) else status
-        now = datetime.now(timezone.utc)
+        now = datetime.now(madrid_tz)
         # Load or initialize stage_stats
         if not run.stage_stats:
             stage_stats = {}
@@ -368,35 +372,33 @@ class PipelineOrchestrator:
         if close_session:
             db_session.close()
         
-    def _setup_logging(self, log_file: Path):
-        """Setup file logging for this pipeline run. Ensure logs go to both file and stdout, and both outputs are identical."""
-        # Remove all existing handlers to avoid duplicates or conflicts
-        root_logger = logging.getLogger()
-        for handler in list(root_logger.handlers):
-            root_logger.removeHandler(handler)
-        
-        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-        
-        # File handler
-        file_handler = logging.FileHandler(log_file)
-        file_handler.setFormatter(formatter)
-        file_handler.setLevel(logging.DEBUG)
-        root_logger.addHandler(file_handler)
-        
-        # Stream handler (console) with UTF-8 encoding
-        import sys
-        stream_handler = logging.StreamHandler(sys.stdout)
-        stream_handler.setFormatter(formatter)
-        stream_handler.setLevel(logging.DEBUG)
-        # Force UTF-8 encoding for the stream handler
-        if hasattr(stream_handler.stream, 'reconfigure'):
-            try:
-                stream_handler.stream.reconfigure(encoding='utf-8', errors='replace')
-            except Exception:
-                pass
-        root_logger.addHandler(stream_handler)
-        
-        # Set root logger level
+    def _setup_logging(self, log_file: Path): 
+        # Remove all existing handlers to avoid duplicates or conflicts 
+        root_logger = logging.getLogger() 
+        for handler in list(root_logger.handlers): 
+            root_logger.removeHandler(handler) 
+        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s') 
+        # File handler 
+        file_handler = logging.FileHandler(log_file) 
+        file_handler.setFormatter(formatter) 
+        file_handler.setLevel(logging.DEBUG) 
+        root_logger.addHandler(file_handler) 
+        # Stream handler (console) with UTF-8 encoding 
+        import sys 
+        stream_handler = logging.StreamHandler(sys.stdout) 
+        stream_handler.setFormatter(formatter) 
+        stream_handler.setLevel(logging.DEBUG) 
+        # Force UTF-8 encoding for the stream handler 
+        if hasattr(stream_handler.stream, 'reconfigure'): 
+            try: 
+                stream_handler.stream.reconfigure(encoding='utf-8', errors='replace') 
+            except Exception: 
+                pass 
+        root_logger.addHandler(stream_handler) 
+        # Set root logger level 
         root_logger.setLevel(logging.DEBUG)
-        
+
+        httpcore_logger = logging.getLogger("httpcore")
+        httpcore_logger.setLevel(logging.CRITICAL + 1)  # bloquea todo
+        httpcore_logger.propagate = False               # no propaga a root handlers
         return file_handler

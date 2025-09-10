@@ -41,7 +41,7 @@ class Normalizer:
         # Strip spaces from column separators to handle cases like " | " -> "|"
         raw_separators = gemini_result.get("column_separators")
         self.column_separators = [sep.strip() for sep in raw_separators] if raw_separators else None
-        
+        logger.debug(f"[NORMALIZER INIT] column_separators: {self.column_separators}")
         # Strip spaces from strip_prefixes to handle cases like " Name: " -> "Name: "
         raw_prefixes = gemini_result.get("strip_prefixes", {})
         self.strip_prefixes = {k: v.strip() for k, v in raw_prefixes.items()} if raw_prefixes else {}
@@ -59,13 +59,29 @@ class Normalizer:
         # Dates and phone numbers are not modified except for stripping quotes
         return val
 
+    def _protect_time_formats(self, text: str) -> str:
+        """
+        Detecta y entrecomilla patrones de hora (HH:MM o HH:MM:SS) que no estén ya entrecomillados.
+        """
+        import re
+        def quote_time(match):
+            if match.group(0).startswith('"') and match.group(0).endswith('"'):
+                return match.group(0)  # Ya está entrecomillado
+            return f'"{match.group(0)}"'
+        
+        # Patrón para HH:MM o HH:MM:SS (donde HH está entre 00-23, MM y SS entre 00-59)
+        time_pattern = r'(?<!")\b([01]\d|2[0-3]):[0-5]\d(:[0-5]\d)?\b(?!")'
+        return re.sub(time_pattern, quote_time, text)
+
     def _split_row_by_separators(self, line: str) -> list:
         """
         Split a line using the per-column separators, skipping delimiters inside quoted regions.
         If the last field is unquoted and contains fallback delimiters, split further,
         UNLESS a strip_prefix is defined for the last column, in which case do not split further.
+        First protects time formats by quoting them.
         """
-        # logger.debug(f"[SPLIT] Processing line: {line}")
+        # Proteger formatos de hora antes de procesar
+        line = self._protect_time_formats(line)
         
         def is_quoted(s):
             result = len(s) >= 2 and s.startswith('"') and s.endswith('"')
@@ -78,13 +94,10 @@ class Normalizer:
             queue = [field]
             while queue:
                 current = queue.pop(0)
-                # logger.debug(f"[SPLIT] Processing queue item: '{current}'")
                 if is_quoted(current):
-                    # logger.debug(f"[SPLIT] Field is quoted, adding as-is: '{current}'")
                     fields.append(current)
                     continue
                 for delim in delimiters:
-                    # logger.debug(f"[SPLIT] Trying delimiter: '{delim}' in '{current}'")
                     # Find delimiter outside quotes
                     in_quotes = False
                     for i, c in enumerate(current):
@@ -93,7 +106,6 @@ class Normalizer:
                         if not in_quotes and current.startswith(delim, i):
                             left = current[:i].strip()
                             right = current[i+len(delim):].strip()
-                            # logger.debug(f"[SPLIT] Found delimiter '{delim}' at position {i}, splitting into: '{left}' and '{right}'")
                             queue.insert(0, right)
                             queue.insert(0, left)
                             break
@@ -101,18 +113,14 @@ class Normalizer:
                         continue
                     break
                 else:
-                    # logger.debug(f"[SPLIT] No delimiters found in '{current}', adding as final field")
                     fields.append(current)
-            # logger.debug(f"[SPLIT] split_unquoted_fields result: {fields}")
             return fields
 
         if not self.column_separators:
             import csv
             result = next(csv.reader([line]))
-            # logger.debug(f"[SPLIT] Using standard CSV reader, result: {result}")
             return result
 
-        # logger.debug(f"[SPLIT] Using column_separators: {self.column_separators}")
         fields = []
         start = 0
         in_quotes = False
@@ -120,7 +128,6 @@ class Normalizer:
         while sep_idx < len(self.column_separators):
             sep = self.column_separators[sep_idx]
             sep_len = len(sep)
-            # logger.debug(f"[SPLIT] Looking for separator '{sep}' (index {sep_idx}) starting from position {start}")
             j = start
             while j < len(line):
                 c = line[j]
@@ -128,80 +135,59 @@ class Normalizer:
                     # Toggle in_quotes unless it's an escaped quote
                     if j+1 < len(line) and line[j+1] == '"':
                         j += 1  # skip escaped quote
-                        # logger.debug(f"[SPLIT] Skipped escaped quote at position {j-1}")
                     else:
                         in_quotes = not in_quotes
-                        # logger.debug(f"[SPLIT] Quote at position {j}, in_quotes now: {in_quotes}")
                 # Only consider separator if not in quotes
                 if not in_quotes and line.startswith(sep, j):
                     field = line[start:j]
-                    # logger.debug(f"[SPLIT] Found separator '{sep}' at position {j}, extracted field: '{field}'")
                     if is_quoted(field):
                         field = field[1:-1]
-                        # logger.debug(f"[SPLIT] Removed quotes from field: '{field}'")
                     else:
                         field = field.strip()
-                        # logger.debug(f"[SPLIT] Stripped unquoted field: '{field}'")
                     fields.append(field)
                     start = j + sep_len
                     break
                 j += 1
             else:
                 # No more separators found
-                # logger.debug(f"[SPLIT] No more separators found for separator index {sep_idx}")
                 break
             sep_idx += 1
         # Add the last field (even if empty)
         field = line[start:]
-        # logger.debug(f"[SPLIT] Last field (raw): '{field}'")
         if is_quoted(field):
             field = field[1:-1]
-            # logger.debug(f"[SPLIT] Removed quotes from last field: '{field}'")
         else:
             field = field.strip()
-            # logger.debug(f"[SPLIT] Stripped last unquoted field: '{field}'")
         fields.append(field)
-        # logger.debug(f"[SPLIT] Fields after primary splitting: {fields}")
 
         # Now, if the last field is unquoted and contains fallback delimiters, split further
         fallback_delimiters = [',', ';', '|', '\t', ':']
         last_col_idx = len(fields) - 1
         last_field = fields[-1]
-        # logger.debug(f"[SPLIT] Checking last field for fallback splitting: '{last_field}' (index {last_col_idx})")
 
         # Check if we should secure the last column (do not split if strip_prefix is defined for it)
         secure_last = False
         if self.strip_prefixes:
-            # logger.debug(f"[SPLIT] Strip prefixes defined: {self.strip_prefixes}")
             # The keys in strip_prefixes are string indices
             if str(last_col_idx) in self.strip_prefixes:
                 secure_last = True
-                # logger.debug(f"[SPLIT] Last column secured (strip_prefix defined for column {last_col_idx})")
                 # Optionally, strip the prefix if present
                 prefix = self.strip_prefixes[str(last_col_idx)]
                 if isinstance(last_field, str) and last_field.startswith(prefix):
                     # Remove the prefix and leading whitespace
                     last_field = last_field[len(prefix):].lstrip()
                     fields[-1] = last_field
-                    # logger.debug(f"[SPLIT] Stripped prefix '{prefix}' from last field: '{last_field}'")
 
         # After prefix stripping, split last field if it contains fallback delimiters (and is not quoted)
         last_field = fields[-1]
         original_last_field = line[start:]  # Get the original last field before quote stripping
-        # logger.debug(f"[SPLIT] Final check - original last field: '{original_last_field}', processed last field: '{last_field}'")
-        # logger.debug(f"[SPLIT] is_quoted check on original: {is_quoted(original_last_field)}")
-        # logger.debug(f"[SPLIT] Contains fallback delimiters: {any(d in last_field for d in fallback_delimiters)}")
         
         if not is_quoted(original_last_field) and any(d in last_field for d in fallback_delimiters):
-            # logger.debug(f"[SPLIT] Applying fallback splitting to last field: '{last_field}'")
             split_fields = split_unquoted_fields(last_field, fallback_delimiters)
             fields = fields[:-1] + split_fields
-            # logger.debug(f"[SPLIT] After fallback splitting: {fields}")
         else:
-            # logger.debug(f"[SPLIT] No fallback splitting applied")
             pass
 
-        # logger.debug(f"[SPLIT] Final result: {fields} (count: {len(fields)})")
         return fields
 
     def normalize_file(self, input_path: Path, output_path: Path, be_output_path: Path, encoding: str = None) -> Tuple[bool, str, list, int, int, list, int, int]:
@@ -269,6 +255,7 @@ class Normalizer:
                 output_written_rows += 1  # header written
                 invalid_file.write(f"Row_Number,Reason,Original_Line\n")
                 row_iter = enumerate(infile, start=1)
+                reasons = {}  # Mover la declaración fuera del if
                 if self.input_has_header:
                     # Si tiene cabecera, usar la primera línea como cabecera para reprocess
                     header_line = next(infile)
@@ -277,7 +264,6 @@ class Normalizer:
                     infile.seek(0)
                     next(row_iter)
                     input_processed_rows += 1  # header processed
-                    reasons = {}
                 for row_num, line in row_iter:
                     orig_line = line.rstrip('\n')
                     if not orig_line.strip():
